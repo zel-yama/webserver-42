@@ -1,0 +1,123 @@
+
+
+// file should exetenction FileName.conf 
+// location Where to find files for this path 
+
+    
+//     allow methods 
+//     listing off on 
+// server{
+//         Purpose: defines one server instance with IP, port, error pages, and location blocks.
+
+//         Mandatory attributes:
+
+//         listen → IP and port
+
+//         client_max_body_size → max request size
+
+//         At least one location block
+
+//         Optional attributes:
+
+//         server_name
+
+//         error_page (other than default)
+
+//         Any custom global directives
+
+//         locatoin {
+            
+//             Purpose: define rules for a specific URL path.
+
+//             Mandatory attributes inside a location:
+
+//             root
+
+//             index
+
+//             allow_methods
+
+//             autoindex
+
+//             Optional attributes:
+
+//             cgi_extension + cgi_path
+
+//             upload_store
+
+//             return <code> <url>; for redirection
+//             diractives{
+//                 Examples:
+//                 root /var/www/html;
+
+//                 index index.html;
+
+//                 allow_methods GET POST;
+
+//                 autoindex on;
+
+//                 cgi_extension .php;
+
+//                 cgi_path /usr/bin/php-cgi;
+
+//                 upload_store /var/www/uploads;
+
+//                 error_page 404 /errors/404.html;
+
+//                 client_max_body_size 2000000;
+//             }
+
+//         }
+    
+//     }
+
+//     RULES{
+     
+    
+//     Every directive ends with ;
+
+//     Every block { ... } is properly closed
+
+//     Each server must have at least one location
+
+//     Each location must define mandatory attributes
+
+//     Only recognized directives are allowed
+
+//     Nested blocks must follow proper order (server → location)
+//}
+
+    
++------------------+
+|  servers (vector)|
++------------------+
+        |
+        |  contains multiple Server objects
+        v
+   +------------------------+
+   |       Server           |
+   +------------------------+
+   | listen_ip              |
+   | listen_port            |
+   | max_body_size          |
+   | locations (vector)     |  --> multiple Location objects
+   +------------------------+
+               |
+               v
+        +------------------+
+        |     Location     |
+        +------------------+
+        | path             |
+        | directives (vector) | --> multiple Directive objects
+        +------------------+
+                  |
+                  v
+           +----------------+
+           |   Directive    |
+           +----------------+
+           | name           |  (e.g., "root", "index")
+           | args (vector)  |  (e.g., ["index.html"], ["GET","POST"])
+           +----------------+
+
+toknizer is good to parsing like {} and path location 
+port var should be like IP:PORT 

@@ -6,6 +6,7 @@
 #include <cstring>
 #include <vector>
 #include <map>
+#include <fstream>
 using namespace std;
 
 typedef struct ListenPort{
@@ -13,12 +14,10 @@ typedef struct ListenPort{
     unsigned int Listport;
 } AddressPort;
 typedef struct Locations{
+    string path;
+    vector<string> directives;
 
-
-};
-typedef struct Directives{
-
-};
+} Locations;
 
 class Server{
 
@@ -26,9 +25,10 @@ class Server{
         AddressPort Address;
         string ServerName;
         string ClientMaxBody;
-        vector<int, string> D_ErrorPages; //exit code with error page to that error 
-        // string *AllowMethods;
-        // bool    AutoIndex;
+        vector<int> D_ErrorPages; //exit code with error page to that error 
+        Locations located;
+    public:
+        void  parsing(string FileName);        
 
 
 

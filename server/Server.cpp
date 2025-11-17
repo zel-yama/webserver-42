@@ -24,6 +24,7 @@ void Server::parsing(string FileName){
         cout << *it << endl;
         line = *it;
         if ( line.compare("listen"))
+        
             Server::FillPort(*it);
         if (line.compare("location"))
 

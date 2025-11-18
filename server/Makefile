@@ -3,7 +3,7 @@ NAME = server
 FILES = main.cpp  Server.cpp
 RM  = rm -rf 
 OBJ = $(FILES:.cpp=.o) 
-CC = c++
+CC = c++ -std=c++98 
 FLAGS = #-Werror -Wextra -Wall  -std=c++98
 
 %.o:%.cpp Server.hpp

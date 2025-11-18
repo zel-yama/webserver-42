@@ -7,16 +7,18 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <sstream> 
+
 using namespace std;
+typedef map<string, string>::iterator iter;
 
 typedef struct ListenPort{
-    unsigned int IPAddress;
+    string      IPAddress;
     unsigned int Listport;
 } AddressPort;
 typedef struct Locations{
     string path;
-    vector<string> directives;
-
+    map<string,string> directives;
 } Locations;
 
 class Server{
@@ -25,8 +27,9 @@ class Server{
         AddressPort Address;
         string ServerName;
         string ClientMaxBody;
-        vector<pair<int, string>> D_ErrorPages; //exit code with error page to that error 
+        vector<pair<int, string > > D_ErrorPages; //exit code with error page to that error 
         Locations located;
+        string getValue(string line, string &var);
     public:
         void  parsing(string FileName);  
         void  FillLocation(vector<string>::iterator it ); 

@@ -4,12 +4,12 @@
 
 #include "Server.hpp"
 
-class Client{
+class Client: public Config{
 
     public:
         int fd;
         struct sockaddr_in ClientSock;
-    
+        struct epoll_event data;
 
 };
 

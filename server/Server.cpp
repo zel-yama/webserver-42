@@ -83,6 +83,8 @@ Client Server::acceptClient(){
         cerr << ss.str() << endl;
         exit(1);
     }
+    newOne.data.events = EPOLLIN | EPOLLOUT;
+    newOne.data.data.fd = newOne.fd;
     return newOne;
 }
 void Server::listenFunction(){
@@ -110,5 +112,7 @@ int Server::CreateServer(int port, string ipaddress){
         return 1;
     }
     listenFunction();
+    data.events = EPOLLIN;
+    data.data.fd = fd;
     return fd;
 }

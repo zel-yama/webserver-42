@@ -14,7 +14,12 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-
+#include <sys/epoll.h>
+#include "Config.hpp"
+#include "Client.hpp"
+ #include <stdlib.h>
+ #include <cerrno>
+ #include "fcntl.h"
 using namespace std;
 typedef map<string, string>::iterator iter;
 
@@ -27,9 +32,10 @@ typedef struct Locations{
     map<string,string> directives;
 } Locations;
 
-class Server{
+class Server : public Config {
 
-    private:
+    public:
+        struct epoll_event data;
         AddressPort Address;
         int fd;
         struct sockaddr_in addressServer;
@@ -42,7 +48,6 @@ class Server{
         void  getMethods(string &line );   
         void  FillPort(string line ); 
         void  FillLocation(vector<string>::iterator it ); 
-    public:
         void  parsing(string FileName);  
         vector<string>  split(string line, char delimiter);
         int  CreateServer(int port, string ipaddress );
@@ -51,6 +56,8 @@ class Server{
 
 
 };
+int makeNonBlockingFD(int socket);
+void eventLoop(Server serv );
 
 
 

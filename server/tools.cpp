@@ -24,4 +24,8 @@ vector<string> Server::split(string line, char delimiter){
  
     return v;
 }
-`
+int makeNonBlockingFD(int socket){
+    int flag = fcntl(socket, F_GETFL);
+    fcntl(socket, F_SETFL,flag  | O_NONBLOCK );
+    return (socket);
+    }

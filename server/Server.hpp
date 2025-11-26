@@ -20,6 +20,9 @@
  #include <stdlib.h>
  #include <cerrno>
  #include "fcntl.h"
+ #define MAXEVENT 1000
+ #define MAXCLIENT 1000
+ 
 using namespace std;
 typedef map<string, string>::iterator iter;
 
@@ -35,6 +38,8 @@ typedef struct Locations{
 class Server : public Config {
 
     public:
+        string name ;
+        Server();
         struct epoll_event data;
         AddressPort Address;
         int fd;
@@ -58,7 +63,7 @@ class Server : public Config {
 };
 int makeNonBlockingFD(int socket);
 void eventLoop(Server serv );
-
+int addSockettoEpoll(int fdEp, struct epoll_event  data);
 
 
 

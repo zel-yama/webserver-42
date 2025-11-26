@@ -19,9 +19,6 @@ vector<string> Server::split(string line, char delimiter){
     for(vector<string>::iterator it = v.begin(); it != v.end(); it++  ){
         cout << *it << endl;
     }
-    
- 
- 
     return v;
 }
 int makeNonBlockingFD(int socket){
@@ -29,3 +26,12 @@ int makeNonBlockingFD(int socket){
     fcntl(socket, F_SETFL,flag  | O_NONBLOCK );
     return (socket);
     }
+int addSockettoEpoll(int fdEp, struct epoll_event  data){
+
+    if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
+    {
+        cerr << "error to add socket to server " << endl;
+        return -1;
+    }
+    return 0;
+}

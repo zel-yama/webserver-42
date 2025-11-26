@@ -18,6 +18,9 @@ void Server::FillPort(string line ){
     ss >> this->Address.Listport;
     this->Address.IPAddress = ipaddress;
 }
+Server::Server(){
+    name = "Server";
+}
 string Server::getValue(string line, string &var ){
     
     for (int i = 0; i < line.size(); i++){
@@ -75,15 +78,17 @@ void Server::parsing(string FileName){
 }
 Client Server::acceptClient(){
     Client newOne;
+    newOne.name = "client";
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
+    newOne.fd = makeNonBlockingFD(newOne.fd);
     if (newOne.fd < 0){
         ostringstream ss;
         ss << "server failed to accept connection from address " << inet_ntoa(newOne.ClientSock.sin_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);
         cerr << ss.str() << endl;
         exit(1);
     }
-    newOne.data.events = EPOLLIN | EPOLLOUT;
+    newOne.data.events = EPOLLIN;
     newOne.data.data.fd = newOne.fd;
     return newOne;
 }

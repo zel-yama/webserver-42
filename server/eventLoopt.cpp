@@ -12,15 +12,12 @@ void eventLoop(Server serv ){
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
     }
-    //add server to epoll 
-   if ( epoll_ctl(fdEp,  EPOLL_CTL_ADD, serv.fd, &serv.data) == -1)
-    {
-        cerr << "error in epoll_ctl  " << errno << endl;
-    }
-    struct epoll_event events[10];
+    //add server to epoll here should loop to add all server 
+    addSockettoEpoll(fdEp, serv.data);
+    struct epoll_event events[MAXEVENT];
     cout << "************ event loop start ***********" << endl;
     while(1){
-        n = epoll_wait(fdEp, events, 10, 1515);
+        n = epoll_wait(fdEp, events, MAXEVENT,-1);
         if (n == -1)
         {
             cerr << "error in epoll_wait  " << errno << endl;
@@ -28,14 +25,20 @@ void eventLoop(Server serv ){
         }
         for(int i = 0; i < n; i++){
             if (events[i].data.fd & EPOLLIN){
-               Cli =  serv.acceptClient();
-               cout << "accept " << Cli.fd << " from server " << serv.fd << endl;
-              if (epoll_ctl(fdEp, EPOLL_CTL_ADD, Cli.fd, &Cli.data) == -1)
-                cerr << "error in accept client " << errno << endl;
-                int j = read(events[i].data.fd,buffer, 23 );
-                    cout << "we get some data " << endl;
-                    // buffer[j-1] = '\0';
-                   printf("this %s\n" , buffer);
+                // here should check is server to accept client or client to read data it 
+                //if request 
+                    Cli =  serv.acceptClient();
+                    cout << "accept " << Cli.fd << " from server " << serv.fd << endl;
+  //                addSockettoEpoll();
+                /// here if client should check client whom make event and u should read request if request is finish u should change status to EPULLOUT to monitoring to sending 
+                    // response 
+                    int j = read(events[i].data.fd,buffer, 23 );
+                        cout << "we get some data " << endl;
+                        // buffer[j-1] = '\0';
+                        printf("this %s\n" , buffer);
+            }
+            if (events[i].data.fd & EPOLLOUT){
+                // send response and change status to 
             }
         }
     }

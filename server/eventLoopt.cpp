@@ -1,6 +1,23 @@
 
 #include "Server.hpp"
 
+int creatEpoll( maptype config){
+
+    int fdEp;
+    fdEp = epoll_create(5);
+    if (fdEp == -1){
+        cerr << "error in creating epoll " << errno << endl;
+    }
+    for(ConfigIter it = config.begin(); it != config.end(); it++)
+   {
+        
+        Server *serv = dynamic_cast<Server*>(it->second);
+       addSockettoEpoll(fdEp, serv->data);
+
+   }
+    return fdEp;
+}
+
 void eventLoop(Server serv ){
     
     int fdEp;
@@ -8,12 +25,7 @@ void eventLoop(Server serv ){
     int n;
     char buffer[23];
     
-    fdEp = epoll_create(5);
-    if (fdEp == -1){
-        cerr << "error in creating epoll " << errno << endl;
-    }
-    //add server to epoll here should loop to add all server 
-    addSockettoEpoll(fdEp, serv.data);
+    
     struct epoll_event events[MAXEVENT];
     cout << "************ event loop start ***********" << endl;
     while(1){

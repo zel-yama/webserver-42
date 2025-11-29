@@ -25,6 +25,8 @@
  
 using namespace std;
 typedef map<string, string>::iterator iter;
+typedef map<int,Config*>::iterator ConfigIter;
+typedef map<int, Config*> maptype;
 
 typedef struct ListenPort{
     string      IPAddress;
@@ -38,9 +40,7 @@ typedef struct Locations{
 class Server : public Config {
 
     public:
-        string name ;
         Server();
-        struct epoll_event data;
         AddressPort Address;
         int fd;
         struct sockaddr_in addressServer;

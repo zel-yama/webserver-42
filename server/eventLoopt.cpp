@@ -3,15 +3,25 @@
 
 int readRequest(int fd){
 
-    if (1){
-        return 1  ;
+    static vector<string> buff;
+    char buffer[110];
+    int i = 0;
+    string str;
+    while((i = read(fd, buffer, 110)) < 0){
+        buffer[i] = '\0';
+        buff.push_back(buffer);
+    }
+    for(vector<string>::iterator it = buff.begin(); it != buff.end(); it++){
+        if (!str.compare("\r\n"))
+            return 1;
+        cout << *it << endl;
     }
     return 0;
 }
 int creatEpoll( maptype config){
 
     int fdEp;
-    fdEp = epoll_create(5);
+    fdEp = epoll_create(8);
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
     }
@@ -57,7 +67,6 @@ void eventLoop(maptype config ){
                     if (readRequest(Cli->fd) == 1);
                         Cli->data.events = EPOLLOUT;
                 }
-                    
             }
             if (events[i].data.fd & EPOLLOUT){
                 // send response and change status to 

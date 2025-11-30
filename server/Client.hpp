@@ -9,6 +9,7 @@ class Client: public Config{
     public:
         int fd;
         struct sockaddr_in ClientSock;
+        bool keepAlive;
         
 
 };

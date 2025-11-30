@@ -29,6 +29,7 @@ int creatEpoll( maptype config){
    {
         
         Server *serv = dynamic_cast<Server*>(it->second);
+
        addSockettoEpoll(fdEp, serv->data);
 
    }
@@ -60,9 +61,13 @@ void eventLoop(maptype config ){
                     newClient =  serv->acceptClient();
                     config.insert(pair<int,Config *>(newClient.fd, &newClient));
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
+                    cout << config.size() << endl;
+                    readRequest(newClient.fd);
+                    continue;
                 }
                 if (config.at(events[i].data.fd)->name == "Client")
                 {
+                    cout << "read request " << endl;
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                     if (readRequest(Cli->fd) == 1);
                         Cli->data.events = EPOLLOUT;

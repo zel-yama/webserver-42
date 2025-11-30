@@ -1,6 +1,13 @@
 
 #include "Server.hpp"
 
+int readRequest(int fd){
+
+    if (1){
+        return 1  ;
+    }
+    return 0;
+}
 int creatEpoll( maptype config){
 
     int fdEp;
@@ -18,14 +25,15 @@ int creatEpoll( maptype config){
     return fdEp;
 }
 
-void eventLoop(Server serv ){
+void eventLoop(maptype config ){
     
     int fdEp;
-    Client Cli;
+    Client *Cli;
+    Client  newClient;
+    Server *serv;
     int n;
-    char buffer[23];
     
-    
+    fdEp = creatEpoll(config);
     struct epoll_event events[MAXEVENT];
     cout << "************ event loop start ***********" << endl;
     while(1){
@@ -37,17 +45,19 @@ void eventLoop(Server serv ){
         }
         for(int i = 0; i < n; i++){
             if (events[i].data.fd & EPOLLIN){
-                // here should check is server to accept client or client to read data it 
-                //if request 
-                    Cli =  serv.acceptClient();
-                    cout << "accept " << Cli.fd << " from server " << serv.fd << endl;
-  //                addSockettoEpoll();
-                /// here if client should check client whom make event and u should read request if request is finish u should change status to EPULLOUT to monitoring to sending 
-                    // response 
-                    int j = read(events[i].data.fd,buffer, 23 );
-                        cout << "we get some data " << endl;
-                        // buffer[j-1] = '\0';
-                        printf("this %s\n" , buffer);
+                if (config.at(events[i].data.fd)->name == "Server"){
+                    serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
+                    newClient =  serv->acceptClient();
+                    config.insert(pair<int,Config *>(newClient.fd, &newClient));
+                    cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
+                }
+                if (config.at(events[i].data.fd)->name == "Client")
+                {
+                    Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                    if (readRequest(Cli->fd) == 1);
+                        Cli->data.events = EPOLLOUT;
+                }
+                    
             }
             if (events[i].data.fd & EPOLLOUT){
                 // send response and change status to 

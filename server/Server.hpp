@@ -62,7 +62,7 @@ class Server : public Config {
 
 };
 int makeNonBlockingFD(int socket);
-void eventLoop(Server serv );
+void eventLoop(maptype config );
 int addSockettoEpoll(int fdEp, struct epoll_event  data);
 
 

@@ -4,12 +4,16 @@
 int readRequest(int fd){
 
     static vector<string> buff;
-    char buffer[110];
+    char buffer[23] ;
     int i = 0;
     string str;
-    while((i = read(fd, buffer, 110)) < 0){
+    while(( i = read(fd, buffer, 30))){
         buffer[i] = '\0';
+	cout << buffer << endl;
         buff.push_back(buffer);
+	break;
+	
+	
     }
     for(vector<string>::iterator it = buff.begin(); it != buff.end(); it++){
         if (!str.compare("\r\n"))
@@ -48,8 +52,10 @@ void eventLoop(maptype config ){
     struct epoll_event events[MAXEVENT];
     cout << "************ event loop start ***********" << endl;
     while(1){
-        n = epoll_wait(fdEp, events, MAXEVENT,-1);
-        if (n == -1)
+        cout << "wait Epoll event " << endl;
+
+	n = epoll_wait(fdEp, events, MAXEVENT,-1);
+        if (n == -2)
         {
             cerr << "error in epoll_wait  " << errno << endl;
             exit(1);
@@ -59,22 +65,24 @@ void eventLoop(maptype config ){
                 if (config.at(events[i].data.fd)->name == "Server"){
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
                     newClient =  serv->acceptClient();
-                    config.insert(pair<int,Config *>(newClient.fd, &newClient));
+                    
+		    config.insert(pair<int,Config *>(newClient.fd, &newClient));
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
-                    cout << config.size() << endl;
-                    readRequest(newClient.fd);
-                    continue;
+		    addSockettoEpoll(fdEp,newClient.data);                    
+		    break;
                 }
                 if (config.at(events[i].data.fd)->name == "Client")
                 {
                     cout << "read request " << endl;
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+		    readRequest(Cli->fd);
                     if (readRequest(Cli->fd) == 1);
                         Cli->data.events = EPOLLOUT;
                 }
             }
             if (events[i].data.fd & EPOLLOUT){
-                // send response and change status to 
+		    
+	         write(events[i].data.fd, "yes this is reponse",47);  
             }
         }
     }

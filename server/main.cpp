@@ -4,12 +4,10 @@
 int main(int av, char *argc[]){
 
     Server Serv;
-    if ( av != 2)
-    {
-        cerr << "invalid input arguments " << endl;
-        return 1;
-    }
-    Serv.parsing(argc[1]);
+    maptype config; // parsing and fill this array create server and fill this  
+    Serv.CreateServer(150, "0.0.0.0");
+    config.insert(pair<int, Config *>(Serv.fd, &Serv));
 
+    eventLoop( config);
 
 }

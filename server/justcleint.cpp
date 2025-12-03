@@ -20,7 +20,7 @@ int main()
     // 2. Server address (localhost = 127.0.0.1)
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(15);
+    server_addr.sin_port = htons(8080);
 
     // Convert "127.0.0.1" to binary form
     if (inet_pton(AF_INET, "0.0.0.0", &server_addr.sin_addr) <= 0) {

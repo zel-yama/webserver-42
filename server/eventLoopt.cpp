@@ -82,6 +82,7 @@ void eventLoop(maptype config ){
                   cerr << "error in send operatio" << endl;
                    continue;
                 } 
+                //close or poll in in case 
                  close(events[i].data.fd);
             }
         }

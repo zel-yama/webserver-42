@@ -38,7 +38,16 @@ int creatEpoll( maptype config){
    }
     return fdEp;
 }
+void setClientSend(int fdEp,  Client &Clien){
 
+    Clien.data.events = EPOLLOUT;
+    epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, NULL);
+}
+void setClientRead(int fdEp, Client& clien ){
+
+    clien.data.events = EPOLLOUT; 
+    epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, NULL);
+}
 void eventLoop(maptype config ){
     
     int fdEp;
@@ -79,6 +88,7 @@ void eventLoop(maptype config ){
                 }
             }
             if (events[i].data.fd & EPOLLOUT){
+                cout << "is here " << "u reach " << endl;
                 if(send(events[i].data.fd, "yes this is reponse",47, MSG_DONTWAIT) == -1){
                   cerr << "error in send operatio" << endl;
                    

@@ -65,11 +65,12 @@ void eventLoop(maptype config ){
                     config.insert(pair<int,Config *>(newClient.fd, &newClient));
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
                     addSockettoEpoll(fdEp,newClient.data);                    
-                    continue;
+                    continue; 
                 }
                 if (config.at(events[i].data.fd)->name == "Client")
                 {
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                   
                     if (readRequest(Cli->fd) == 1)
                     {
                         Cli->data.events = EPOLLOUT;
@@ -80,10 +81,12 @@ void eventLoop(maptype config ){
             if (events[i].data.fd & EPOLLOUT){
                 if(send(events[i].data.fd, "yes this is reponse",47, MSG_DONTWAIT) == -1){
                   cerr << "error in send operatio" << endl;
-                   continue;
+                   
                 } 
                 //close or poll in in case 
-                 close(events[i].data.fd);
+                epoll_ctl(fdEp, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+                close(events[i].data.fd);
+                config.erase(events[i].data.fd);
             }
         }
     }

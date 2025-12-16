@@ -2,6 +2,7 @@
 
 #include "Server.hpp"
 #include "Client.hpp"
+#include <stdexcept>
 void Server::FillPort(string line ){
 
     stringstream ss(line);
@@ -95,9 +96,7 @@ Client Server::acceptClient(){
 void Server::listenFunction(){
    
     if (listen(fd, 30) < 0){
-        cerr << "error in listen operation " << endl;
-        return ;
-    }
+       throw runtime_error("error in to listen that port ");}
     ostringstream ss;
     ss << "\n ** server IP address " << inet_ntoa(addressServer.sin_addr) <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
     cout << ss.str() << endl;
@@ -106,15 +105,13 @@ int Server::CreateServer(int port, string ipaddress){
     fd =  socket(AF_INET, SOCK_STREAM, 0);
     if (fd == -1)
     {
-        cerr << " error in socket creating " << endl;
-        return -1;
+        throw runtime_error("error in in create socket socket function");
     }
     addressServer.sin_family = AF_INET;
     addressServer.sin_port = htons(port);
     addressServer.sin_addr.s_addr = inet_addr(ipaddress.c_str());
     if (bind(fd, reinterpret_cast<sockaddr *>(&addressServer),sizeof(addressServer)) < 0){
-        cerr << "error in bind operation " << endl;
-        return 1;
+        throw runtime_error("error in bind operatoin bind function ");
     }
     listenFunction();
     data.events = EPOLLIN;

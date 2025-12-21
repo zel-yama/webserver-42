@@ -35,3 +35,19 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
     }
     return 0;
 }
+void setClientSend(int fdEp,  Client &Clien){
+
+    Clien.data.events = EPOLLOUT;
+    epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, NULL);
+}
+void setClientRead(int fdEp, Client& clien ){
+
+    clien.data.events = EPOLLIN; 
+    epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, NULL);
+}
+void deleteClient(maptype& config, int fd, int fdEP){
+    epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL);
+    close(fd);
+    config.erase(fd);
+    sleep(10);
+}

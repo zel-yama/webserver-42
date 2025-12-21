@@ -121,3 +121,6 @@
 
 toknizer is good to parsing like {} and path location 
 port var should be like IP:PORT 
+readme resource 
+https://web.stanford.edu/class/archive/cs/cs110/cs110.1206/lectures/19-slides.pdf
+https://www.ibm.com/docs/en/i/7.2.0?topic=designs-example-nonblocking-io-select

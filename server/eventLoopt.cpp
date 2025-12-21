@@ -1,21 +1,21 @@
 
 #include "Server.hpp"
 #include <stdexcept>
-
+#include "tools.hpp"
 int readRequest(int fd){
 
     static vector<string> buff;
     char buffer[1280] ;
     int i = 0;
     string str;
-    while(( i = recv(fd, buffer, 1280, MSG_DONTWAIT )) > 0){
+    while((i = recv(fd, buffer, 1280, MSG_DONTWAIT )) > 0){
         buffer[i] = '\0';
 
         buff.push_back(buffer);
     }
     for(vector<string>::iterator it = buff.begin(); it != buff.end(); it++){
         str = *it;
-        cout << *it << endl;
+        //cout << *it << endl;
         if (strstr(str.c_str(), "\r\n\r\n"))
             return 1;
     }
@@ -28,6 +28,7 @@ int creatEpoll( maptype config){
 
     int fdEp;
     fdEp = epoll_create(8);
+    makeNonBlockingFD(fdEp);
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
     }
@@ -38,16 +39,7 @@ int creatEpoll( maptype config){
    }
     return fdEp;
 }
-void setClientSend(int fdEp,  Client &Clien){
 
-    Clien.data.events = EPOLLOUT;
-    epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, NULL);
-}
-void setClientRead(int fdEp, Client& clien ){
-
-    clien.data.events = EPOLLOUT; 
-    epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, NULL);
-}
 void eventLoop(maptype config ){
     
     int fdEp;
@@ -82,21 +74,20 @@ void eventLoop(maptype config ){
                    
                     if (readRequest(Cli->fd) == 1)
                     {
-                        Cli->data.events = EPOLLOUT;
-                        continue;
+                        setClientSend(fdEp, *Cli);
+                      //  continue;
                     }
                 }
             }
             if (events[i].data.fd & EPOLLOUT){
                 cout << "is here " << "u reach " << endl;
-                if(send(events[i].data.fd, "yes this is reponse",47, MSG_DONTWAIT) == -1){
+                if(send(events[i].data.fd, "<p>this is response </p><h1>this is title</h1>",47, MSG_DONTWAIT) == -1){
                   cerr << "error in send operatio" << endl;
                    
                 } 
+                cout << "here is delete socket "<< endl;
                 //close or poll in in case 
-                epoll_ctl(fdEp, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-                close(events[i].data.fd);
-                config.erase(events[i].data.fd);
+                deleteClient(config,events[i].data.fd, fdEp);
             }
         }
     }

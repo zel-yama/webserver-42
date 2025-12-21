@@ -20,6 +20,7 @@
  #include <stdlib.h>
  #include <cerrno>
  #include "fcntl.h"
+ #include <unistd.h>
  #define MAXEVENT 1000
  #define MAXCLIENT 1000
  

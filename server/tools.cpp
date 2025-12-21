@@ -46,8 +46,26 @@ void setClientRead(int fdEp, Client& clien ){
     epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, NULL);
 }
 void deleteClient(maptype& config, int fd, int fdEP){
-    epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL);
+    
+   if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
+    cerr << "error in remove from fd Epoll " << errno << endl;
+   }
     close(fd);
     config.erase(fd);
-    sleep(10);
+}
+
+int creatEpoll( maptype config){
+
+    int fdEp;
+    fdEp = epoll_create(8);
+    makeNonBlockingFD(fdEp);
+    if (fdEp == -1){
+        cerr << "error in creating epoll " << errno << endl;
+    }
+    for(ConfigIter it = config.begin(); it != config.end(); it++)
+   { 
+        Server *serv = dynamic_cast<Server*>(it->second);
+       addSockettoEpoll(fdEp, serv->data);
+   }
+    return fdEp;
 }

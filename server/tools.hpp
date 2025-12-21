@@ -2,8 +2,8 @@
 #define TOOLS_HPP
 #include "Server.hpp"
 
-void setClientSend(int fdEp,  Client &Clien);
-void setClientRead(int fdEp, Client& clien );
-void deleteClient(maptype& config, int fd, int fdEP);
-
+void    setClientSend(int fdEp,  Client &Clien);
+void    setClientRead(int fdEp, Client& clien );
+void    deleteClient(maptype& config, int fd, int fdEP);
+int     creatEpoll( maptype config);
 #endif

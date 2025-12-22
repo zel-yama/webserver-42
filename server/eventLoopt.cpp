@@ -1,14 +1,14 @@
 
 #include "Server.hpp"
 #include <stdexcept>
-
+#include "tools.hpp"
 int readRequest(int fd){
 
     static vector<string> buff;
     char buffer[1280] ;
     int i = 0;
     string str;
-    while(( i = recv(fd, buffer, 1280, MSG_DONTWAIT )) > 0){
+    while((i = recv(fd, buffer, 1280, MSG_DONTWAIT )) > 0){
         buffer[i] = '\0';
 
         buff.push_back(buffer);
@@ -24,30 +24,8 @@ int readRequest(int fd){
 // void acceptAddClient(Config &data, int FdEP){
     
 // }
-int creatEpoll( maptype config){
 
-    int fdEp;
-    fdEp = epoll_create(8);
-    if (fdEp == -1){
-        cerr << "error in creating epoll " << errno << endl;
-    }
-    for(ConfigIter it = config.begin(); it != config.end(); it++)
-   { 
-        Server *serv = dynamic_cast<Server*>(it->second);
-       addSockettoEpoll(fdEp, serv->data);
-   }
-    return fdEp;
-}
-void setClientSend(int fdEp,  Client &Clien){
 
-    Clien.data.events = EPOLLOUT;
-    epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, NULL);
-}
-void setClientRead(int fdEp, Client& clien ){
-
-    clien.data.events = EPOLLOUT; 
-    epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, NULL);
-}
 void eventLoop(maptype config ){
     
     int fdEp;
@@ -63,17 +41,23 @@ void eventLoop(maptype config ){
         cout << "wait Epoll event " << endl;
 
 	n = epoll_wait(fdEp, events, MAXEVENT,-1);
+    cout << "this is n return by epoll wait -> " << n <<endl;
         if (n == -2){
             throw runtime_error("error in epoll wait function ");}
         for(int i = 0; i < n; i++){
-            if (events[i].data.fd & EPOLLIN){
+            if (events[i].events & EPOLLIN){
                 if (config.at(events[i].data.fd)->name == "Server"){
+
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
+
                     newClient =  serv->acceptClient();
                     
                     config.insert(pair<int,Config *>(newClient.fd, &newClient));
+
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
-                    addSockettoEpoll(fdEp,newClient.data);                    
+
+                    addSockettoEpoll(fdEp,newClient.data);               
+
                     continue; 
                 }
                 if (config.at(events[i].data.fd)->name == "Client")
@@ -82,21 +66,20 @@ void eventLoop(maptype config ){
                    
                     if (readRequest(Cli->fd) == 1)
                     {
-                        Cli->data.events = EPOLLOUT;
-                        continue;
+                        setClientSend(fdEp, *Cli);
+                       //continue;
                     }
                 }
             }
-            if (events[i].data.fd & EPOLLOUT){
-                cout << "is here " << "u reach " << endl;
-                if(send(events[i].data.fd, "yes this is reponse",47, MSG_DONTWAIT) == -1){
+            else{
+                cout << "is here " << "u reach  send response  "<< config.size() << endl;
+                if(send(events[i].data.fd, "<p>this is response </p><h1>this is title</h1>",47, MSG_DONTWAIT) == -1){
                   cerr << "error in send operatio" << endl;
                    
                 } 
-                //close or poll in in case 
-                epoll_ctl(fdEp, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-                close(events[i].data.fd);
-                config.erase(events[i].data.fd);
+                cout << "here is delete socket "<< endl;
+                //close or poll in in case  
+                deleteClient(config,events[i].data.fd, fdEp);
             }
         }
     }

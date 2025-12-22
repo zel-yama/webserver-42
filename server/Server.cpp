@@ -89,7 +89,7 @@ Client Server::acceptClient(){
         cerr << ss.str() << endl;
         exit(1);
     }
-    newOne.data.events = EPOLLIN;
+    newOne.data.events = EPOLLIN | EPOLLET;
     newOne.data.data.fd = newOne.fd;
     return newOne;
 }
@@ -102,7 +102,10 @@ void Server::listenFunction(){
     cout << ss.str() << endl;
 }
 int Server::CreateServer(int port, string ipaddress){
+    int opt = 1;
     fd =  socket(AF_INET, SOCK_STREAM, 0);
+    makeNonBlockingFD(fd);
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     if (fd == -1)
     {
         throw runtime_error("error in in create socket socket function");

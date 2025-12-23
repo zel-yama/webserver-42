@@ -9,6 +9,7 @@ class Request {
         std::string http_version; // GET /index.html HTTP/1.1 >> 1.1 howa version
         std::map<std::string, std::string> headers; // homa ex: host: localhost:8080
         std::string body; // just in post and put
+        
 
     public:
         Request();

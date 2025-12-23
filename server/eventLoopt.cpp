@@ -21,11 +21,22 @@ int readRequest(int fd){
     }
     return 1;
 }
-// void acceptAddClient(Config &data, int FdEP){
+
+
+void sendResponse(int fdEp, int FSK, maptype &config){
     
-// }
+    
+     if(send(FSK, "<p>this is response </p><h1>this is title</h1>",47, MSG_DONTWAIT) == -1)
+     {
+                cerr << "error in send operatio" << endl;              
+    } 
+        cout << "here is delete socket "<< endl;
+        if (checkTimeout())
+            deleteClient(config,FSK, fdEp);
 
-
+}
+void e
+ 
 void eventLoop(maptype config ){
     
     int fdEp;
@@ -36,28 +47,21 @@ void eventLoop(maptype config ){
     
     fdEp = creatEpoll(config);
     struct epoll_event events[MAXEVENT];
-    cout << "************ event loop start ***********" << endl;
     while(1){
-        cout << "wait Epoll event " << endl;
+    
 
-	n = epoll_wait(fdEp, events, MAXEVENT,-1);
-    cout << "this is n return by epoll wait -> " << n <<endl;
-        if (n == -2){
+	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
+        if (n == -1){
             throw runtime_error("error in epoll wait function ");}
         for(int i = 0; i < n; i++){
             if (events[i].events & EPOLLIN){
                 if (config.at(events[i].data.fd)->name == "Server"){
 
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
-
                     newClient =  serv->acceptClient();
-                    
                     config.insert(pair<int,Config *>(newClient.fd, &newClient));
-
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
-
                     addSockettoEpoll(fdEp,newClient.data);               
-
                     continue; 
                 }
                 if (config.at(events[i].data.fd)->name == "Client")
@@ -67,21 +71,22 @@ void eventLoop(maptype config ){
                     if (readRequest(Cli->fd) == 1)
                     {
                         setClientSend(fdEp, *Cli);
-                       //continue;
+                        sendResponse(fdEp, events[i].data.fd, config);
+                       continue;
                     }
                 }
             }
-            else{
-                cout << "is here " << "u reach  send response  "<< config.size() << endl;
+            if (events[i].events & EPOLLOUT ) {
                 if(send(events[i].data.fd, "<p>this is response </p><h1>this is title</h1>",47, MSG_DONTWAIT) == -1){
                   cerr << "error in send operatio" << endl;
                    
                 } 
                 cout << "here is delete socket "<< endl;
-                //close or poll in in case  
+      
                 deleteClient(config,events[i].data.fd, fdEp);
             }
         }
     }
 
 }
+

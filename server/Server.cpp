@@ -79,7 +79,6 @@ void Server::parsing(string FileName){
 }
 Client Server::acceptClient(){
     Client newOne;
-    newOne.name = "Client";
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
     newOne.fd = makeNonBlockingFD(newOne.fd);

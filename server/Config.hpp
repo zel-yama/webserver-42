@@ -9,6 +9,7 @@ class Config{
     public:
         std::string name ;
         struct epoll_event data;
+        time_t currentTime;
         virtual ~Config(){}
 };
 

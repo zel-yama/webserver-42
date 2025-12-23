@@ -10,7 +10,7 @@ int main(int av, char *argc[]){
         Serv.CreateServer(8080, "0.0.0.0");
         config.insert(pair<int, Config *>(Serv.fd, &Serv));
     
-        eventLoop( config);
+        eventLoop(config);
     }
     catch (exception &e)
     {

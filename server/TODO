@@ -125,3 +125,12 @@ readme resource
 https://web.stanford.edu/class/archive/cs/cs110/cs110.1206/lectures/19-slides.pdf
 https://www.ibm.com/docs/en/i/7.2.0?topic=designs-example-nonblocking-io-select
 https://github.com/Kaydooo/Webserv_42?tab=readme-ov-file
+there default  tome   to disconnect
+
+bad request is line by line check first thing and second else bad request will return 
+
+
+First read request	Register EPOLLIN
+Want to send response	send() as much as possible
+Not all sent	Enable EPOLLOUT to continue sending later
+All sent	Disable EPOLLOUT

@@ -7,7 +7,7 @@ cleint = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 cleint.connect((target_host, target_port))
 
-cleint.send("GET / http/1.0 \n\rhost: 0.0.0.0 ")
+cleint.send("GET / HTTP/1.1\r\nHost: google.com\r\n\r\n")
 
 response = cleint.resv(989)
 

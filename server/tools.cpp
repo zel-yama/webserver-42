@@ -50,6 +50,8 @@ void deleteClient(maptype& config, int fd, int fdEP){
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
     cerr << "error in remove from fd Epoll " << errno << endl;
    }
+   __displayTime();
+   cout << " delete fd -> " << fd << " from epoll \n ";
     close(fd);
     config.erase(fd);
 }
@@ -68,4 +70,25 @@ int creatEpoll( maptype config){
        addSockettoEpoll(fdEp, serv->data);
    }
     return fdEp;
+}
+void __displayTime(){
+    
+    time_t current = time(NULL);
+    struct tm local = *localtime(&current);
+    printf("[%d-%d-%d %d:%d:%d]",local.tm_year, local.tm_mon, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
+
+}
+void printInfo(string Info, string descr){
+
+    __displayTime();
+    printf("  [%s]  %s\n", Info.c_str(), descr.c_str());
+}
+
+bool checkTimeout(long prevTime, long timeSec){
+    time_t currentTime = time(NULL);
+    int diff = currentTime - timeSec;
+    if (diff > 0)
+        return true;
+    if (diff <= 0)
+        return false;
 }

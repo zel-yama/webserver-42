@@ -22,6 +22,7 @@
  #include "fcntl.h"
  #include <unistd.h>
  #include <cerrno>
+ #include <stdio.h>
  #define MAXEVENT 1000
  #define MAXCLIENT 1000
  

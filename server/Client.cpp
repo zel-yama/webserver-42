@@ -6,6 +6,8 @@ Client::Client(){
     keepAlive = false;
     timeout = 40;
     prevTime = time(NULL);
-    requestFinish = true;
+    requestFinish = false;
+    bodySizeStatus = false;
     byteSent = 0;
+    headersOnly = false;
 }

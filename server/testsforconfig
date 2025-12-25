@@ -20,3 +20,8 @@ nor variable for index
 and request is dir
 outoindex is on
 ->>>>> output listing all file and return that as Respond
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+case body request exceed the max size body variable 
+
+    413 Request Entity Too Large
+i

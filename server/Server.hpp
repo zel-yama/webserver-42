@@ -64,6 +64,8 @@ class Server : public Config {
 
 
 };
+
+bool readRequest(int fd, std::string& buffer);
 int makeNonBlockingFD(int socket);
 void eventLoop(maptype config );
 int addSockettoEpoll(int fdEp, struct epoll_event  data);

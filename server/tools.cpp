@@ -50,7 +50,7 @@ void deleteClient(maptype& config, int fd, int fdEP){
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
     cerr << "error in remove from fd Epoll " << errno << endl;
    }
-   __displayTime();
+//    __displayTime();
    cout << " delete fd -> " << fd << " from epoll \n ";
     close(fd);
     config.erase(fd);
@@ -89,6 +89,6 @@ bool checkTimeout(long prevTime, long timeSec){
     int diff = currentTime - timeSec;
     if (diff > 0)
         return true;
-    if (diff <= 0)
-        return false;
+    
+    return false;
 }

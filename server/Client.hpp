@@ -2,8 +2,12 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "Server.hpp"
-
+#include <iostream>
+#include <vector>
+#include <sys/socket.h>
+#include <sys/epoll.h>
+#include "Config.hpp"
+#include <arpa/inet.h>
 class Client: public Config{
 
     public:
@@ -14,9 +18,15 @@ class Client: public Config{
         time_t prevTime;
         bool keepAlive;
         bool requestFinish; // if request finished return response 
-        vector<string> bufferRequest;
-        vector<string> contentResponse;
+        size_t bodysize ;
+        string buffer;
+        bool bodySizeStatus;
+        bool headersOnly;
+        //  std::vector<std::string> bufferRequest;
+        // std::vector<std::string> contentResponse;
+       
         long byteSent;
+        std::string buffer;
 
         
 

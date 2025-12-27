@@ -1,6 +1,6 @@
 
 NAME = server
-FILES = main.cpp  Server.cpp eventLoopt.cpp tools.cpp Client.cpp tools1.cpp
+FILES = main.cpp  Server.cpp eventLoopt.cpp tools.cpp Client.cpp tools1.cpp readRequest.cpp
 RM  = rm -rf 
 OBJ = $(FILES:.cpp=.o) 
 CC = c++ #-std=c++98 

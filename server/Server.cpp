@@ -79,9 +79,12 @@ void Server::parsing(string FileName){
 }
 Client Server::acceptClient(){
     Client newOne;
+    newOne.serverId = this->serverId;
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
     newOne.fd = makeNonBlockingFD(newOne.fd);
+        char * b[3];
+ 
     if (newOne.fd < 0){
         ostringstream ss;
         ss << "server failed to accept connection from address " << inet_ntoa(newOne.ClientSock.sin_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);

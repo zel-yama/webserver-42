@@ -1,6 +1,6 @@
 
 
-#include "Server.hpp"
+#include "tools.hpp"
 
 vector<string> Server::split(string line, char delimiter){
 
@@ -38,19 +38,19 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 void setClientSend(int fdEp,  Client &Clien){
 
     Clien.data.events = EPOLLOUT;
-    epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, NULL);
+    epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, &Clien.data);
 }
 void setClientRead(int fdEp, Client& clien ){
 
     clien.data.events = EPOLLIN; 
-    epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, NULL);
+    epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, &clien.data);
 }
 void deleteClient(maptype& config, int fd, int fdEP){
     
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
     cerr << "error in remove from fd Epoll " << errno << endl;
    }
-//    __displayTime();
+   __displayTime();
    cout << " delete fd -> " << fd << " from epoll \n ";
     close(fd);
     config.erase(fd);
@@ -60,7 +60,7 @@ int creatEpoll( maptype config){
 
     int fdEp;
     fdEp = epoll_create(8);
-    makeNonBlockingFD(fdEp);
+   //makeNonBlockingFD(fdEp);
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
     }

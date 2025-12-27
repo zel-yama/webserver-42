@@ -34,7 +34,7 @@ size_t getBodySize(const char *content, int pos){
     char  c;
     while(isdigit(content[pos])){
         c  = content[pos];
-        size * 10 + (c - 48);
+        size = size * 10 + (c - 48);
     }
     return size;
 }
@@ -65,24 +65,35 @@ void readBody(int fd, Client &connect ){
     else 
         connect.bodySizeStatus = false;
 }
+void printDebug(Client Connect){
+    std::cout << Connect.buffer << std::endl;
+    std::cout << "byte sent " << Connect.byteSent << std::endl;
+    std::cout << "bodysize " << Connect.bodysize << std::endl;
+    std::cout << "bodySizeStatus " << Connect.bodySizeStatus << std::endl;
+    std::cout << "buffer " << Connect.buffer << std::endl;
+    std::cout << "byteRead  " << Connect.byteRead << std::endl;
+    std::cout << "fd  " << Connect.fd << std::endl;
 
+}
 
 void readRequest(int fd, std::string& buffer, Client &connect)
 {
-    char tmp[4096];
+    char tmp[4096];// read or sent  then by exist is problem may segfualt
 
-    int n  = recv(fd, tmp + connect.byteSent, sizeof(tmp), 0);
+    int n  = recv(fd, tmp, sizeof(tmp), 0);
     if (n == 0 ){
         if (hasHeaderEnd(buffer)){
             if (checkPost(buffer))
-                connect.requestFinish = true;
+            connect.requestFinish = true;
         }
     }
-    if (connect.byteSent <= 0){
-        return ; // client closed or error
-    }
-    connect.buffer.append(tmp, connect.byteSent);
+    // if (connect.byteSent <= 0){
+    //     return ; // client closed or error
+    // }
+    connect.buffer += tmp;
     connect.byteSent += n;
+
+    printDebug(connect);
     if (hasHeaderEnd(tmp)){
         if (hasHeaderBody(tmp) && getContentLength(connect.buffer, connect)) {
             readBody(fd, connect);

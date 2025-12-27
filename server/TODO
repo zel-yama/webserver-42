@@ -134,3 +134,8 @@ First read request	Register EPOLLIN
 Want to send response	send() as much as possible
 Not all sent	Enable EPOLLOUT to continue sending later
 All sent	Disable EPOLLOUT
+
+/////////////////////////////////////////////////////////////////////------------
+parsing of conif file i fed up with it so i give that my power and i will 
+run nginx in varbose mod to see his realy behave 
+

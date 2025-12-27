@@ -30,6 +30,7 @@ void checkClientConnection(maptype &config, Client &connect){
 
     if (connect.sending)
     {
+        connect.buffer = "";
         setClientSend(connect.fdEp, connect); // response big u should put it this 
         return ;
     }
@@ -40,6 +41,7 @@ void checkClientConnection(maptype &config, Client &connect){
         connect.bodysize   = 0;
         connect.byteSent = 0;
         connect.bodySizeStatus = false;
+        connect.buffer = "";
         connect.keepAlive = false;
         setClientRead(connect.fdEp, connect);
         return;

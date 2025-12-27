@@ -27,7 +27,7 @@ void eventLoop(maptype config ){
         
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
-        checkClientsTimeout(config, fdEp);
+        //checkClientsTimeout(config, fdEp);
         for(int i = 0; i < n; i++){
         
                 if (config.at(events[i].data.fd)->name == "Server"){
@@ -37,7 +37,7 @@ void eventLoop(maptype config ){
                     config.insert(pair<int,Config *>(newClient.fd, &newClient));
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
                     addSockettoEpoll(fdEp, newClient.data);               
-                   /// continue; 
+                    continue; 
                 }
                 else         
                 {
@@ -49,13 +49,8 @@ void eventLoop(maptype config ){
 
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
-                        //continue;
-                    
-            
-
+                        continue;
                     }
-                  
-            
                     if (events[i].events & EPOLLOUT ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         sendResponse(config, *Cli);

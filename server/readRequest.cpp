@@ -23,6 +23,9 @@
 
 bool hasHeaderEnd(const std::string& buf)
 {
+    std::cout << "---------------------------"<< std::endl;
+    if (strstr("zakaria", buf.c_str()) != NULL)
+        printf("yes i got header  %s\n", buf.c_str() );
     return buf.find("\r\n\r\n") != std::string::npos;
 }
 
@@ -66,13 +69,31 @@ void readBody(int fd, Client &connect ){
         connect.bodySizeStatus = false;
 }
 void printDebug(Client Connect){
-    std::cout << Connect.buffer << std::endl;
+    printf("this is buffer | %s |\n", Connect.buffer.c_str());
     std::cout << "byte sent " << Connect.byteSent << std::endl;
     std::cout << "bodysize " << Connect.bodysize << std::endl;
     std::cout << "bodySizeStatus " << Connect.bodySizeStatus << std::endl;
-    std::cout << "buffer " << Connect.buffer << std::endl;
+   // std::cout << "buffer " << Connect.buffer << std::endl;
     std::cout << "byteRead  " << Connect.byteRead << std::endl;
     std::cout << "fd  " << Connect.fd << std::endl;
+
+}
+int myread(Client &connect){
+    char tmp[70];
+    int n  = 0;
+    while((n = recv(connect.fd, tmp, 70, 0)) > 0)
+    {
+        if (n < 0)
+            return -1;
+        if (n == 0)
+            return 0;
+        tmp[n] = '\0';
+
+        connect.byteSent += n;    
+        connect.buffer += tmp;
+
+    }
+    return -1;
 
 }
 
@@ -80,21 +101,25 @@ void readRequest(int fd, std::string& buffer, Client &connect)
 {
     char tmp[4096];// read or sent  then by exist is problem may segfualt
 
-    int n  = recv(fd, tmp, sizeof(tmp), 0);
-    if (n == 0 ){
-        if (hasHeaderEnd(buffer)){
-            if (checkPost(buffer))
-            connect.requestFinish = true;
-        }
-    }
+    // int n  = recv(fd, tmp, sizeof(tmp), 0);
+    myread(connect);
+    // if (n <= 0 ){
+    //     if (hasHeaderEnd(buffer)){
+    //         if (checkPost(buffer))
+    //         connect.requestFinish = true;
+    //     }
+    // }
     // if (connect.byteSent <= 0){
     //     return ; // client closed or error
     // }
-    connect.buffer += tmp;
-    connect.byteSent += n;
+    // tmp[n] = '\0';
+    // printf("this is tmp >>>> |%s| \n", tmp);
+    // connect.buffer += tmp;
+    // connect.byteSent += n;
 
     printDebug(connect);
     if (hasHeaderEnd(tmp)){
+        std::cout  << "i has  he has header complite so don't  " << std::endl;
         if (hasHeaderBody(tmp) && getContentLength(connect.buffer, connect)) {
             readBody(fd, connect);
         }

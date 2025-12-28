@@ -122,7 +122,7 @@ void readRequest(int fd, std::string& buffer, Client &connect)
     printDebug(connect);
     if (hasHeaderEnd(connect.buffer)){
         std::cout  << "i has  he has header complite so don't  " << std::endl;
-        if (hasHeaderBody(tmp) && getContentLength(connect.buffer, connect)) {
+        if (hasHeaderBody(connect.buffer) && getContentLength(connect.buffer, connect)) {
             readBody(fd, connect);
         }
         if (!checkPost(connect.buffer))

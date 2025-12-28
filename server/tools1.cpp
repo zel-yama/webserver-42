@@ -61,21 +61,39 @@ size_t countBuffersize(std::string buffer, Client &connect){
     else 
         return buffer.size();
 }
+int mysend(Client &connect){
+    int len;
+    size_t bufferSize;
+    while(1){
+        size_t bufferSize = countBuffersize(connect.response, connect);
+        len = send(connect.fd, connect.response.c_str(), bufferSize, 0);
+        if (len == 0 || connect.response.size() == 0)
+            return 0;
+        if (len < 0)
+            return -1;
+        connect.response = connect.response.substr(len);
+        
+    }
+    return -1;
+}
 
 void sendResponse(maptype &config, Client &connect){
     
     
-    size_t sent = countBuffersize(connect.response, connect);
-    size_t len = send(connect.fd, connect.response.c_str(), sent, 0);
-    if (len <= 0){
+    //size_t sent = countBuffersize(connect.response, connect);
+    //size_t len = send(connect.fd, connect.response.c_str(), sent, 0);
+    // if (len <= 0){
 
-        return ;
-    }
-    if (connect.response.size() <= 0){
+    //     return ;
+    // }
+    // if (connect.response.size() <= 0){
+    //     connect.sending = false;
+    // }
+    // else if (len < connect.response.size()){
+    //     connect.response = connect.response.substr(len);
+    // }
+    cout << "we in sending response ";
+    if (mysend(connect) == 0)
         connect.sending = false;
-    }
-    else if (len < connect.response.size()){
-        connect.response = connect.response.substr(len);
-    }
     checkClientConnection(config, connect);
 }

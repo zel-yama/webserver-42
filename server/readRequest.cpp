@@ -24,8 +24,9 @@
 bool hasHeaderEnd(const std::string& buf)
 {
     std::cout << "---------------------------"<< std::endl;
-    if (strstr("zakaria", buf.c_str()) != NULL)
-        printf("yes i got header  %s\n", buf.c_str() );
+
+    if (buf.find("\r\n\r\n") != std::string::npos)
+        printf("yes i got header  %s\n", buf.c_str());
     return buf.find("\r\n\r\n") != std::string::npos;
 }
 
@@ -69,11 +70,11 @@ void readBody(int fd, Client &connect ){
         connect.bodySizeStatus = false;
 }
 void printDebug(Client Connect){
+ 
     printf("this is buffer | %s |\n", Connect.buffer.c_str());
     std::cout << "byte sent " << Connect.byteSent << std::endl;
     std::cout << "bodysize " << Connect.bodysize << std::endl;
     std::cout << "bodySizeStatus " << Connect.bodySizeStatus << std::endl;
-   // std::cout << "buffer " << Connect.buffer << std::endl;
     std::cout << "byteRead  " << Connect.byteRead << std::endl;
     std::cout << "fd  " << Connect.fd << std::endl;
 
@@ -89,7 +90,8 @@ int myread(Client &connect){
             return 0;
         tmp[n] = '\0';
 
-        connect.byteSent += n;    
+        connect.byteSent += n;
+        std::string t = std::string(tmp, sizeof(tmp)); 
         connect.buffer += tmp;
 
     }
@@ -116,9 +118,9 @@ void readRequest(int fd, std::string& buffer, Client &connect)
     // printf("this is tmp >>>> |%s| \n", tmp);
     // connect.buffer += tmp;
     // connect.byteSent += n;
-
+   
     printDebug(connect);
-    if (hasHeaderEnd(tmp)){
+    if (hasHeaderEnd(connect.buffer)){
         std::cout  << "i has  he has header complite so don't  " << std::endl;
         if (hasHeaderBody(tmp) && getContentLength(connect.buffer, connect)) {
             readBody(fd, connect);

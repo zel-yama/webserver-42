@@ -30,6 +30,7 @@ class Client: public Config{
         long byteRead;
         long byteSent;
         long responseSize;
+        long bodysizeRequest;
 };
 
 #endif

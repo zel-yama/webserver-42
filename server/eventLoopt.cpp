@@ -49,7 +49,8 @@ void eventLoop(maptype config ){
 
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
-                        continue;
+                        else 
+                            continue;
                     }
                     if (events[i].events & EPOLLOUT ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));

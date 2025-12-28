@@ -37,7 +37,7 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 }
 void setClientSend(int fdEp,  Client &Clien){
 
-    Clien.data.events = EPOLLOUT;
+    Clien.data.events =  EPOLLIN | EPOLLOUT;
     epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, &Clien.data);
 }
 void setClientRead(int fdEp, Client& clien ){

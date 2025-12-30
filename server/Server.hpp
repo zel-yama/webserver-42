@@ -52,11 +52,7 @@ class Server : public Config {
         vector<string> AllowMethods; 
         vector<pair<int, string > > D_ErrorPages; //exit code with error page to that error 
         Locations located;
-        string getValue(string line, string &var);
-        void  getMethods(string &line );   
-        void  FillPort(string line ); 
-        void  FillLocation(vector<string>::iterator it ); 
-        void  parsing(string FileName);  
+     
         vector<string>  split(string line, char delimiter);
         int  CreateServer(int port, string ipaddress );
         void listenFunction();

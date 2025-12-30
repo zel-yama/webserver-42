@@ -3,80 +3,12 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include <stdexcept>
-void Server::FillPort(string line ){
 
-    stringstream ss(line);
-    string var;
-    string ipaddress;
-    ss >> var;
-    ss >> ipaddress;
-    int p =  ipaddress.find(":");
-    var = ipaddress.substr(p + 1, 4);
-    ipaddress = ipaddress.substr(0, p);
-    ss.clear();
-    ss.str("");
-    ss << var;
-    ss >> this->Address.Listport;
-    this->Address.IPAddress = ipaddress;
-}
 Server::Server(){
     name = "Server";
 }
-string Server::getValue(string line, string &var ){
-    
-    for (int i = 0; i < line.size(); i++){
-        if (line[i] == '{' || line[i] == '}' || line[i] == ';')
-            line[i] = ' ';
-    }
-    stringstream ss(line);
-    string value;
-    ss >> var;
-    ss >> value;
-    return value;
-}
-void Server::FillLocation(vector<string>::iterator it){
-    
-    string line = *it;
-    string var;
-    string value;
-    getValue(line, this->located.path);
-    do {  
-        it++;
-        line = *it;
-        value = getValue(line, var);
-        this->located.directives.insert( make_pair(var, value));
-    }
-    while(!strchr(line.c_str(), '}'));
-}
-void Server::getMethods(string &line){
 
-    
-}
-void Server::parsing(string FileName){
-    
-    
-    vector<string> store;
-    string var;
-    ifstream ObjFile(FileName.c_str());
-    string line;
-    while (getline(ObjFile, line))
-    {
-        store.push_back(line);
-    }
-    vector<string>::iterator it = store.begin();
-    while (it != store.end())
-    {
-       // cout << *it << endl;
-        line = *it;
-        if (strstr(line.c_str(), "listen"))
-            Server::FillPort(*it);
-        if (strstr(line.c_str(),  "location"))
-            Server::FillLocation(it);
-        if (strstr(line.c_str(), "methods"))
-           // split(line, " ");
-        it++;
-    }
-}
+
 Client Server::acceptClient(){
     Client newOne;
     newOne.serverId = this->serverId;

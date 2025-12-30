@@ -1,9 +1,9 @@
 
 NAME = server
-FILES = main.cpp  Server.cpp eventLoopt.cpp tools.cpp Client.cpp tools1.cpp readRequest.cpp
+FILES = main.cpp  Server.cpp eventLoopt.cpp tools.cpp Client.cpp sendResponse.cpp readRequest.cpp parsing.cpp
 RM  = rm -rf 
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ #-std=c++98 
+CC = c++ -std=c++98 
 FLAGS = #-Werror -Wextra -Wall  -std=c++98
 
 %.o:%.cpp Server.hpp

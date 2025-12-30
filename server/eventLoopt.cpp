@@ -24,7 +24,6 @@ void eventLoop(maptype config ){
 
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
 
-        
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
         //checkClientsTimeout(config, fdEp);

@@ -161,9 +161,11 @@ std::vector<tockens> tokeniezer(doubleStr &v){
     std::string val;
     while(it != v.end()){
         var = it->first;
-        pushTockens(VARIABLE, tockenV, var);
         val = it->second;
-        removeSpaces(val);
+        if (!val.empty())
+            pushTockens(VARIABLE, tockenV, var);
+        if (it->second.empty())
+            val = var;
         tockenValue(val, tockenV);
         it++;
     }
@@ -197,7 +199,7 @@ void parsing(std::string FileName){
     v = convertVector(store);
     //printdoulStr(v);
     printf("--------here---------\n");
-   // tockV = tokeniezer(v);
+   tockV = tokeniezer(v);
     printTocknes(tockV);
 
 

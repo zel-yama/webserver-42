@@ -32,17 +32,7 @@ void printvector(std::vector<std::string> &config){
         it++;
     }
 }
-std::string removeSpaces(std::string &str){
 
-  
-    size_t end = str.size() ;
-    size_t start = 0;
-    while(start < end && std::isspace((unsigned char)str[start]))
-        start++;
-    while(start < end && std::isspace((unsigned char)str[end-1]))
-        end--;
-    return str.substr(start, (end - start));
-}
 std::vector<std::string> stripSpaces(std::vector<std::string> &config){
     
     strIter it = config.begin();
@@ -110,71 +100,12 @@ void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
     tock.val = s; 
     v.push_back(tock);
 }
-void tockenValue(std::string &val, std::vector<tockens> &tockV){
-    tockens tock;
-    size_t i = 0;
-    bool flagO = false;
-    std::string buff  = "";
-    bool flagC = false; 
-    while(i < val.size()){
-     
-        if (val[i] == '{'){
-                pushTockens(OPENED_PRACKET, tockV, "{");
-                i++;
-        }
-        if (val[i] == '}'){
-                pushTockens(CLOSED_PRACKET, tockV, "}");
-                i++;
-        }
-       while(i < val.size())
-        {
-            if (val[i] != '}' && val[i] != '{')
-            {
-                buff.push_back(val[i]);
-                i++;
-            }
-            else{
-                if (!buff.empty()){
-                    
-                    buff = removeSpaces(buff);
-                    if (!buff.empty())
-                    {
-    
-                        pushTockens(VALUE, tockV, buff);
-                        buff.clear();
-                        break;
-                    }
-                    else 
-                        break;
-                }
-            }    
-        }
-        if (!buff.empty())
-            pushTockens(VALUE, tockV, buff);
-    }
-}
-std::vector<tockens> tokeniezer(doubleStr &v){
-    std::vector<tockens> tockenV;
-    tockens tock;
-    doubleIter it = v.begin();
-    std::string var;
-    std::string val;
-    while(it != v.end()){
-        var = it->first;
-        val = it->second;
-        if (!val.empty())
-            pushTockens(VARIABLE, tockenV, var);
-        if (it->second.empty())
-            val = var;
-        tockenValue(val, tockenV);
-        it++;
-    }
-    return tockenV;
-}
+
+
 void printTocknes(std::vector<tockens> &TV){
     std::vector<tockens>::iterator it = TV.begin();
     while(it != TV.end()){
-        std::cout << it->val << std::endl;
+        std::cout << it->mytocken << "--> " << it->val  << std::endl;
         it++;
     }
 }
@@ -199,7 +130,8 @@ void parsing(std::string FileName){
     v = convertVector(store);
     //printdoulStr(v);
     printf("--------here---------\n");
-   tockV = tokeniezer(v);
+    tockV = tokeniezer(v);
+    
     printTocknes(tockV);
 
 

@@ -7,8 +7,11 @@
 
 class Config{
     public:
+        int fdEp;
         std::string name ;
         struct epoll_event data;
+        time_t currentTime;
+        int serverId;
         virtual ~Config(){}
 };
 

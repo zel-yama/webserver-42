@@ -1,7 +1,6 @@
 
-#include "parsing.hpp"
-#include <fstream>
-#include <sstream>
+
+#include "../include/parsing.hpp"
 
 void handleComments(std::vector<std::string> &config){
 
@@ -17,18 +16,6 @@ void handleComments(std::vector<std::string> &config){
         else if ( (pos = it->find("#")) != std::string::npos){
             *it = it->substr(0, pos);
         }
-        it++;
-    }
-   
-}
-void printvector(std::vector<std::string> &config){
-    strIter it = config.begin();
-    while(it != config.end()){
-       
-        std::cout << "|" << *it << "|\n" ;
-        if (it->empty())
-            std::cout << "i" << std::endl;
-    
         it++;
     }
 }
@@ -84,14 +71,7 @@ doubleStr convertVector( std::vector<std::string> &v){
     }
     return newV;
 }
-void printdoulStr(doubleStr v){
-    doubleIter it = v.begin();
-    while(it != v.end()){
-        std::cout << "|" << it->first << "|-> ";
-        std::cout << "|" << it->second << "|" << std::endl;
-        it++;
-    }
-}
+
 /// cases {{}} {{aefifaenfawf ewaffef}} eaff}efaw " } " 
 void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
 
@@ -102,13 +82,7 @@ void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
 }
 
 
-void printTocknes(std::vector<tockens> &TV){
-    std::vector<tockens>::iterator it = TV.begin();
-    while(it != TV.end()){
-        std::cout << it->mytocken << "--> " << it->val  << std::endl;
-        it++;
-    }
-}
+
 
 void parsing(std::string FileName){
     
@@ -132,7 +106,7 @@ void parsing(std::string FileName){
     printf("--------here---------\n");
     tockV = tokeniezer(v);
     
-    printTocknes(tockV);
+   // printTocknes(tockV);
 
 
 }   

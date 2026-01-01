@@ -2,12 +2,13 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include <iostream>
-#include <vector>
-#include <sys/socket.h>
-#include <sys/epoll.h>
+// #include <iostream>
+// #include <vector>
+// #include <sys/socket.h>
+// #include <sys/epoll.h>
+#include "../../webserv.hpp"
 #include "Config.hpp"
-#include <arpa/inet.h>
+// #include <arpa/inet.h>
 class Client: public Config{
 
     public:

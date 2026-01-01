@@ -1,6 +1,7 @@
 
 
-#include "parsing.hpp"
+
+#include "../include/parsing.hpp"
 
 
 std::string removeSpaces(std::string &str){

@@ -1,9 +1,7 @@
 
 
-#include "Server.hpp"
-#include <stdexcept>
-#include "tools.hpp"
-
+#include "../include/Server.hpp"
+#include "../include/tools.hpp"
  ///should allawyz theck is connection timeout indeed  not just when u send response  
 // allawyz check client for timeout in case timeout and close mod and i should 
 // conclusesion now is monitor all  connection and i should disconnecte or rest  all expir ones  

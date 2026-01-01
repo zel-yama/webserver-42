@@ -1,6 +1,6 @@
 
-#include "Client.hpp"
-
+#include "../webserv.hpp"
+#include "include/Client.hpp"
 Client::Client(){
     name = "client";
     keepAlive = false;

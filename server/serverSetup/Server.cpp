@@ -1,8 +1,7 @@
 
 
-#include "Server.hpp"
-#include "Client.hpp"
-#include <stdexcept>
+
+#include "../include/Server.hpp"
 
 Server::Server(){
     name = "Server";

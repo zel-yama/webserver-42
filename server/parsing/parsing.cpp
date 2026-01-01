@@ -84,7 +84,7 @@ void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
 
 
 
-void parsing(std::string FileName){
+void parsing(std::string FileName, maptype &config){
     
     
     std::vector<std::string> store;
@@ -105,8 +105,8 @@ void parsing(std::string FileName){
     //printdoulStr(v);
     printf("--------here---------\n");
     tockV = tokeniezer(v);
-    
+    setUpServers(tockV, config);
    // printTocknes(tockV);
-
+    
 
 }   

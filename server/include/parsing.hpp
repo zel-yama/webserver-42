@@ -14,7 +14,7 @@
 
 
 void                    printvector(std::vector<std::string> &config);
-void                    parsing(std::string FileName);
+void                    parsing(std::string FileName, maptype &config);
 std::string             removeSpaces(std::string &str);
 std::vector<tockens>    tokeniezer(doubleStr &v);
 void                    pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s);

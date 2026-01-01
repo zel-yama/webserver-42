@@ -8,7 +8,7 @@ int main(int av, char *argc[]){
 	maptype config; // parsing and fill this array create server and fill this  
 	try{
 		
-		parsing(argc[1]);
+		parsing(argc[1], config);
 		Serv.CreateServer(8081, "0.0.0.0");
 		config.insert(pair<int, Config *>(Serv.fd, &Serv));
 	

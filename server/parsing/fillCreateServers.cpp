@@ -1,7 +1,7 @@
 
 
 #include "../include/parsing.hpp"
-
+#include "../include/tools.hpp"
 void serverCases(tockenIt &it, Server &serv){
     if (!it->val.compare("root")){
         it++;
@@ -47,10 +47,10 @@ void locationHandling(tockenIt &it, Server &serv){
     serv.objLocation.push_back(loca);
 }
 
-Server serverHandler(tockenIt &it){
+Server serverHandler(tockenIt &it, tockenIt end){
     Server serv;
     int i = 0;
-    while(1){
+    while(it != end){
         if (it->mytocken == OPENED_PRACKET){
             it++;
             i--;
@@ -65,6 +65,7 @@ Server serverHandler(tockenIt &it){
             locationHandling(it, serv);
         else 
             serverCases(it, serv);
+        it++;
         std::cout << "for debug ------------ \n" ;
     }
     return serv;
@@ -93,12 +94,13 @@ void setUpServers(std::vector<tockens> &v, maptype &config){
     {
         if (!it->val.compare("server")){
             it++; 
-            Servs.push_back(serverHandler(it));
+            Servs.push_back(serverHandler(it, v.end()));
         }
         else
             it++;
         std::cout << "------------------------\n" ; 
     }
+    printAllConfig (Servs);
    // CreateServers(config, Servs);
     
 

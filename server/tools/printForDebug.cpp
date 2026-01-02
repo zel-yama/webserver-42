@@ -33,9 +33,11 @@ void printTocknes(std::vector<tockens> &TV){
 }
 
 void printAttr(Server &Serv){
+        printf("printf Atter \n");
+        std::cout << "serv name -- > " <<  Serv.ServerName << std::endl;
         std::cout << "port -> "<< Serv.port << std::endl;
         std::cout << "ipaddress -> "<< Serv.ipAdress << std::endl;
-        std::cout << "autoindex -> " << Serv.outoIndex << std::endl;
+       // std::cout << "autoindex -> " << Serv.outoIndex << std::endl;
         std::cout << "max byte size -> "<< Serv.bodyMaxByte << std::endl;
         std::cout << "root -> " << Serv.root << std::endl;
         printKeyInt(Serv.D_ErrorPages);
@@ -62,13 +64,14 @@ void printLocation(std::vector<location> objs){
 }
 
 
-void printAllConfig(std::vector<Server> servs){
-    std::vector<Server>::iterator it = servs.begin();
+void printAllConfig(std::vector<Server> servs, Server serv){
+    //std::vector<Server>::iterator it = servs.begin();
     int i = 0;
-    while(it != servs.end()){
-        printAttr(*it);
-        printLocation(it->objLocation);
-        it++;  
-    }
+   
+    printf("printAllConfig\n");
+    printAttr(serv);
+    printLocation(serv.objLocation);
+     //it++;  
+  
 
 }

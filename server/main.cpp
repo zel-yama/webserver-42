@@ -9,8 +9,9 @@ int main(int av, char *argc[]){
 	try{
 		
 		parsing(argc[1], config);
-		Serv.CreateServer(8081, "0.0.0.0");
-		config.insert(pair<int, Config *>(Serv.fd, &Serv));
+		printf("-----------------finish parsing ----------------------\n");
+		//Serv.CreateServer(8081, "0.0.0.0");
+		//config.insert(pair<int, Config *>(Serv.fd, &Serv));
 	
 		// eventLoop(config);
 	}

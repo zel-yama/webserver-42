@@ -78,11 +78,12 @@ void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
     tockens tock;
     tock.mytocken = tockensType;
     tock.val = s; 
-    v.push_back(tock);
+    validatoinVarFormat(tock);
+
+    if (!tock.val.empty())
+        v.push_back(tock);
+
 }
-
-
-
 
 void parsing(std::string FileName, maptype &config){
     
@@ -103,10 +104,10 @@ void parsing(std::string FileName, maptype &config){
     //printvector(store);
     v = convertVector(store);
     //printdoulStr(v);
-    printf("--------here---------\n");
     tockV = tokeniezer(v);
-    setUpServers(tockV, config);
-   // printTocknes(tockV);
+    //printTocknes(tockV);
+    printf("--------here?---------\n");
+   setUpServers(tockV, config);
     
 
 }   

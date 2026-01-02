@@ -49,7 +49,7 @@ void tockenValue(std::string &val, std::vector<tockens> &tockV){
                 }
                 else 
                     break;
-            }    
+            }   
         }
         if (!buff.empty())
             pushTockens(VALUE, tockV, buff);
@@ -72,21 +72,27 @@ std::vector<tockens> tokeniezer(doubleStr &v){
         tockenValue(val, tockenV);
         it++;
     }
+  
     return tockenV;
 }
 
 void validatoinVarFormat( tockens &mytockens){
-
-    
-    if (mytockens.mytocken == 0){
-        if (mytockens.val[mytockens.val.size() -1] == ';')
-            mytockens.val[mytockens.val.size()-1]  = ' ';
-        else 
-            throw std::runtime_error("this -> [" + mytockens.val + "] should be end up with ';'");
-        removeSpaces(mytockens.val); 
+    removeSpaces(mytockens.val); 
+    //  printf("yes here -------- %s\n", mytockens.val.c_str());
+    if (!mytockens.val.empty() && mytockens.mytocken == 0){
+        if (mytockens.val[mytockens.val.size()- 1] == ';'){
+        // printf("yes here -------- %s\n", mytockens.val.c_str());
+            mytockens.val =  mytockens.val.substr(0, mytockens.val.size()-1);
+        }
+        else{
+            printf("yes here -------- %s\n", mytockens.val.c_str());
+            //throw std::runtime_error("invald var name ");
+        }
     }
-    if (mytockens.mytocken == 1){
-
-    }
+   
+    // //removeSpaces(mytockens.val); 
+    // if (mytockens.mytocken == 1){
+    //     //here will check var name is exist 
+    // }
 
 }

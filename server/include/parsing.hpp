@@ -26,6 +26,7 @@ int                     extractInt(std::string &s, std::string &c);
 void                    insertListenConfig(Server &serv, std::string &str);
 void                    outoIndexHandler(std::string val, bool &cond);
 void                    setUpServers(std::vector<tockens> &v, maptype &config);
+void                    validatoinVarFormat( tockens &mytockens);
 //--------------------------------------------------
     void printKeyInt(IntKey v);
     void printLocation(std::vector<location> objs);

@@ -20,5 +20,5 @@ int     mysend(Client &connect);
 void    readRequest(int fd, std::string& buffer, Client &connect);
 void    checkClientsTimeout(maptype& config, int fdEp);
 void     checkClientConnection(maptype &config, Client &connect);
-void    printAllConfig(std::vector<Server> servs);
+void    printAllConfig(std::vector<Server> servs, Server serv);
 #endif

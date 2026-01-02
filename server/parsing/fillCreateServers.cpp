@@ -2,7 +2,10 @@
 
 #include "../include/parsing.hpp"
 #include "../include/tools.hpp"
+
 void serverCases(tockenIt &it, Server &serv){
+    
+    
     if (!it->val.compare("root")){
         it++;
         rootHandler(it->val, serv.root);
@@ -37,39 +40,45 @@ void serverCases(tockenIt &it, Server &serv){
         it++;
         methodsIntKey(serv.D_ErrorPages, it->val);
     }
+ 
 }
-void locationHandling(tockenIt &it, Server &serv){
+
+int locationHandling(tockenIt it, Server &serv){
     location loca;
+    int i = 0;
     while(it->mytocken != CLOSED_PRACKET){
+        i++;
+        printf("---------l--------------\n");
         serverCases(it, loca);
         it++;
     }
     serv.objLocation.push_back(loca);
+    return i;
+}
+void location_handle(Server &serv, std::string path){
+    serv.ServerName = path;
 }
 
-Server serverHandler(tockenIt &it, tockenIt end){
-    Server serv;
-    int i = 0;
-    while(it != end){
-        if (it->mytocken == OPENED_PRACKET){
+
+
+int serverHnding(tockenIt it, Server &serv){
+    int i  = 0;
+    location loca;
+    while(it->mytocken != CLOSED_PRACKET ){
+        if (!it->val.compare("location")){
             it++;
-            i--;
+            location_handle(loca, it->val);
+            it += locationHandling(it, loca);
         }
-        else if (it->mytocken == CLOSED_PRACKET){    
-            i++;
-            it++;
-        }
-        if (i == 0)
-            break;
-        if (!it->val.compare("location"))
-            locationHandling(it, serv);
-        else 
+        else
             serverCases(it, serv);
+        i++;
         it++;
-        std::cout << "for debug ------------ \n" ;
     }
-    return serv;
+    serv.objLocation.push_back(loca);
+    return i;
 }
+///////////////////// insert servers Vector in to config Map 
 void CreateServers(maptype &config, std::vector<Server> &serversV){
     std::vector<Server>::iterator it = serversV.begin();
     Server Serv;
@@ -92,15 +101,16 @@ void setUpServers(std::vector<tockens> &v, maptype &config){
     it = v.begin();
     while (it != v.end())
     {
+       // printf("----------------------------\n");
         if (!it->val.compare("server")){
-            it++; 
-            Servs.push_back(serverHandler(it, v.end()));
+            it += serverHnding(it, serv);
         }
-        else
-            it++;
-        std::cout << "------------------------\n" ; 
+
+        it++;
     }
-    printAllConfig (Servs);
+
+    printAllConfig (Servs, serv);
+    printf("-------sssss---------\n");
    // CreateServers(config, Servs);
     
 

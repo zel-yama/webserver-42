@@ -24,6 +24,7 @@ int extractInt(std::string &s, std::string &c){
 
 void bodySizeMax(size_t &val, std::string &str){
     
+    printf("body size -> %s\n", str.c_str());
     size_t max ;
     std::string c;
     max =  extractInt(str, c );
@@ -41,12 +42,13 @@ void bodySizeMax(size_t &val, std::string &str){
 }
 
 void rootHandler(std::string root, std::string &buff){
+    printf("rooot handl %s\n", root.c_str());
     buff = root;
 }
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
     std::stringstream ss(methods);
-    
+    printf("methods handle %s\n", methods.c_str());
     while(ss >> methods){
         methdsV.push_back(methods);
     }
@@ -73,6 +75,7 @@ void methodsIntKey(IntKey &v, std::string str){
 }
 
 void outoIndexHandler(std::string val, bool &cond){
+    printf("auto index handle %s\n", val.c_str());
     if (val.compare("on"))
         cond = true;
     else 

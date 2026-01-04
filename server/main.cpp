@@ -5,21 +5,29 @@
 int main(int av, char *argc[]){
 
 	Server Serv;
-	maptype config; // parsing and fill this array create server and fill this  
+	maptype config;
+	int fd;
+	servers serv ;
+	servers::iterator it;
+	// parsing and fill this array create server and fill this  
 	try{
 		
-		parsing(argc[1], config);
-		printf("-----------------finish parsing ----------------------\n");
-		//Serv.CreateServer(8081, "0.0.0.0");
-		//config.insert(pair<int, Config *>(Serv.fd, &Serv));
-	
-		// eventLoop(config);
+		serv = parsing(argc[1]);
+		it = serv.begin();
+		while(it != serv.end()){
+			Serv = *it;
+			fd = Serv.CreateServer(Serv.port, Serv.ipAdress);
+			config.insert(pair<int, Config *>(fd, &Serv));
+			it++;
+		}
+		
+		eventLoop(config);
 	}
 	catch (exception &e)
 	{
-		// cout << e.what() << endl;
-		// close(Serv.fd);
-		// return 1;
+		cout << e.what() << endl;
+		close(Serv.fd);
+		return 1;
 	}
 	close(Serv.fd);
 	return 0;

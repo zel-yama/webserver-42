@@ -71,6 +71,46 @@ doubleStr convertVector( std::vector<std::string> &v){
     }
     return newV;
 }
+//////count bracket and end server marker 
+void bracketValidtion(std::vector<tockens> &tockens){
+    int count_closed = 0;
+    int count_opened = 0;
+    tockenIt it = tockens.begin();
+    while(it != tockens.end()){
+        if (it->mytocken == OPENED_PRACKET)
+            count_opened++;
+        if (it->mytocken == CLOSED_PRACKET)
+            count_closed++;
+        it++;
+    }  
+    if (count_closed != count_opened)
+        std::runtime_error("error in bracket ");
+    count_closed = 0;
+    count_opened = 0;
+    it = tockens.begin();
+    while (it != tockens.end())
+    {
+        if (!it->val.compare("server")){
+            it++;
+            while (it != tockens.end())
+            {
+                if (it->mytocken == OPENED_PRACKET)
+                    count_opened++;
+                if (it->mytocken == CLOSED_PRACKET)
+                    count_closed++;
+                if (count_closed == count_opened){
+                    count_closed = 0;
+                    count_opened = 0;
+                    it->mytocken = ENDSERV;
+                    break;
+                }
+                it++;
+            }
+        }
+        it++;
+    }
+    
+}
 
 /// cases {{}} {{aefifaenfawf ewaffef}} eaff}efaw " } " 
 void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
@@ -85,9 +125,11 @@ void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
 
 }
 
-void parsing(std::string FileName, maptype &config){
+servers parsing(std::string FileName){
     
     
+    maptype config;
+    servers servs;
     std::vector<std::string> store;
     //std::string var;
     doubleStr v;
@@ -105,9 +147,10 @@ void parsing(std::string FileName, maptype &config){
     v = convertVector(store);
     //printdoulStr(v);
     tockV = tokeniezer(v);
+    ///i should create fucntion to count brackets and mark up end of servers 
+    bracketValidtion(tockV);
     //printTocknes(tockV);
-    printf("--------here?---------\n");
-   setUpServers(tockV, config);
-    
+    servs =  setUpServers(tockV);
+    return servs;
 
 }   

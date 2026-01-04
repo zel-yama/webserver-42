@@ -14,22 +14,25 @@
 
 
 void                    printvector(std::vector<std::string> &config);
-void                    parsing(std::string FileName, maptype &config);
+servers                parsing(std::string FileName);
 std::string             removeSpaces(std::string &str);
 std::vector<tockens>    tokeniezer(doubleStr &v);
 void                    pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s);
-void                    methodsIntKey(IntKey &v, std::string str);
+void                    methodsIntKey(std::map<int, std::string> &v, std::string str);
 void                    methodesHandler(std::vector<std::string> &methdsV, std::string methods);
 void                    rootHandler(std::string root, std::string &buff);
 void                    bodySizeMax(size_t &val, std::string &str);
 int                     extractInt(std::string &s, std::string &c);
 void                    insertListenConfig(Server &serv, std::string &str);
 void                    outoIndexHandler(std::string val, bool &cond);
-void                    setUpServers(std::vector<tockens> &v, maptype &config);
+servers                  setUpServers(std::vector<tockens> &v);
 void                    validatoinVarFormat( tockens &mytockens);
+int                     convertString(std::string &str);
 //--------------------------------------------------
     void printKeyInt(IntKey v);
+    void printlocation(location obj);
     void printLocation(std::vector<location> objs);
     void printTocknes(std::vector<tockens> &TV);
     void printvector(std::vector<std::string> &config);
+    void printMapIntKey(std::map<int, std::string>  ma);
 #endif

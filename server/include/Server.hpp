@@ -11,39 +11,49 @@
 #include "Client.hpp"
 #include "include.hpp"
 
-class location;
+struct location;
 
 
 typedef map<string, string>::iterator iter;
 class Server : public Config {
-
+    
     public:
-        Server();
-        std::vector<std::string>                 indexFile;
-        unsigned int                        port;
-        std::string                         ipAdress;
-        size_t                              bodyMaxByte;
-        std::string                         root;
-        std::map<int,std::string>                error_pages;
-        std::vector<std::string>                 allowedMethods;
+    
+    Server();
+    
+    std::vector<std::string>                 indexFile;
+    unsigned int                        port;
+    std::string                         ipAdress;
+    std::string                         returnP;
+    size_t                              bodyMaxByte;
+    std::string                         root;
+    // std::map<int,std::string>                error_pages;
+        std::vector<std::string>            allowedMethods;
         bool                                outoIndex;
         int                                 fd;
         struct sockaddr_in                  addressServer;
-        std::string                              ServerName;
-        std::string                              ClientMaxBody;
+        std::string                         ServerName;
+        std::string                         ClientMaxBody;
         std::vector<location>               objLocation;
-        std::vector<std::pair<int, std::string > >         D_ErrorPages; //exit code with error page to that error 
+        std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
         
         int                                 CreateServer(int port, std::string ipaddress );
         void                                listenFunction();
         Client                              acceptClient();
-};
-
-class location : public Server{
-
+    };
     
-
-    
+typedef std::vector<Server> servers;
+struct location {
+ 
+    location();
+    std::vector<std::string>            allowedMethods;
+    std::string                         root;
+    std::string                         returnP;
+    std::string                         locationPath;
+    std::vector<std::string>            indexFile;
+    size_t                              bodyMaxByte;
+    bool                                outoIndex;
+    std::map<int, std::string >         D_ErrorPages;
 };
 
 

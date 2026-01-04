@@ -6,13 +6,15 @@
 
 void insertListenConfig(Server &serv, std::string &str){
 
+    std::string por;
     size_t pos = str.find(":");
+    // if (pos != std::string::npos)
+    //     throw std::runtime_error("Error format of config address and port ");
     serv.ipAdress = str.substr(0, pos);
     pos++;
-    str =str.find(pos, str.size() - pos);
-    serv.port = std::atoi(str.c_str());
-    std::cout << "port -> " << serv.port << "iddress -> " << serv.ipAdress << std::endl ;
-
+    por = str.substr(pos);
+    serv.port = convertString(por);
+    // std::cout << "port -> " << serv.port << "  iddress -> " << serv.ipAdress << std::endl ;
 }
 int extractInt(std::string &s, std::string &c){
     int number;
@@ -24,7 +26,7 @@ int extractInt(std::string &s, std::string &c){
 
 void bodySizeMax(size_t &val, std::string &str){
     
-    printf("body size -> %s\n", str.c_str());
+    ///printf("body size -> %s\n", str.c_str());
     size_t max ;
     std::string c;
     max =  extractInt(str, c );
@@ -42,40 +44,66 @@ void bodySizeMax(size_t &val, std::string &str){
 }
 
 void rootHandler(std::string root, std::string &buff){
-    printf("rooot handl %s\n", root.c_str());
+    // printf("rooot handl %s\n", root.c_str());
     buff = root;
 }
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
     std::stringstream ss(methods);
-    printf("methods handle %s\n", methods.c_str());
+    // printf("methods handle %s\n", methods.c_str());
     while(ss >> methods){
         methdsV.push_back(methods);
     }
 }
 
-void methodsIntKey(IntKey &v, std::string str){
+std::vector<std::string> splitV(std::string &str){
+
+    std::stringstream ss(str);
+    std::string store;
+    std::vector<std::string> v;
+    while (ss >> store)
+    {
+        v.push_back(store);     
+    }
+    return v;
+}
+
+int convertString(std::string &str){
+    std::stringstream ss(str);
+    int value;
+    ss >> value;
+    if (!ss.eof())
+        return -1;
+    else 
+        return value;
+}
+
+// resolve error page 505 504 7848 /eror.html
+void methodsIntKey(std::map<int, std::string> &v, std::string str){
+    
     int key; 
     std::string value;
-    std::stringstream ss(str);
-    IntKey::iterator it;
-
-    while(ss >> key){
-        v.push_back(std::make_pair(key, value));
+    std::vector<std::string> vS;
+    vS = splitV(str);
+    strIter its = vS.begin();
+    if (convertString(vS.back()) == -1)
+        value = vS.back();
+  
+    while(its != vS.end()){
+        
+        key = convertString(*its);
+        if (key == -1)
+            break;
+        its++;
+        v.insert(make_pair(key, value));
     }
-    ss >> value;
-    it = v.begin();
-    while (it != v.end()){
-
-        it->second = value;
-        std::cout << "this is value -> " << value << "this is key -> " << it->first << std::endl;
-        it++;
-    }
+    if (its != vS.end() && value.empty())
+       throw std::runtime_error("invalid value [" + *its + "]in error page");
 
 }
 
 void outoIndexHandler(std::string val, bool &cond){
-    printf("auto index handle %s\n", val.c_str());
+    ///printf("auto index handle %s\n", val.c_str());
     if (val.compare("on"))
         cond = true;
     else 

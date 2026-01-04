@@ -40,20 +40,59 @@ void serverCases(tockenIt &it, Server &serv){
         it++;
         methodsIntKey(serv.D_ErrorPages, it->val);
     }
+    else if( !it->val.compare("location")){
+        it++;
+        rootHandler(it->val, serv.ServerName);
+    }
+ 
+}
+void locationCases(tockenIt &it, location &local){
+    
+    
+    if (!it->val.compare("root")){
+        it++;
+        rootHandler(it->val, local.root);
+    }
+
+    else if (!it->val.compare("client_max_body_size")){
+        it++;
+        bodySizeMax(local.bodyMaxByte, it->val);
+
+    }
+    else if (!it->val.compare("limit_except")){
+        it++;
+        methodesHandler(local.allowedMethods, it->val);
+    }
+    else if (!it->val.compare("autoindex")){
+        it++;
+        outoIndexHandler(it->val, local.outoIndex);
+    }
+    else if (!it->val.compare("index")){
+        it++;
+        methodesHandler(local.indexFile, it->val);
+    }
+ 
+    else if (!it->val.compare("error_page")){
+        it++;
+        methodsIntKey(local.D_ErrorPages, it->val);
+    }
+    else if( !it->val.compare("location")){
+        it++;
+        rootHandler(it->val, local.locationPath);
+    }
  
 }
 
-int locationHandling(tockenIt it, Server &serv){
-    location loca;
-    int i = 0;
+
+location locationHandling(tockenIt &it){
+    location local;
+    
     while(it->mytocken != CLOSED_PRACKET){
-        i++;
-        printf("---------l--------------\n");
-        serverCases(it, loca);
+     
+        locationCases(it, local);
         it++;
     }
-    serv.objLocation.push_back(loca);
-    return i;
+  return local;
 }
 void location_handle(Server &serv, std::string path){
     serv.ServerName = path;
@@ -61,57 +100,69 @@ void location_handle(Server &serv, std::string path){
 
 
 
-int serverHnding(tockenIt it, Server &serv){
+int serverHnding(tockenIt it, std::vector<Server> &servs){
     int i  = 0;
-    location loca;
-    while(it->mytocken != CLOSED_PRACKET ){
+    location local;
+    Server serv;
+    while(it->mytocken != ENDSERV){
         if (!it->val.compare("location")){
-            it++;
-            location_handle(loca, it->val);
-            it += locationHandling(it, loca);
+            local = locationHandling(it);
+           
+            serv.objLocation.push_back(local);
+
         }
         else
             serverCases(it, serv);
         i++;
         it++;
     }
-    serv.objLocation.push_back(loca);
+    servs.push_back(serv);
     return i;
 }
 ///////////////////// insert servers Vector in to config Map 
-void CreateServers(maptype &config, std::vector<Server> &serversV){
-    std::vector<Server>::iterator it = serversV.begin();
-    Server Serv;
-    int fd = 0;
-    while(it != serversV.end()){
-        fd = it->CreateServer(it->port, it->ipAdress);
-        Serv = *it;
-        config.insert(make_pair(fd, &Serv));
-        it++;
-    }
+// maptype CreateServers( std::vector<Server> &serversV){
+//     std::vector<Server>::iterator it = serversV.begin();
+//     Server *serv;
+//     maptype config;
+//     Server Serv;
+//     int fd = 0;
+//     while(it != serversV.end()){
+//         fd = it->CreateServer(it->port, it->ipAdress);
+//         printf("fd -> %d\n", fd);
+//         Serv = *it;
+//         printf("port -> %d\n", Serv.port  );
+//         config.insert(pair<int, Config *>(fd, &Serv));
+//         it++;
+//     }
+  
+//     return  config;
 
-}
-
-void setUpServers(std::vector<tockens> &v, maptype &config){
+// }
+///fill server and set init process statrt here in while 
+servers setUpServers(std::vector<tockens> &v){
 
     std::vector<Server> Servs;
     tockenIt it;
-    Server serv;
-    int i = 0;
+    maptype config;
+    size_t i = 0;
     it = v.begin();
     while (it != v.end())
     {
        // printf("----------------------------\n");
         if (!it->val.compare("server")){
-            it += serverHnding(it, serv);
+            i = serverHnding(it,Servs);
+            if (i <= v.size())
+                it += i;
+            else    
+                break;
         }
-
         it++;
     }
+    printf("------");
+   //  printAllConfig (Servs);
 
-    printAllConfig (Servs, serv);
-    printf("-------sssss---------\n");
-   // CreateServers(config, Servs);
+
+    return Servs;
     
 
 }

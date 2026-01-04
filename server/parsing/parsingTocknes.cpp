@@ -76,16 +76,15 @@ std::vector<tockens> tokeniezer(doubleStr &v){
     return tockenV;
 }
 
+// validtion of tocknes format 
 void validatoinVarFormat( tockens &mytockens){
     removeSpaces(mytockens.val); 
-    //  printf("yes here -------- %s\n", mytockens.val.c_str());
     if (!mytockens.val.empty() && mytockens.mytocken == 0){
         if (mytockens.val[mytockens.val.size()- 1] == ';'){
-        // printf("yes here -------- %s\n", mytockens.val.c_str());
+       
             mytockens.val =  mytockens.val.substr(0, mytockens.val.size()-1);
         }
         else{
-            printf("yes here -------- %s\n", mytockens.val.c_str());
             //throw std::runtime_error("invald var name ");
         }
     }

@@ -41,15 +41,21 @@ void deleteClient(maptype& config, int fd, int fdEP){
 int creatEpoll( maptype config){
 
     int fdEp;
+    Config conf;
     fdEp = epoll_create(8);
+    Server* serv;
    //makeNonBlockingFD(fdEp);
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
     }
     for(ConfigIter it = config.begin(); it != config.end(); it++)
    { 
+    
+       
         Server *serv = dynamic_cast<Server*>(it->second);
-       addSockettoEpoll(fdEp, serv->data);
+        if (!serv)
+            throw std::runtime_error("Error in caseting servers");
+        addSockettoEpoll(fdEp, serv->data);
    }
     return fdEp;
 }

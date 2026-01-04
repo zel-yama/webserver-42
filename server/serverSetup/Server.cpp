@@ -6,7 +6,11 @@
 Server::Server(){
     name = "Server";
 }
-
+location::location(){
+    this->bodyMaxByte  = 0;
+    this->outoIndex = false;
+    
+}
 
 Client Server::acceptClient(){
     Client newOne;

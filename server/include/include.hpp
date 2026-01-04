@@ -8,12 +8,13 @@ using namespace std;
 typedef enum TYPE{
     VALUE,
     VARIABLE,
-    END, 
+    ENDSERV, 
     OPENED_PRACKET,
     CLOSED_PRACKET,
     SERVER, 
     LOCATION, 
-    METHODS
+    METHODS,
+    
 }   TYPE;
 typedef struct tockens{
     TYPE mytocken;
@@ -30,6 +31,8 @@ typedef std::vector < std::pair < std::string, std::string> >::iterator doubleIt
 
 typedef map<int,Config*>::iterator ConfigIter;
 typedef map<int, Config*> maptype;
+typedef map<int, std::string> mapIntKey;
+
 
 #endif 
 

@@ -36,8 +36,8 @@ class Request {
         std::string body;
         std::map<std::string, std::string> headers;
         
-        Location* matchedLocation;   // for test
-        std::string redirectUrl;      // for test
+        Location* matchedLocation;   // or testfor test
+        std::string redirectUrl;      // f
         std::string resolvedPath;  // for test
 
         Request();

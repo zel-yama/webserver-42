@@ -9,13 +9,14 @@
 #include <fstream>
 #include <sstream> 
 
-using namespace std;
+using namespace std; 
 typedef map<string, string>::iterator iter;
 
 typedef struct ListenPort{
     string      IPAddress;
     unsigned int Listport;
 } AddressPort;
+
 typedef struct Locations{
     string path;
     map<string,string> directives;

@@ -216,6 +216,8 @@ int main() {
         Request req = handler.handleRequest(11, request11, config);
         printRequest(req, 11);
         std::cout << "Expected: 200 OK" << std::endl;
+        std::cout << req.path << std::endl;
+        std::cout << req.method << std::endl;
     }
     
     // TEST 12: Invalid URI characters

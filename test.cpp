@@ -1,14 +1,11 @@
-
-#include <ctime>
+#include <cctype>
 #include <iostream>
 
-int main(){
+int main() {
+    char c = '\v';
 
-    time_t va =  time(NULL);
-    struct tm tim = *localtime(&va);
-    std::cout <<tim.tm_sec << tim.tm_hour <<  tim.tm_min << std::endl;
-    std::cout << va << std::endl;
-    std::cout << ctime(&va) << std::endl;
-    std::string s = "eeee";
-    printf("%s\n", s.c_str());
+    if (isspace(c))
+        std::cout << "Whitespace\n";
+    else
+        std::cout << "Not whitespace\n";
 }

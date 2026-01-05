@@ -49,39 +49,17 @@ void checkClientConnection(maptype &config, Client &connect){
         return;
     }
     if (connect.keepAlive == false){
-        //deleteClient(config, connect.fd,  connect.fdEp);
+        deleteClient(config, connect.fd,  connect.fdEp);
     }
 }
-// u can control byte will send but just your buffer size should not be biger than string will send 
-// size_t countBuffersize(std::string buffer, Client &connect){
-    
-//     if (buffer.size() >= connect.responseSize)
-//     {
-//         connect.sending = true;
-//         return connect.responseSize;
-//     }    
-//     else 
-//         return buffer.size();
-// }
 
 
-// void sendResponse(maptype &config, Client &connect){
+void sendResponse(maptype &config, Client &connect){
     
+    int n = mysend(connect);
+  
+    if (n == 0)
+        connect.sending = false;
     
-//     //size_t sent = countBuffersize(connect.response, connect);
-//     //size_t len = send(connect.fd, connect.response.c_str(), sent, 0);
-//     // if (len <= 0){
-
-//     //     return ;
-//     // }
-//     // if (connect.response.size() <= 0){
-//     //     connect.sending = false;
-//     // }
-//     // else if (len < connect.response.size()){
-//     //     connect.response = connect.response.substr(len);
-//     // }
-//     cout << "we in sending response ";
-//     if (mysend(connect) == 0)
-//         deleteClient(config, connect.fd, connect.fdEp);
-//     checkClientConnection(config, connect);
-// }
+    checkClientConnection(config, connect);
+}

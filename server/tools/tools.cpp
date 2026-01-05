@@ -44,7 +44,6 @@ int creatEpoll( maptype config){
     Config conf;
     fdEp = epoll_create(8);
     Server* serv;
-   //makeNonBlockingFD(fdEp);
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
     }

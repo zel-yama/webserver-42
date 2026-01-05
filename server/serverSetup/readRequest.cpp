@@ -25,9 +25,9 @@ bool hasHeaderEnd(const std::string& buf)
 {
     std::cout << "---------------------------"<< std::endl;
 
-    if (buf.find("\r\n\r\n") != std::string::npos)
-        printf("yes i got header  %s\n", buf.c_str());
-    return buf.find("\r\n\r\n") != std::string::npos;
+    if (buf.find("\n\n") != std::string::npos || buf.find("\r\n\r\n") != std::string::npos)//new 
+        return true;
+    return false;
 }
 
 bool hasHeaderBody(const std::string &buf){
@@ -80,31 +80,34 @@ void printDebug(Client Connect){
 
 }
 int myread(Client &connect){
-    char tmp[70];
+    char tmp[1024];
     int n  = 0;
-    while((n = recv(connect.fd, tmp, 70, 0)) > 0)
-    {
-        if (n < 0)
-            return -1;
-        if (n == 0)
-            return 0;
-        tmp[n] = '\0';
+ 
+    n = read(connect.fd, tmp, 1024);
+    printf("this n of read byte in while {%d}\n", n);
+    if (n < 0)
+        return -1;
+    if (n == 0)
+        return 0;
+  
+    tmp[n] = '\0';
+    connect.byteSent += n;
+    std::string t = std::string(tmp, sizeof(tmp)); 
+            printf("t- > {%s}\n", t.c_str());//new how to append is can be problem in missing byte 
+    connect.buffer += tmp;
 
-        connect.byteSent += n;
-        std::string t = std::string(tmp, sizeof(tmp)); 
-        connect.buffer += tmp;
-
-    }
-    return -1;
+    
+    return 1;
 
 }
 
 void readRequest(int fd, std::string& buffer, Client &connect)
 {
-    char tmp[4096];// read or sent  then by exist is problem may segfualt
+    //char tmp[4096];// read or sent  then by exist is problem may segfualt
 
     // int n  = recv(fd, tmp, sizeof(tmp), 0);
-    myread(connect);
+    if (myread(connect) == -1)
+        return;
     // if (n <= 0 ){
     //     if (hasHeaderEnd(buffer)){
     //         if (checkPost(buffer))

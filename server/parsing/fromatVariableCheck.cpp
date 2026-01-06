@@ -17,7 +17,7 @@ void insertListenConfig(Server &serv, std::string &str){
     // std::cout << "port -> " << serv.port << "  iddress -> " << serv.ipAdress << std::endl ;
 }
 int extractInt(std::string &s, std::string &c){
-    int number;
+    int number = -1;
     std::stringstream ss(s);
     ss >> number;
     ss >> c;
@@ -30,7 +30,8 @@ void bodySizeMax(size_t &val, std::string &str){
     size_t max ;
     std::string c;
     max =  extractInt(str, c );
-    if (c.size() > 1)
+    
+    if (c.size() > 1 || max < 0)
         throw std::runtime_error("invalid value in max body size ");
     if (c[0] == 'M')
         max = max * 1e6;

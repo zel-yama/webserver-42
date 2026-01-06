@@ -152,7 +152,7 @@ servers parsing(std::string FileName){
     ///i should create fucntion to count brackets and mark up end of servers 
     bracketValidtion(tockV);
     printTocknes(tockV);
-    ///servs =  setUpServers(tockV);
+    servs =  setUpServers(tockV);
     return servs;
 
 }   

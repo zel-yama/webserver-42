@@ -9,6 +9,10 @@ int main(int av, char *argc[]){
 	int fd;
 	servers serv ;
 	servers::iterator it;
+	if (av != 2 ){
+		std::cerr << "invalid argument we should take [tow..!] " << std::endl;
+		return 1;
+	}
 	// parsing and fill this array create server and fill this  
 	try{
 		
@@ -22,7 +26,7 @@ int main(int av, char *argc[]){
 			it++;
 		}
 		
-		eventLoop(config);
+		//eventLoop(config);
 	}
 	catch (exception &e)
 	{

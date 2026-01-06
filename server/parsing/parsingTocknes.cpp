@@ -16,7 +16,7 @@ std::string removeSpaces(std::string &str){
 	return str.substr(start, (end - start));
 }
 
-void tockenValue(std::string &val, std::vector<tockens> &tockV){
+void tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value){
 	tockens tock;
 	size_t i = 0;
 	bool flagO = false;
@@ -43,7 +43,7 @@ void tockenValue(std::string &val, std::vector<tockens> &tockV){
 				if (!buff.empty())
 				{
 	
-					pushTockens(VALUE, tockV, buff);
+					pushTockens(value, tockV, buff);
 					buff.clear();
 					break;
 				}
@@ -61,15 +61,18 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 	tockens tock;
 	doubleIter it = v.begin();
 	std::string var;
+	TYPE enumValue = VALUE;
 	std::string val;
 	while(it != v.end()){
 		var = it->first;
+		if (var.compare("location"))
+			enumValue = LOCATIONPATH;
 		val = it->second;
 		if (!val.empty())
 			pushTockens(VARIABLE, tockenV, var);
 		if (it->second.empty())
 			val = var;
-		tockenValue(val, tockenV);
+		tockenValue(val, tockenV, enumValue);
 		it++;
 	}
   
@@ -86,7 +89,7 @@ void validatoinVarFormat( tockens &mytockens){
 			mytockens.val =  mytockens.val.substr(0, mytockens.val.size()-1);
 		}
 		else{
-			//throw std::runtime_error("invald var name ");
+			throw std::runtime_error("invald var name ");
 		}
 	}
 	mytockens.val =  removeSpaces(mytockens.val);

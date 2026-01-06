@@ -14,7 +14,7 @@ typedef enum TYPE{
     SERVER, 
     LOCATION, 
     METHODS,
-    
+    LOCATIONPATH,
 }   TYPE;
 typedef struct tockens{
     TYPE mytocken;

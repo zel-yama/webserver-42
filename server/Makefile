@@ -1,12 +1,19 @@
 
 NAME = server
-FILES = main.cpp  Server.cpp eventLoopt.cpp tools.cpp
-RM  = rm -rf 
+FILES = main.cpp  tools/printForDebug.cpp \
+		tools/tools.cpp  tools/tools1.cpp serverSetup/Server.cpp \
+ 		serverSetup/sendResponse.cpp serverSetup/eventLoopt.cpp \
+		serverSetup/readRequest.cpp parsing/fillCreateServers.cpp \
+		parsing/fromatVariableCheck.cpp \
+		parsing/parsing.cpp parsing/parsingTocknes.cpp \
+		Client.cpp
+
+	
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ -std=c++98 
+CC = c++ -I./include # -fsanitize=address,undefined -g -std=c++98 
 FLAGS = #-Werror -Wextra -Wall  -std=c++98
 
-%.o:%.cpp Server.hpp
+%.o:%.cpp ../webserv.hpp
 	$(CC) $(FLAGS) -c $< -o $@
 
 all: $(NAME)

@@ -68,9 +68,9 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 		if (var.compare("location"))
 			enumValue = LOCATIONPATH;
 		val = it->second;
-		if (!val.empty())
+		if (!val.empty())//?? just check empty case
 			pushTockens(VARIABLE, tockenV, var);
-		if (it->second.empty())
+		if (it->second.empty())//  if second empty it means val is var case { firt things in line it means it var i handl it using this case 
 			val = var;
 		tockenValue(val, tockenV, enumValue);
 		it++;
@@ -78,11 +78,40 @@ std::vector<tockens> tokeniezer(doubleStr &v){
   
 	return tockenV;
 }
+void checkTockens(tockens &tockn){
 
+	if (tockn.val.empty() || tockn.val.size() == 0)
+		return;
+	
+	if (!tockn.val.compare("server_name"))
+		tockn.mytocken = SERVERNAME;
+	else if (!tockn.val.compare("root"))
+		tockn.mytocken = ROOT;	
+	else if(!tockn.val.compare("return"))
+		tockn.mytocken = RETURN;
+	else if (!tockn.val.compare("autoindex"))
+		tockn.mytocken = AUTOINDEX;
+	else if (!tockn.val.compare("client_max_body_size"))
+		tockn.mytocken = BODYMAX;
+	else if (!tockn.val.compare("limit_except"))
+		tockn.mytocken = METHODS;
+	else if (!tockn.val.compare("index"))
+		tockn.mytocken = INDEX;
+	else if (!tockn.val.compare("server"))
+		tockn.mytocken = SERVER;
+	else if (!tockn.val.compare("listen"))
+		tockn.mytocken = LISTEN;
+	else if (!tockn.val.compare("error_page"))
+		tockn.mytocken = ERRORPAGE;
+else if (!tockn.val.compare("location"))
+		tockn.mytocken = LOCATION;
+	else 
+		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
+
+}
 // validtion of tocknes format 
 void validatoinVarFormat( tockens &mytockens){
 	mytockens.val =  removeSpaces(mytockens.val);
-	
 	if (!mytockens.val.empty() && mytockens.mytocken == 0){
 		if (mytockens.val[mytockens.val.size()- 1] == ';'){
 	   
@@ -91,12 +120,13 @@ void validatoinVarFormat( tockens &mytockens){
 		else{
 			throw std::runtime_error("invald var name ");
 		}
+		mytockens.val =  removeSpaces(mytockens.val);
 	}
-	mytockens.val =  removeSpaces(mytockens.val);
-   
-	// //removeSpaces(mytockens.val); 
-	// if (mytockens.mytocken == 1){
-	//     //here will check var name is exist 
-	// }
+   	mytockens.val =  removeSpaces(mytockens.val);
+	
+	if (mytockens.mytocken == 1){
+		
+	    checkTockens(mytockens);
+	}
 
 }

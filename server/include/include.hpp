@@ -15,10 +15,18 @@ typedef enum TYPE{
     LOCATION, 
     METHODS,
     LOCATIONPATH,
+    BODYMAX,
+    ERRORPAGE, 
+    RETURN,
+    ROOT,
+    SERVERNAME,
+    LISTEN,
+    CGI, 
+    AUTOINDEX,
+    INDEX,
 }   TYPE;
 typedef struct tockens{
     TYPE mytocken;
-   // std::string var[14] = {"cgi","limit_except", "root", "listen", "client_max_body_size", "error_page", "location", "server", "server_name", "index", "return", "autoindex"};
     std::string val;
 } tockens;
 

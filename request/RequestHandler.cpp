@@ -4,50 +4,42 @@
 
 RequestHandler::RequestHandler() {}
 
-Request RequestHandler::handleRequest(int fd, const std::string& rawData, const ServerConfig& config) {
-    Request req = parser.parse(fd, rawData);
-    
+Request RequestHandler::handleRequest(
+    int fd, std::string& raw, ServerConfig& config)
+{
+    Request req;
 
-    if (!req.complete || req.status != 200) {
+    try {
+        req = parser.parse(fd, raw);
+    } catch (...) {
+        req.status = 400;
+        req.complete = true;
         return req;
     }
 
-    Location* matchedLocation = findMatchingLocation(req.path, config.locations);
+    if (!req.complete)
+        return req;
 
-    if (!matchedLocation) {
+    Location* loc = findMatchingLocation(req.path, config.locations);
+    if (!loc) {
         req.status = 404;
         return req;
     }
-    
-    checkRedirection(req, matchedLocation);
-    if (req.status == 301) {
+
+    checkRedirection(req, loc);
+    if (req.status == 301)
         return req;
-    }
-    
-    validateMethod(req, matchedLocation);
-    if (req.status == 405) {
+
+    validateMethod(req, loc);
+    if (req.status == 405)
         return req;
-    }
-    
+
     validateBodySize(req, config.max_body_size);
-    if (req.status == 413) {
-        return req;
-    }
-
-    // if (req.method == "POST") {
-    //     if (!req.hasHeader("content-length")) {
-    //         std::cerr << "NOT FOUND - returning 400" << std::endl;
-    //         req.status = 400;
-    //         req.complete = true;
-    //         return req;
-    //     }
-    //     std::cerr << "FOUND" << std::endl;
-    // }
-
     return req;
 }
 
-Location* RequestHandler::findMatchingLocation(const std::string& uri, const std::vector<Location>& locations) {
+
+Location* RequestHandler::findMatchingLocation(std::string& uri, std::vector<Location>& locations) {
     Location* bestMatch = NULL;
     size_t longestMatch = 0;
     
@@ -77,8 +69,7 @@ Location* RequestHandler::findMatchingLocation(const std::string& uri, const std
     return bestMatch;
 }
 
-bool RequestHandler::isMethodAllowed(const std::string& method, 
-                                     const std::vector<std::string>& allowedMethods) {
+bool RequestHandler::isMethodAllowed(std::string& method, std::vector<std::string>& allowedMethods) {
     for (size_t i = 0; i < allowedMethods.size(); i++) {
         if (allowedMethods[i] == method) {
             return true;
@@ -87,7 +78,7 @@ bool RequestHandler::isMethodAllowed(const std::string& method,
     return false;
 }
 
-void RequestHandler::validateMethod(Request& req, const Location* location) {
+void RequestHandler::validateMethod(Request& req, Location* location) {
     if (!isMethodAllowed(req.method, location->allowed_methods)) {
         req.status = 405;
     }
@@ -100,7 +91,7 @@ void RequestHandler::validateBodySize(Request& req, size_t maxBodySize) {
     }
 }
 
-void RequestHandler::checkRedirection(Request& req, const Location* location) {
+void RequestHandler::checkRedirection(Request& req, Location* location) {
     if (!location->redirect.empty()) {
         req.status = 301;
         // req.redirectUrl = location->redirect;

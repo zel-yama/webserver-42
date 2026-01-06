@@ -25,24 +25,5 @@ struct ServerConfig {
     ServerConfig() : max_body_size(1000000) {}
 };
 
-class Request {
-    public:
-        int status;
-        bool headerComplete;
-        bool complete;
-        std::string method;
-        std::string path;
-        std::string version;
-        std::string body;
-        std::map<std::string, std::string> headers;
-        
-        Location* matchedLocation;   // for test
-        std::string redirectUrl;      // for test
-        std::string resolvedPath;  // for test
-
-        Request();
-        std::string getHeader(const std::string& key) const;
-        bool hasHeader(const std::string& key) const;
-};
 
 #endif

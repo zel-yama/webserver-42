@@ -8,15 +8,15 @@ class RequestHandler {
     private:
         RequestParser parser;
         
-        Location* findMatchingLocation(const std::string& uri, const std::vector<Location>& locations);
-        bool isMethodAllowed(const std::string& method, const std::vector<std::string>& allowedMethods);
-        void validateMethod(Request& req, const Location* location);
-        void checkRedirection(Request& req, const Location* location);
+        Location* findMatchingLocation(std::string& uri, std::vector<Location>& locations);
+        bool isMethodAllowed(std::string& method, std::vector<std::string>& allowedMethods);
+        void validateMethod(Request& req, Location* location);
+        void checkRedirection(Request& req, Location* location);
         void validateBodySize(Request& req, size_t maxBodySize);
         
     public:
         RequestHandler();
-        Request handleRequest(int fd, const std::string& rawData, const ServerConfig& config);
+        Request handleRequest(int fd, std::string& rawData, ServerConfig& config);
 };
 
 #endif

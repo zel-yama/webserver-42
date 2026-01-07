@@ -5,84 +5,89 @@
 
 void serverCases(tockenIt &it, Server &serv){
     
-    
-    if (!it->val.compare("root")){
-        it++;
-        rootHandler(it->val, serv.root);
+    switch (it->mytocken)
+    {
+        case ROOT:
+            it++;
+            variableSingleValue(it->val, serv.root);
+            break;
+        case LISTEN: 
+            it++;
+            insertListenConfig(serv, it->val);
+            break;
+        case BODYMAX:
+            it++;
+            bodySizeMax(serv.bodyMaxByte, it->val); 
+            break;   
+        case METHODS:
+            it++;
+            methodesHandler(serv.allowedMethods, it->val);
+            break;
+        case AUTOINDEX:
+            it++;
+            outoIndexHandler(it->val, serv.outoIndex);
+            break;
+        case INDEX:
+            it++;
+            methodesHandler(serv.indexFile, it->val);
+            break;
+        case SERVERNAME:
+            it++;
+            variableSingleValue(it->val, serv.ServerName);
+            break;
+        case ERRORPAGE:
+            it++;
+            methodsIntKey(serv.D_ErrorPages, it->val);
+            break;
+        case RETURN:
+            it++;
+            variableSingleValue(it->val, serv.returnP );
+            break;
+        default:
+            break;
     }
-    else  if (!it->val.compare("listen")){
-        it++;
-        insertListenConfig(serv, it->val);
-    
-    }
-    else if (!it->val.compare("client_max_body_size")){
-        it++;
-        bodySizeMax(serv.bodyMaxByte, it->val);
-
-    }
-    else if (!it->val.compare("limit_except")){
-        it++;
-        methodesHandler(serv.allowedMethods, it->val);
-    }
-    else if (!it->val.compare("autoindex")){
-        it++;
-        outoIndexHandler(it->val, serv.outoIndex);
-    }
-    else if (!it->val.compare("index")){
-        it++;
-        methodesHandler(serv.indexFile, it->val);
-    }
-    else if (!it->val.compare("server_name")){
-        it++;
-        rootHandler(it->val, serv.ServerName);
-    }
-    else if (!it->val.compare("error_page")){
-        it++;
-        methodsIntKey(serv.D_ErrorPages, it->val);
-    }
-    else if( !it->val.compare("location")){
-        it++;
-        rootHandler(it->val, serv.ServerName);
-    }
- 
 }
+
 void locationCases(tockenIt &it, location &local){
     
     
-    if (!it->val.compare("root")){
-        it++;
-        rootHandler(it->val, local.root);
+    switch (it->mytocken)
+    {
+        case ROOT:
+            it++;
+            variableSingleValue(it->val, local.root);
+            break;
+        case BODYMAX:
+            it++;
+            bodySizeMax(local.bodyMaxByte, it->val);
+            break;
+        case METHODS:
+            it++;
+            methodesHandler(local.allowedMethods, it->val);
+            break;
+        case AUTOINDEX:
+            it++;
+            outoIndexHandler(it->val, local.outoIndex);
+            break;
+        case INDEX:
+            it++;
+            methodesHandler(local.indexFile, it->val);
+            break;
+        case ERRORPAGE:
+            it++;
+            methodsIntKey(local.D_ErrorPages, it->val);
+            break;
+        case LOCATION:
+            it++;
+            variableSingleValue(it->val, local.locationPath);
+            break;
+        case RETURN:
+            it++;
+            variableSingleValue(it->val, local.returnP);
+        default:
+            break;
     }
-
-    else if (!it->val.compare("client_max_body_size")){
-        it++;
-        bodySizeMax(local.bodyMaxByte, it->val);
-
-    }
-    else if (!it->val.compare("limit_except")){
-        it++;
-        methodesHandler(local.allowedMethods, it->val);
-    }
-    else if (!it->val.compare("autoindex")){
-        it++;
-        outoIndexHandler(it->val, local.outoIndex);
-    }
-    else if (!it->val.compare("index")){
-        it++;
-        methodesHandler(local.indexFile, it->val);
-    }
- 
-    else if (!it->val.compare("error_page")){
-        it++;
-        methodsIntKey(local.D_ErrorPages, it->val);
-    }
-    else if( !it->val.compare("location")){
-        it++;
-        rootHandler(it->val, local.locationPath);
-    }
- 
 }
-
 
 location locationHandling(tockenIt &it){
     location local;
@@ -94,7 +99,9 @@ location locationHandling(tockenIt &it){
     }
   return local;
 }
+
 void location_handle(Server &serv, std::string path){
+
     serv.ServerName = path;
 }
 

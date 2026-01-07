@@ -44,9 +44,14 @@ void bodySizeMax(size_t &val, std::string &str){
     val = max;
 }
 
-void rootHandler(std::string root, std::string &buff){
-    // printf("rooot handl %s\n", root.c_str());
-    buff = root;
+void variableSingleValue(std::string str, std::string &buff){
+    std::stringstream ss(str);
+    std::string isEMpty;
+
+    ss >> buff;
+    ss >> isEMpty;
+    if (!isEMpty.empty())
+        throw std::runtime_error("invald  excrat value{" + str + "}");
 }
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){

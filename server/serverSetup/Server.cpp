@@ -5,6 +5,13 @@
 
 Server::Server(){
     name = "Server";
+    root = "./";
+    bodyMaxByte = 1e8;
+    ipAdress = "0.0.0.0";
+    outoIndex = false;
+    port = 8080;
+    
+
 }
 location::location(){
     this->bodyMaxByte  = 0;

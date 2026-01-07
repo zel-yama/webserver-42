@@ -6,12 +6,13 @@ FILES = main.cpp  tools/printForDebug.cpp \
 		serverSetup/readRequest.cpp parsing/fillCreateServers.cpp \
 		parsing/fromatVariableCheck.cpp \
 		parsing/parsing.cpp parsing/parsingTocknes.cpp \
-		Client.cpp
+		Client.cpp parsing/tocknizeValue.cpp parsing/tocknesCases.cpp \
+		parsing/bracketValidtion.cpp
 
 	
 OBJ = $(FILES:.cpp=.o) 
 CC = c++ -I./include  -fsanitize=address,undefined -g -std=c++98 
-FLAGS = #-Werror -Wextra -Wall  -std=c++98
+FLAGS = -Werror -Wextra -Wall  -std=c++98
 
 %.o:%.cpp ../webserv.hpp
 	$(CC) $(FLAGS) -c $< -o $@

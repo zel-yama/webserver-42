@@ -2,7 +2,7 @@
 #include "../include/parsing.hpp"
 
 void applyRules(std::vector<tockens> &tocknes){
-
+    (void)tocknes;
 }
 
 

@@ -58,7 +58,7 @@ bool getContentLength(const std::string& headers, Client &connect)
 
 
 void readBody(int fd, Client &connect ){
-    char *tmp;
+    char *tmp = NULL;
     int n  = recv(fd, tmp, connect.bodysize, MSG_DONTWAIT);
     if (n <= 0)
         return ;
@@ -101,7 +101,7 @@ int myread(Client &connect){
 
 }
 
-void readRequest(int fd, std::string& buffer, Client &connect)
+void readRequest(int fd,  Client &connect)
 {
     //char tmp[4096];// read or sent  then by exist is problem may segfualt
 

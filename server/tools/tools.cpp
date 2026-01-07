@@ -43,7 +43,6 @@ int creatEpoll( maptype config){
     int fdEp;
     Config conf;
     fdEp = epoll_create(8);
-    Server* serv;
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
     }
@@ -71,7 +70,7 @@ void printInfo(string Info, string descr){
     printf("  [%s]  %s\n", Info.c_str(), descr.c_str());
 }
 
-bool checkTimeout(long prevTime, long timeSec){
+bool checkTimeout(long timeSec){
     time_t currentTime = time(NULL);
     int diff = currentTime - timeSec;
     if (diff > 0)

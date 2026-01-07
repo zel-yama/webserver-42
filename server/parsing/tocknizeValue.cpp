@@ -4,9 +4,8 @@
 void tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value){
 	tockens tock;
 	size_t i = 0;
-	bool flagO = false;
+
 	std::string buff  = "";
-	bool flagC = false; 
 	while(i < val.size()){
 		if (val[i] == '{'){
 			pushTockens(OPENED_PRACKET, tockV, "{");

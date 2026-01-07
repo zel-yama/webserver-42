@@ -25,9 +25,15 @@ void                    bodySizeMax(size_t &val, std::string &str);
 int                     extractInt(std::string &s, std::string &c);
 void                    insertListenConfig(Server &serv, std::string &str);
 void                    outoIndexHandler(std::string val, bool &cond);
-servers                  setUpServers(std::vector<tockens> &v);
+servers                 setUpServers(std::vector<tockens> &v);
 void                    validatoinVarFormat( tockens &mytockens);
 int                     convertString(std::string &str);
+void                    checkTockens(tockens &tockn);
+void                    locationCases(tockenIt &it, location &local);
+void                    serverCases(tockenIt &it, Server &serv);
+void                    tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value);
+void                    bracketValidtion(std::vector<tockens> &tockens);
+
 //--------------------------------------------------
     void printKeyInt(IntKey v);
     void printlocation(location obj);

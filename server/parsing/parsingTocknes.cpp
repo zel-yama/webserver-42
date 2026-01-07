@@ -16,45 +16,7 @@ std::string removeSpaces(std::string &str){
 	return str.substr(start, (end - start));
 }
 
-void tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value){
-	tockens tock;
-	size_t i = 0;
-	bool flagO = false;
-	std::string buff  = "";
-	bool flagC = false; 
-	while(i < val.size()){
-		if (val[i] == '{'){
-			pushTockens(OPENED_PRACKET, tockV, "{");
-			i++;
-		}
-		if (val[i] == '}'){
-			pushTockens(CLOSED_PRACKET, tockV, "}");
-			i++;
-		}
-		while(i < val.size())
-		{
-			if (val[i] != '}' && val[i] != '{')
-			{
-				buff.push_back(val[i]);
-				i++;
-			}
-			else{
-				buff = removeSpaces(buff);
-				if (!buff.empty())
-				{
-	
-					pushTockens(value, tockV, buff);
-					buff.clear();
-					break;
-				}
-				else 
-					break;
-			}   
-		}
-		if (!buff.empty())
-			pushTockens(VALUE, tockV, buff);
-	}
-}
+
 
 std::vector<tockens> tokeniezer(doubleStr &v){
 	std::vector<tockens> tockenV;
@@ -78,37 +40,7 @@ std::vector<tockens> tokeniezer(doubleStr &v){
   
 	return tockenV;
 }
-void checkTockens(tockens &tockn){
 
-	if (tockn.val.empty() || tockn.val.size() == 0)
-		return;
-	
-	if (!tockn.val.compare("server_name"))
-		tockn.mytocken = SERVERNAME;
-	else if (!tockn.val.compare("root"))
-		tockn.mytocken = ROOT;	
-	else if(!tockn.val.compare("return"))
-		tockn.mytocken = RETURN;
-	else if (!tockn.val.compare("autoindex"))
-		tockn.mytocken = AUTOINDEX;
-	else if (!tockn.val.compare("client_max_body_size"))
-		tockn.mytocken = BODYMAX;
-	else if (!tockn.val.compare("limit_except"))
-		tockn.mytocken = METHODS;
-	else if (!tockn.val.compare("index"))
-		tockn.mytocken = INDEX;
-	else if (!tockn.val.compare("server"))
-		tockn.mytocken = SERVER;
-	else if (!tockn.val.compare("listen"))
-		tockn.mytocken = LISTEN;
-	else if (!tockn.val.compare("error_page"))
-		tockn.mytocken = ERRORPAGE;
-else if (!tockn.val.compare("location"))
-		tockn.mytocken = LOCATION;
-	else 
-		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
-
-}
 // validtion of tocknes format 
 void validatoinVarFormat( tockens &mytockens){
 	mytockens.val =  removeSpaces(mytockens.val);
@@ -118,7 +50,7 @@ void validatoinVarFormat( tockens &mytockens){
 			mytockens.val =  mytockens.val.substr(0, mytockens.val.size()-1);
 		}
 		else{
-			throw std::runtime_error("invald var name ");
+			throw std::runtime_error("invald var name {" + mytockens.val + "}");
 		}
 		mytockens.val =  removeSpaces(mytockens.val);
 	}

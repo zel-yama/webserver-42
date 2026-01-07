@@ -105,15 +105,12 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
     }
     if (its != vS.end() && value.empty())
        throw std::runtime_error("invalid value [" + *its + "]in error page");
-
 }
 
 void outoIndexHandler(std::string val, bool &cond){
-    ///printf("auto index handle %s\n", val.c_str());
+    
     if (val.compare("on"))
         cond = true;
     else 
         cond = false;
-
 }
-

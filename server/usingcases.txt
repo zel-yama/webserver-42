@@ -38,3 +38,8 @@ test:   error_page   500 502 503 504  /50x.html;
 test:  client_max_body_size 1515515151181854181784515441817854M; cas
     nginx: [emerg] "client_max_body_size" directive invalid value in /home/zel-yama/nginx/conf/nginx.conf:6
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+case of rules  : 
+
+rules i should put ->   location  locationpath   open  variable value end of value;
+server open variable value end of value  
+

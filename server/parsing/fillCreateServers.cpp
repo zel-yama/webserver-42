@@ -5,6 +5,9 @@
 
 void serverCases(tockenIt &it, Server &serv){
     
+    if (it->mytocken == CLOSED_PRACKET || it->mytocken == OPENED_PRACKET
+        || it->mytocken == SERVER)
+        return ;
     switch (it->mytocken)
     {
         case ROOT:
@@ -43,14 +46,17 @@ void serverCases(tockenIt &it, Server &serv){
             it++;
             variableSingleValue(it->val, serv.returnP );
             break;
+        
         default:
+            throw std::runtime_error("invalid value {"+ it->val + "} put invalid config in server");
             break;
     }
 }
 
 void locationCases(tockenIt &it, location &local){
     
-    
+      if (it->mytocken == CLOSED_PRACKET || it->mytocken == OPENED_PRACKET)
+        return ;
     switch (it->mytocken)
     {
         case ROOT:
@@ -85,6 +91,7 @@ void locationCases(tockenIt &it, location &local){
             it++;
             variableSingleValue(it->val, local.returnP);
         default:
+            throw std::runtime_error("invalid value {"+ it->val + "} put invalid config in location");
             break;
     }
 }

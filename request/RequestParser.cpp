@@ -196,7 +196,6 @@ Request RequestParser::parse(int fd, const std::string& data)
 
     req.complete = true;
 
-    /* ---- CLEAN BUFFER IF CONNECTION CLOSES ---- */
     if (req.should_close)
         buffer.erase(fd);
 

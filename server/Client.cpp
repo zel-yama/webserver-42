@@ -19,5 +19,7 @@ Client::Client(){
     "<html><body><h1>Hello!</h1><p>This is a random response.</p></body></html>";
     sending = false;
     responseSize = 8000;
+
+    // mine ..... mohamed
+    parsedRequest = Request();
 }
-   

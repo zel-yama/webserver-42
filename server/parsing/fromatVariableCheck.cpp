@@ -17,7 +17,7 @@ void insertListenConfig(Server &serv, std::string &str){
     // std::cout << "port -> " << serv.port << "  iddress -> " << serv.ipAdress << std::endl ;
 }
 int extractInt(std::string &s, std::string &c){
-    int number;
+    int number = -1;
     std::stringstream ss(s);
     ss >> number;
     ss >> c;
@@ -30,7 +30,8 @@ void bodySizeMax(size_t &val, std::string &str){
     size_t max ;
     std::string c;
     max =  extractInt(str, c );
-    if (c.size() > 1)
+    
+    if (c.size() > 1 || max < 0)
         throw std::runtime_error("invalid value in max body size ");
     if (c[0] == 'M')
         max = max * 1e6;
@@ -43,9 +44,14 @@ void bodySizeMax(size_t &val, std::string &str){
     val = max;
 }
 
-void rootHandler(std::string root, std::string &buff){
-    // printf("rooot handl %s\n", root.c_str());
-    buff = root;
+void variableSingleValue(std::string str, std::string &buff){
+    std::stringstream ss(str);
+    std::string isEMpty;
+
+    ss >> buff;
+    ss >> isEMpty;
+    if (!isEMpty.empty())
+        throw std::runtime_error("invald  excrat value{" + str + "}");
 }
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){

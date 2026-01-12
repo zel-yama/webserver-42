@@ -7,7 +7,7 @@
 #include <fstream>
 #include <ctime>
 #include <sys/stat.h>
-#include "../request/Request.hpp"
+#include "../webserv.hpp"
 #include "../server/Server.hpp"
 
 class Request;

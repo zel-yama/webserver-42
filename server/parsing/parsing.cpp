@@ -35,6 +35,10 @@ std::vector<std::string> stripSpaces(std::vector<std::string> &config){
     }
     return newvector;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin
 bool checkBracket(std::string &s){
 
     for(size_t i = 0; i < s.size(); i++){
@@ -83,8 +87,13 @@ void bracketValidtion(std::vector<tockens> &tockens){
             count_closed++;
         it++;
     }  
+<<<<<<< HEAD
     if (count_closed != count_opened)
         std::runtime_error("error in bracket ");
+=======
+    if ((count_closed != count_opened) || count_closed == 0 || count_opened == 0)
+        throw std::runtime_error("Error in bracket "); 
+>>>>>>> origin
     count_closed = 0;
     count_opened = 0;
     it = tockens.begin();
@@ -94,6 +103,10 @@ void bracketValidtion(std::vector<tockens> &tockens){
             it++;
             while (it != tockens.end())
             {
+<<<<<<< HEAD
+=======
+                
+>>>>>>> origin
                 if (it->mytocken == OPENED_PRACKET)
                     count_opened++;
                 if (it->mytocken == CLOSED_PRACKET)
@@ -149,7 +162,11 @@ servers parsing(std::string FileName){
     tockV = tokeniezer(v);
     ///i should create fucntion to count brackets and mark up end of servers 
     bracketValidtion(tockV);
+<<<<<<< HEAD
     //printTocknes(tockV);
+=======
+    printTocknes(tockV);
+>>>>>>> origin
     servs =  setUpServers(tockV);
     return servs;
 

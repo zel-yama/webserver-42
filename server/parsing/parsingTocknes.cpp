@@ -16,7 +16,11 @@ std::string removeSpaces(std::string &str){
 	return str.substr(start, (end - start));
 }
 
+<<<<<<< HEAD
 void tockenValue(std::string &val, std::vector<tockens> &tockV){
+=======
+void tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value){
+>>>>>>> origin
 	tockens tock;
 	size_t i = 0;
 	bool flagO = false;
@@ -43,7 +47,11 @@ void tockenValue(std::string &val, std::vector<tockens> &tockV){
 				if (!buff.empty())
 				{
 	
+<<<<<<< HEAD
 					pushTockens(VALUE, tockV, buff);
+=======
+					pushTockens(value, tockV, buff);
+>>>>>>> origin
 					buff.clear();
 					break;
 				}
@@ -61,6 +69,7 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 	tockens tock;
 	doubleIter it = v.begin();
 	std::string var;
+<<<<<<< HEAD
 	std::string val;
 	while(it != v.end()){
 		var = it->first;
@@ -70,22 +79,74 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 		if (it->second.empty())
 			val = var;
 		tockenValue(val, tockenV);
+=======
+	TYPE enumValue = VALUE;
+	std::string val;
+	while(it != v.end()){
+		var = it->first;
+		if (var.compare("location"))
+			enumValue = LOCATIONPATH;
+		val = it->second;
+		if (!val.empty())//?? just check empty case
+			pushTockens(VARIABLE, tockenV, var);
+		if (it->second.empty())//  if second empty it means val is var case { firt things in line it means it var i handl it using this case 
+			val = var;
+		tockenValue(val, tockenV, enumValue);
+>>>>>>> origin
 		it++;
 	}
   
 	return tockenV;
 }
+<<<<<<< HEAD
 
 // validtion of tocknes format 
 void validatoinVarFormat( tockens &mytockens){
 	mytockens.val =  removeSpaces(mytockens.val);
 	
+=======
+void checkTockens(tockens &tockn){
+
+	if (tockn.val.empty() || tockn.val.size() == 0)
+		return;
+	
+	if (!tockn.val.compare("server_name"))
+		tockn.mytocken = SERVERNAME;
+	else if (!tockn.val.compare("root"))
+		tockn.mytocken = ROOT;	
+	else if(!tockn.val.compare("return"))
+		tockn.mytocken = RETURN;
+	else if (!tockn.val.compare("autoindex"))
+		tockn.mytocken = AUTOINDEX;
+	else if (!tockn.val.compare("client_max_body_size"))
+		tockn.mytocken = BODYMAX;
+	else if (!tockn.val.compare("limit_except"))
+		tockn.mytocken = METHODS;
+	else if (!tockn.val.compare("index"))
+		tockn.mytocken = INDEX;
+	else if (!tockn.val.compare("server"))
+		tockn.mytocken = SERVER;
+	else if (!tockn.val.compare("listen"))
+		tockn.mytocken = LISTEN;
+	else if (!tockn.val.compare("error_page"))
+		tockn.mytocken = ERRORPAGE;
+else if (!tockn.val.compare("location"))
+		tockn.mytocken = LOCATION;
+	else 
+		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
+
+}
+// validtion of tocknes format 
+void validatoinVarFormat( tockens &mytockens){
+	mytockens.val =  removeSpaces(mytockens.val);
+>>>>>>> origin
 	if (!mytockens.val.empty() && mytockens.mytocken == 0){
 		if (mytockens.val[mytockens.val.size()- 1] == ';'){
 	   
 			mytockens.val =  mytockens.val.substr(0, mytockens.val.size()-1);
 		}
 		else{
+<<<<<<< HEAD
 			//throw std::runtime_error("invald var name ");
 		}
 	}
@@ -95,5 +156,17 @@ void validatoinVarFormat( tockens &mytockens){
 	// if (mytockens.mytocken == 1){
 	//     //here will check var name is exist 
 	// }
+=======
+			throw std::runtime_error("invald var name ");
+		}
+		mytockens.val =  removeSpaces(mytockens.val);
+	}
+   	mytockens.val =  removeSpaces(mytockens.val);
+	
+	if (mytockens.mytocken == 1){
+		
+	    checkTockens(mytockens);
+	}
+>>>>>>> origin
 
 }

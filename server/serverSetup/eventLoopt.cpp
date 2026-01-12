@@ -38,16 +38,45 @@ void eventLoop(maptype config ){
                 }
                 else         
                 {
+<<<<<<< HEAD
+=======
+
+                    Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                
+                    // Get the server for this client
+                    Server *clientServer = getServerFromClient(config, *Cli);
+                    if (!clientServer) {
+                        std::cerr << "Error: Cannot find server for client " << Cli->fd << std::endl;
+                        deleteClient(config, Cli->fd, fdEp);
+                        continue;
+                    }
+
+>>>>>>> origin
                     if (events[i].events & (EPOLLIN | EPOLLET)){
                         std::cout << "  they say what happnes " << std::endl;
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                    
+<<<<<<< HEAD
                         readRequest(events[i].data.fd, Cli->buffer, *Cli);
 
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
                         else 
                             continue;
+=======
+                        readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
+
+                        if (!Cli->keepAlive && !Cli->requestFinish) {
+                            // Client closed connection without completing request
+                            std::cout << "Client " << Cli->fd << " disconnected, cleaning up" << std::endl;
+                            deleteClient(config, Cli->fd, fdEp);
+                            continue;
+                        }
+                        if (Cli->requestFinish)
+                            sendResponse(config, *Cli);
+                        // else 
+                        //     continue;
+>>>>>>> origin
                     }
                     if (events[i].events & EPOLLOUT ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));

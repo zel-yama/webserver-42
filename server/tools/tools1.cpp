@@ -6,6 +6,7 @@
 // after this work and check performonc 
 // that could be a problem if wait hanging system and will cause accept connection but without check timeout 
 // void checkClientsTimeout(maptype& config, int fdEp) // fisrt for client after no cleint read or sent resposnse if timeout 
+<<<<<<< HEAD
 // {
 
 //     Config data;
@@ -51,6 +52,11 @@
 //         deleteClient(config, connect.fd,  connect.fdEp);
 //     }
 // }
+=======
+
+// after send response check connction status 
+
+>>>>>>> origin
 // u can control byte will send but just your buffer size should not be biger than string will send 
 size_t countBuffersize(std::string buffer, Client &connect){
     

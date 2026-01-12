@@ -12,6 +12,10 @@
 #include "include.hpp"
 
 struct location;
+<<<<<<< HEAD
+=======
+class Client;
+>>>>>>> origin
 
 
 typedef map<string, string>::iterator iter;
@@ -36,6 +40,12 @@ class Server : public Config {
         std::string                         ClientMaxBody;
         std::vector<location>               objLocation;
         std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
+<<<<<<< HEAD
+=======
+
+        // for me  (mohamed)
+        RequestParser               parser;
+>>>>>>> origin
         
         int                                 CreateServer(int port, std::string ipaddress );
         void                                listenFunction();
@@ -62,6 +72,11 @@ void eventLoop(maptype config );
 int addSockettoEpoll(int fdEp, struct epoll_event  data);
 size_t countBuffersize(std::string buffer, Client &connect);
 
+<<<<<<< HEAD
+=======
+// Helper to get server from client (me again)
+Server* getServerFromClient(maptype& config, Client& client);
+>>>>>>> origin
 
 
 #endif

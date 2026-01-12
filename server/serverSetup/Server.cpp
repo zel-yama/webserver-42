@@ -5,6 +5,16 @@
 
 Server::Server(){
     name = "Server";
+<<<<<<< HEAD
+=======
+    root = "./";
+    bodyMaxByte = 1e8;
+    ipAdress = "0.0.0.0";
+    outoIndex = false;
+    port = 8080;
+    
+
+>>>>>>> origin
 }
 location::location(){
     this->bodyMaxByte  = 0;
@@ -14,7 +24,11 @@ location::location(){
 
 Client Server::acceptClient(){
     Client newOne;
+<<<<<<< HEAD
     newOne.serverId = this->serverId;
+=======
+    newOne.serverId = this->fd; // i change this to fd?
+>>>>>>> origin
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
     newOne.fd = makeNonBlockingFD(newOne.fd);

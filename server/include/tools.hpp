@@ -17,7 +17,11 @@ void         __displayTime();
 void        sendResponse(maptype &config, Client &connect);
 
 int     mysend(Client &connect);
+<<<<<<< HEAD
 void    readRequest(int fd, std::string& buffer, Client &connect);
+=======
+void readRequest(int fd, std::string& buffer, Client &connect, RequestParser &parser);
+>>>>>>> origin
 void    checkClientsTimeout(maptype& config, int fdEp);
 void     checkClientConnection(maptype &config, Client &connect);
 void    printAllConfig(std::vector<Server> servs);

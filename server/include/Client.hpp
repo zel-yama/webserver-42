@@ -32,6 +32,9 @@ class Client: public Config{
         long byteSent;
         long responseSize;
         long bodysizeRequest;
+
+        // i add this
+        Request parsedRequest;
 };
 
 #endif

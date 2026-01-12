@@ -9,6 +9,13 @@ int main(int av, char *argc[]){
 	int fd;
 	servers serv ;
 	servers::iterator it;
+<<<<<<< HEAD
+=======
+	if (av != 2 ){
+		std::cerr << "invalid argument we should take [tow..!] " << std::endl;
+		return 1;
+	}
+>>>>>>> origin
 	// parsing and fill this array create server and fill this  
 	try{
 		
@@ -16,13 +23,22 @@ int main(int av, char *argc[]){
 		it = serv.begin();
 		while(it != serv.end()){
 			Serv = *it;
+<<<<<<< HEAD
 			
 			fd = Serv.CreateServer(Serv.port, Serv.ipAdress);
+=======
+			fd = Serv.CreateServer(Serv.port, Serv.ipAdress);
+			Serv.serverId = fd;
+>>>>>>> origin
 			config.insert(pair<int, Config *>(fd, &Serv));
 			it++;
 		}
 		
+<<<<<<< HEAD
 		eventLoop(config);
+=======
+		//eventLoop(config);
+>>>>>>> origin
 	}
 	catch (exception &e)
 	{

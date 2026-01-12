@@ -10,7 +10,11 @@ FILES = main.cpp  tools/printForDebug.cpp \
 
 	
 OBJ = $(FILES:.cpp=.o) 
+<<<<<<< HEAD
 CC = c++ -I./include # -fsanitize=address,undefined -g -std=c++98 
+=======
+CC = c++ -I./include  -fsanitize=address,undefined -g -std=c++98 
+>>>>>>> origin
 FLAGS = #-Werror -Wextra -Wall  -std=c++98
 
 %.o:%.cpp ../webserv.hpp

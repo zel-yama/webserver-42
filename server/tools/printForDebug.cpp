@@ -87,7 +87,11 @@ void printAllConfig(std::vector<Server> servs){
 
      while (it != servs.end()){
 
+<<<<<<< HEAD
         // printf("printAllConfig\n");
+=======
+
+>>>>>>> origin
         printAttr(*it);
         printLocation(it->objLocation);
         it++;  

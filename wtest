@@ -1,0 +1,84 @@
+======================================
+      WEBSERVER FULL TEST SUITE        
+======================================
+
+==== 1. VALID REQUESTS (SHOULD PASS) ====
+[GET /]
+Status: 200
+[GET /index.html]
+Status: 404
+[GET /images/ (autoindex)]
+Status: 200
+[POST /upload]
+Status: 200
+
+==== 2. METHOD RESTRICTIONS (SHOULD FAIL) ====
+[POST /]
+Status: 405
+[DELETE /]
+Status: 405
+[PUT /images]
+Status: 400
+[GET /upload]
+Status: 400
+
+==== 3. HOST HEADER TESTS ====
+[NO Host header]
+Status: 400
+[WRONG Host header]
+Status: 400
+
+==== 4. BODY & CONTENT-LENGTH TESTS ====
+[POST /upload without body]
+Status: 400
+[INVALID Content-Length]
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+Content-Length: 50
+Connection: keep-alive
+
+<html><body><h1>400 Bad Request</h1></body></html>
+==== 5. CLIENT_MAX_BODY_SIZE (10M) ====
+[BODY > 10MB]
+Status: 400
+
+==== 6. PATH TRAVERSAL / SECURITY ====
+[../../etc/passwd]
+Status: 400
+[URL-ENCODED traversal]
+Status: 400
+
+==== 7. ERROR PAGES ====
+[404 NOT FOUND]
+Status: 400
+
+==== 8. HTTP PARSER ROBUSTNESS ====
+[HTTP/1.0 request]
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+Content-Length: 50
+Connection: keep-alive
+
+<html><body><h1>400 Bad Request</h1></body></html>[Missing CRLF]
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+Content-Length: 50
+Connection: keep-alive
+
+<html><body><h1>400 Bad Request</h1></body></html>[Extra spaces]
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+Content-Length: 50
+Connection: keep-alive
+
+<html><body><h1>400 Bad Request</h1></body></html>
+==== 9. KEEP-ALIVE / MULTI REQUEST ====
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+Content-Length: 50
+Connection: keep-alive
+
+<html><body><h1>400 Bad Request</h1></body></html>
+======================================
+        TEST SUITE FINISHED            
+======================================

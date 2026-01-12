@@ -1,0 +1,6 @@
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+methodsIntKey -> | function is  404 /errors/404.html turn it to map key value just now i should check many format |> path  to it  server/parsing/fromatVariableCheck.cpp
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+bracketValidtion -> {function count "{}" check is every opened brackt have close and he check end of server and mark it } ->  path to it server/parsing/parsing.cpp

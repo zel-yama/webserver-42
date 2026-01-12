@@ -1,7 +1,9 @@
 #include "Response.hpp"
 
 Response::Response()
-    : statusCode(200), statusMessage("OK"), protocol("HTTP"), version("1.0"), body("<h1>Hello World</h1>")
+    : statusCode(200), statusMessage("OK"),
+      protocol("HTTP"), version("1.0"),
+      body("<h1>Hello World</h1>")
 {
     statusMap[200] = "OK";
     statusMap[201] = "Created";
@@ -34,31 +36,6 @@ void Response::setHeader(const std::string &key, const std::string &value)
 {
     headers[key] = value;
 }
-
-void Response::setBody(const std::string &body)
-{
-    this->body = body;
-}
-void Response::setVersion(const std::string& version)
-{
-    this->version = version;
-}
-
-int Response::getStatusCode() const
-{
-    return statusCode;
-}
-
-const std::string &Response::getStatusMessage() const
-{
-    return statusMessage;
-}
-
-const std::string &Response::getBody() const
-{
-    return body;
-}
-
 static std::string toString(size_t n)
 {
     std::ostringstream oss;
@@ -66,147 +43,128 @@ static std::string toString(size_t n)
     return oss.str();
 }
 
-bool Response::existFile(const char *path) const
+void Response::setBody(const std::string &b)
 {
-    struct stat path_stat;
-    return (stat(path, &path_stat) == 0 && S_ISREG(path_stat.st_mode));
+    body = b;
+    headers["Content-Length"] = toString(body.size());
 }
 
-bool Response::isDirectory(const char *path) const
+void Response::setVersion(const std::string &v)
 {
-    struct stat path_stat;
-    return (stat(path, &path_stat) == 0 && S_ISDIR(path_stat.st_mode));
+    version = v;
 }
 
-std::string Response::getFileExtention(const std::string &path) const
-{
-    std::size_t pos = path.find_last_of('.');
-    if (pos != std::string::npos)
-        return path.substr(pos + 1);
-    return "";
-}
-
-void Response::setContentLength(const std::string &path)
-{
-    long size;
-    std::ifstream file(path.c_str(), std::ios::binary);
-    if (!file)
-        return;
-
-    file.seekg(0, std::ios::end);
-    size = file.tellg();
-    headers["Content-Length"] = toString(size);
-
-    file.close();
-}
-
-void Response::setContentType(const std::string& path)
-{
-    std::string ext = getFileExtention(path);
-    headers["Content-Type"] = getMimeType(ext);
-}
-
-
-std::string Response::readFile(const std::string &path) const
-{
-    std::ifstream file(path.c_str(), std::ios::binary);
-    if (!file)
-        return "";
-
-    std::ostringstream ss;
-    ss << file.rdbuf();
-    file.close();
-    return ss.str();
-}
+int Response::getStatusCode() const { return statusCode; }
+const std::string &Response::getStatusMessage() const { return statusMessage; }
+const std::string &Response::getBody() const { return body; }
 
 const std::map<std::string, std::string> &Response::getHeaders() const
 {
     return headers;
 }
 
-std::string Response::getMimeType(const std::string &extension) const
+bool Response::existFile(const char *path) const
 {
-    if (extension == "html" || extension == "htm")
-        return "text/html";
-    if (extension == "css")
-        return "text/css";
-    if (extension == "js")
-        return "application/javascript";
-    if (extension == "json")
-        return "application/json";
-    if (extension == "xml")
-        return "application/xml";
-    if (extension == "txt")
-        return "text/plain";
-    if (extension == "jpg" || extension == "jpeg")
-        return "image/jpeg";
-    if (extension == "png")
-        return "image/png";
+    struct stat st;
+    return (stat(path, &st) == 0 && S_ISREG(st.st_mode));
+}
+
+bool Response::isDirectory(const char *path) const
+{
+    struct stat st;
+    return (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
+}
+
+std::string Response::getFileExtention(const std::string &path) const
+{
+    size_t pos = path.find_last_of('.');
+    if (pos != std::string::npos)
+        return path.substr(pos + 1);
     return "";
 }
 
-void Response::processRequest(const Request& req, const Server& ser)
+std::string Response::readFile(const std::string &path) const
 {
-    std::string method = req.method;
-    std::string version = req.version;
-    std::string path = req.path;
-
-    setVersion(version);
-    std::string fullPath = path;
-
-    if (method == "GET")
-        handleGet(fullPath, req, ser);
-    
-    
+    std::ifstream file(path.c_str(), std::ios::binary);
+    if (!file)
+        return "";
+    std::ostringstream ss;
+    ss << file.rdbuf();
+    return ss.str();
 }
 
-void Response::handleGet(const std::string& path, const Request& req, const Server& srv)
+std::string Response::getMimeType(const std::string &ext) const
+{
+    if (ext == "html" || ext == "htm") return "text/html";
+    if (ext == "css") return "text/css";
+    if (ext == "js") return "application/javascript";
+    if (ext == "json") return "application/json";
+    if (ext == "xml") return "application/xml";
+    if (ext == "txt") return "text/plain";
+    if (ext == "jpg" || ext == "jpeg") return "image/jpeg";
+    if (ext == "png") return "image/png";
+    return "application/octet-stream";
+}
+
+void Response::setContentType(const std::string &path)
+{
+    headers["Content-Type"] = getMimeType(getFileExtention(path));
+}
+
+void Response::processRequest(const Request &req, const Server &srv)
+{
+    setVersion(req.version);
+
+    if (req.method == "GET")
+        handleGet(req.path, req, srv);
+    else
+        sendError(405, "");
+}
+
+void Response::handleGet(const std::string &path,
+                         const Request &req,
+                         const Server &srv)
 {
     if (existFile(path.c_str()))
-        servFile(path); return ;
-        
-    // if (isDirectory(path.c_str()))
-    // {
-    //     std::string autoindex = path;
-    //     if (path[path.length() - 1] != '/')
-    //         autoindex += '/';
-    //     autoindex += "index.html"; // i need a autoindex (conf file)
-
-    //     if (existFile(path.c_str()))
-    //         servFile(autoindex);
-    //     else
-            
-    // }
-    // else
-    //     sendError(404, "");
-}
-void Response::servFile(const std::string& path)
-{
-    if (!existFile(path.c_str()))
     {
-        sendError(404, "");
-        return ;
+        servFile(path);
+        return;
     }
 
+    if (isDirectory(path.c_str()))
+    {
+        std::string index = path;
+        if (index[index.length() - 1] != '/')
+            index += "/";
+        index += "index.html";
+
+        if (existFile(index.c_str()))
+        {
+            servFile(index);
+            return;
+        }
+    }
+
+    sendError(404, "");
+}
+
+void Response::servFile(const std::string &path)
+{
     std::string content = readFile(path);
     if (content.empty())
     {
         sendError(500, "Failed to read file");
-        return ;
+        return;
     }
 
     setStatus(200, "");
     setContentType(path);
-    setContentLength(path);
     setBody(content);
-
 }
-void Response::sendError(int code, const std::string& message)
+
+void Response::sendError(int code, const std::string &message)
 {
-    if(!message.empty())
-        setStatus(code, message);
-    else
-        setStatus(code, "");
+    setStatus(code, message);
     servErrorPage(code);
 }
 
@@ -216,33 +174,35 @@ void Response::servErrorPage(int code)
     headers["Content-Type"] = "text/html";
 
     std::ostringstream html;
-    html << "<!DOCTYPE html>\n"
-         << "<html>\n"
-         << "<head><title>" << code << " " << statusMessage << "</title></head>\n"
-         << "<body>\n"
-         << "<center><h1>" << code << " " << statusMessage << "</h1></center>\n"
-         << "<hr><center>WebServer/1.0</center>\n"
-         << "</body>\n"
-         << "</html>\n";
+    html << "<!DOCTYPE html>"
+         << "<html><head><title>"
+         << code << " " << statusMessage
+         << "</title></head><body>"
+         << "<center><h1>"
+         << code << " " << statusMessage
+         << "</h1></center>"
+         << "<hr><center>WebServer/1.0</center>"
+         << "</body></html>";
+
     setBody(html.str());
 }
 
 std::string Response::build()
 {
-    std::ostringstream response;
+    std::ostringstream res;
 
-    response << protocol << "/" << version << " "
+    res << protocol << "/" << version << " "
         << statusCode << " " << statusMessage << "\r\n";
 
-    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
-    {
-        response << it->first << ": " << it->second << "\r\n";
-    }
+    for (std::map<std::string, std::string>::iterator it = headers.begin();
+         it != headers.end(); ++it)
+        res << it->first << ": " << it->second << "\r\n";
 
-    response << "\r\n";
+    res << "\r\n";
 
-    if (statusCode != 204 || statusCode != 304 || !(statusCode >= 100 && statusCode < 200))
-        response << body;
+    if (statusCode != 204 && statusCode != 304 &&
+        !(statusCode >= 100 && statusCode < 200))
+        res << body;
 
-    return response.str();
+    return res.str();
 }

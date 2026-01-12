@@ -158,57 +158,63 @@ std::string buildErrorResponse(int status, bool shouldClose) {
 }
 
 void sendResponse(maptype &config, Client &connect) {
-    std::string response;
     
     // Get the server configuration
     Server* srv = getServerForClient(config, connect.serverId);
     
-    if (srv && connect.parsedRequest.complete) {
-        // Validate request against server config (location, methods, body size)
-        if (connect.parsedRequest.status == 200) {
-            validateRequest(connect.parsedRequest, srv);
-        }
+    // if (srv && connect.parsedRequest.complete) {
+    //     // Validate request against server config (location, methods, body size)
+    //     if (connect.parsedRequest.status == 200) {
+    //         validateRequest(connect.parsedRequest, srv);
+    //     }
         
-        // Build response based on status
-        if (connect.parsedRequest.status == 200) {
-            // TODO: Implement actual file serving here
-            // For now, return a simple success response
-            std::string body = "<html><body><h1>Hello from WebServ!</h1><p>Path: " + 
-                              connect.parsedRequest.path + "</p></body></html>";
+    //     // Build response based on status
+    //     if (connect.parsedRequest.status == 200) {
+    //         // TODO: Implement actual file serving here
+    //         // For now, return a simple success response
+    //         std::string body = "<html><body><h1>Hello from WebServ!</h1><p>Path: " + 
+    //                           connect.parsedRequest.path + "</p></body></html>";
             
-            std::ostringstream resp;
-            resp << "HTTP/1.1 200 OK\r\n";
-            resp << "Content-Type: text/html\r\n";
-            resp << "Content-Length: " << body.length() << "\r\n";
-            resp << "Connection: " << (connect.parsedRequest.should_close ? "close" : "keep-alive") << "\r\n";
-            resp << "\r\n";
-            resp << body;
+    //         std::ostringstream resp;
+    //         resp << "HTTP/1.1 200 OK\r\n";
+    //         resp << "Content-Type: text/html\r\n";
+    //         resp << "Content-Length: " << body.length() << "\r\n";
+    //         resp << "Connection: " << (connect.parsedRequest.should_close ? "close" : "keep-alive") << "\r\n";
+    //         resp << "\r\n";
+    //         resp << body;
             
             
-            response = resp.str();
-        }
-        else if (connect.parsedRequest.status == 301) {
-            // Redirect
-            std::ostringstream resp;
-            resp << "HTTP/1.1 301 Moved Permanently\r\n";
-            resp << "Location: " << connect.parsedRequest.headers["location"] << "\r\n";
-            resp << "Content-Length: 0\r\n";
-            resp << "Connection: " << (connect.parsedRequest.should_close ? "close" : "keep-alive") << "\r\n";
-            resp << "\r\n";
+    //         response = resp.str();
+    //     }
+    //     else if (connect.parsedRequest.status == 301) {
+    //         // Redirect
+    //         std::ostringstream resp;
+    //         resp << "HTTP/1.1 301 Moved Permanently\r\n";
+    //         resp << "Location: " << connect.parsedRequest.headers["location"] << "\r\n";
+    //         resp << "Content-Length: 0\r\n";
+    //         resp << "Connection: " << (connect.parsedRequest.should_close ? "close" : "keep-alive") << "\r\n";
+    //         resp << "\r\n";
             
-            response = resp.str();
-        }
-        else {
-            // Error response
-            response = buildErrorResponse(connect.parsedRequest.status, 
-                                        connect.parsedRequest.should_close);
-        }
-    } else {
-        // No parsed request or server not found - send 500
-        response = buildErrorResponse(500, true);
-    }
+    //         response = resp.str();
+    //     }
+    //     else {
+    //         // Error response
+    //         response = buildErrorResponse(connect.parsedRequest.status, 
+    //                                     connect.parsedRequest.should_close);
+    //     }
+    // } else {
+    //     // No parsed request or server not found - send 500
+    //     response = buildErrorResponse(500, true);
+    // }
     
+
+    srv->respone.processRequest(connect.parsedRequest, *srv);
+    std::string response = srv->respone.build();
+
+    // std::cout << response << std::endl;
+
     // Send the response
+
     int n = send(connect.fd, response.c_str(), response.length(), 0);
     
     if (n <= 0) {

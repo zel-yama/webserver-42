@@ -35,6 +35,7 @@ class Client: public Config{
 
         // i add this
         Request parsedRequest;
+        // Response respons;
 };
 
 #endif

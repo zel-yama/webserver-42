@@ -35,10 +35,14 @@ int main(int av, char *argc[]){
 		}
 		
 <<<<<<< HEAD
+<<<<<<< HEAD
 		eventLoop(config);
 =======
 		//eventLoop(config);
 >>>>>>> origin
+=======
+		eventLoop(config);
+>>>>>>> 1b3052310a3c050f0c43e700afad5866ff9f4475
 	}
 	catch (exception &e)
 	{

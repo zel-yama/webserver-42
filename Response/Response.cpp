@@ -1,5 +1,7 @@
 #include "Response.hpp"
 
+void validateRequest(Request& req, Server* srv);
+
 Response::Response()
     : statusCode(200), statusMessage("OK"),
       protocol("HTTP"), version("1.0"),
@@ -26,6 +28,7 @@ Response::~Response() {}
 void Response::setStatus(int code, const std::string &message)
 {
     statusCode = code;
+    std::cout << code << std::endl;
     if (message.empty())
         statusMessage = statusMap[code];
     else
@@ -42,6 +45,35 @@ static std::string toString(size_t n)
     oss << n;
     return oss.str();
 }
+<<<<<<< HEAD
+=======
+
+void Response::setBody(const std::string &body)
+{
+    this->body = body;
+    headers["Content-Length"] = toString(body.size());
+}
+void Response::setVersion(const std::string& version)
+{
+    this->version = version;
+}
+
+int Response::getStatusCode() const
+{
+    return statusCode;
+}
+
+const std::string &Response::getStatusMessage() const
+{
+    return statusMessage;
+}
+
+const std::string &Response::getBody() const
+{
+    return body;
+}
+
+>>>>>>> 1b3052310a3c050f0c43e700afad5866ff9f4475
 
 void Response::setBody(const std::string &b)
 {
@@ -83,6 +115,7 @@ std::string Response::getFileExtention(const std::string &path) const
     return "";
 }
 
+<<<<<<< HEAD
 std::string Response::readFile(const std::string &path) const
 {
     std::ifstream file(path.c_str(), std::ios::binary);
@@ -91,6 +124,43 @@ std::string Response::readFile(const std::string &path) const
     std::ostringstream ss;
     ss << file.rdbuf();
     return ss.str();
+=======
+void Response::processRequest( Request& req,  Server& ser)
+{
+    std::string method = req.method;
+    std::string version = req.version;
+    std::string path = req.path;
+
+    if (req.status == 200) {
+        validateRequest(req, &ser);
+        // setStatus()
+        // setVersion(version);
+        // std::string fullPath = path;
+
+        // if (method == "GET")
+        //     handleGet(fullPath, req, ser);
+        setStatus(req.status, "");
+        setContentType(path);
+        setContentLength(path);
+        std::string content = readFile(path);
+        if (content.empty())
+        {
+            sendError(req.status, "");
+            return ;
+        }
+        setBody(content);
+    }
+    else {
+        setStatus(req.status, "");
+        setContentType(path);
+        setContentLength(path);
+        // setBody(content);
+    }
+
+
+
+    
+>>>>>>> 1b3052310a3c050f0c43e700afad5866ff9f4475
 }
 
 std::string Response::getMimeType(const std::string &ext) const
@@ -164,8 +234,17 @@ void Response::servFile(const std::string &path)
 
 void Response::sendError(int code, const std::string &message)
 {
+<<<<<<< HEAD
     setStatus(code, message);
     servErrorPage(code);
+=======
+    if(!message.empty())
+        setStatus(code, message);
+    else
+        setStatus(code, "");
+    if (code != 200)
+        servErrorPage(code);
+>>>>>>> 1b3052310a3c050f0c43e700afad5866ff9f4475
 }
 
 void Response::servErrorPage(int code)

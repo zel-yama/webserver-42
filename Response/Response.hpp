@@ -4,13 +4,19 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <iostream>
 #include <fstream>
 #include <ctime>
 #include <sys/stat.h>
+<<<<<<< HEAD
 #include "../webserv.hpp"
 #include "../server/Server.hpp"
+=======
+#include "../request/RequestParser.hpp"
+// #include "../webserv.hpp"
+>>>>>>> 1b3052310a3c050f0c43e700afad5866ff9f4475
 
-class Request;
+// struct Request;
 class Server;
 
 class Response {
@@ -41,7 +47,7 @@ public:
     const std::map<std::string, std::string>& getHeaders() const;
     std::string getMimeType(const std::string& extension) const;
     std::string getFileExtention(const std::string &path) const;
-    void processRequest(const Request& req, const Server& ser);
+    void processRequest(Request& req, Server& ser);
     void handleGet(const std::string& path, const Request& req, const Server& srv);
 
     void sendError(int code, const std::string& message);

@@ -160,8 +160,8 @@ Request RequestParser::parse(int fd, const std::string& data)
         if (line == "\r")
             break;
         size_t c = line.find(':');
-        if (c == std::string::npos)
-            throw std::runtime_error("bad header");
+        // if (c == std::string::npos)
+        //     throw std::runtime_error("bad header");
 
         req.headers[toLower(trim(line.substr(0, c)))] =
             trim(line.substr(c + 1));

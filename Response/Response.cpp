@@ -1,5 +1,7 @@
 #include "Response.hpp"
 
+void validateRequest(Request& req, Server* srv);
+
 Response::Response()
     : statusCode(200), statusMessage("OK"), protocol("HTTP"), version("1.0"), body("<h1>Hello World</h1>")
 {
@@ -24,6 +26,7 @@ Response::~Response() {}
 void Response::setStatus(int code, const std::string &message)
 {
     statusCode = code;
+    std::cout << code << std::endl;
     if (message.empty())
         statusMessage = statusMap[code];
     else
@@ -34,10 +37,17 @@ void Response::setHeader(const std::string &key, const std::string &value)
 {
     headers[key] = value;
 }
+static std::string toString(size_t n)
+{
+    std::ostringstream oss;
+    oss << n;
+    return oss.str();
+}
 
 void Response::setBody(const std::string &body)
 {
     this->body = body;
+    headers["Content-Length"] = toString(body.size());
 }
 void Response::setVersion(const std::string& version)
 {
@@ -59,12 +69,6 @@ const std::string &Response::getBody() const
     return body;
 }
 
-static std::string toString(size_t n)
-{
-    std::ostringstream oss;
-    oss << n;
-    return oss.str();
-}
 
 bool Response::existFile(const char *path) const
 {
@@ -145,18 +149,40 @@ std::string Response::getMimeType(const std::string &extension) const
     return "";
 }
 
-void Response::processRequest(const Request& req, const Server& ser)
+void Response::processRequest( Request& req,  Server& ser)
 {
     std::string method = req.method;
     std::string version = req.version;
     std::string path = req.path;
 
-    setVersion(version);
-    std::string fullPath = path;
+    if (req.status == 200) {
+        validateRequest(req, &ser);
+        // setStatus()
+        // setVersion(version);
+        // std::string fullPath = path;
 
-    if (method == "GET")
-        handleGet(fullPath, req, ser);
-    
+        // if (method == "GET")
+        //     handleGet(fullPath, req, ser);
+        setStatus(req.status, "");
+        setContentType(path);
+        setContentLength(path);
+        std::string content = readFile(path);
+        if (content.empty())
+        {
+            sendError(req.status, "");
+            return ;
+        }
+        setBody(content);
+    }
+    else {
+        setStatus(req.status, "");
+        setContentType(path);
+        setContentLength(path);
+        // setBody(content);
+    }
+
+
+
     
 }
 
@@ -207,7 +233,8 @@ void Response::sendError(int code, const std::string& message)
         setStatus(code, message);
     else
         setStatus(code, "");
-    servErrorPage(code);
+    if (code != 200)
+        servErrorPage(code);
 }
 
 void Response::servErrorPage(int code)

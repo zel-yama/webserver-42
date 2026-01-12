@@ -6,14 +6,15 @@
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 
-#include "../../webserv.hpp"
+// #include "../../webserv.hpp"
 
+#include "../../Response/Response.hpp"
 #include "Client.hpp"
 #include "include.hpp"
 
 struct location;
-class Client;
-
+// class Client;
+// class Response;
 
 typedef map<string, string>::iterator iter;
 class Server : public Config {
@@ -40,6 +41,7 @@ class Server : public Config {
 
         // for me  (mohamed)
         RequestParser               parser;
+        Response respone;
         
         int                                 CreateServer(int port, std::string ipaddress );
         void                                listenFunction();

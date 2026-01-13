@@ -15,6 +15,7 @@ struct Request {
     std::map<std::string, std::string> headers;
     bool complete;
     bool should_close;
+    std::string fullpath;
 
     Request() : complete(false), status(200) {}
 };

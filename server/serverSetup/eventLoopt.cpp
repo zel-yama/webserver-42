@@ -41,7 +41,6 @@ void eventLoop(maptype config ){
 
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                 
-                    // Get the server for this client
                     Server *clientServer = getServerFromClient(config, *Cli);
                     if (!clientServer) {
                         std::cerr << "Error: Cannot find server for client " << Cli->fd << std::endl;
@@ -56,7 +55,6 @@ void eventLoop(maptype config ){
                         readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
 
                         if (!Cli->keepAlive && !Cli->requestFinish) {
-                            // Client closed connection without completing request
                             std::cout << "Client " << Cli->fd << " disconnected, cleaning up" << std::endl;
                             deleteClient(config, Cli->fd, fdEp);
                             continue;

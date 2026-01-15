@@ -16,8 +16,13 @@ location* findLocation(Server* srv, const std::string& path) {
     location* bestMatch = NULL;
     size_t longestMatch = 0;
 
+
     for (size_t i = 0; i < srv->objLocation.size(); i++) {
         location& loc = srv->objLocation[i];
+        size_t locLen = loc.locationPath.length();
+
+        if (loc.locationPath == "/") {
+            if (locLen > longestMatch) {
         size_t locLen = loc.locationPath.length();
 
         if (loc.locationPath == "/") {
@@ -35,12 +40,21 @@ location* findLocation(Server* srv, const std::string& path) {
                     longestMatch = locLen;
                 }
             }
+            continue;
+        }
+
+        if (path.compare(0, locLen, loc.locationPath) == 0) {
+            if (path.length() == locLen || path[locLen] == '/') {
+                if (locLen > longestMatch) {
+                    bestMatch = &loc;
+                    longestMatch = locLen;
+                }
+            }
         }
     }
     return bestMatch;
 }
 
-// Check if method is allowed in location
 bool isMethodAllowed(const std::string& method, const std::vector<std::string>& allowed) {
     for (size_t i = 0; i < allowed.size(); i++) {
         if (allowed[i] == method) {
@@ -50,7 +64,6 @@ bool isMethodAllowed(const std::string& method, const std::vector<std::string>& 
     return false;
 }
 
-// Validate request against server configuration
 void validateRequest(Request& req, Server* srv) {
     // Find matching location
     req.loc = findLocation(srv, req.path);
@@ -76,8 +89,7 @@ void validateRequest(Request& req, Server* srv) {
         req.status = 405;
         return;
     }
-    
-    // Check body size for POST/DELETE
+
     if ((req.method == "POST" || req.method == "DELETE")) {
         size_t maxSize = (req.loc->bodyMaxByte > 0) ? req.loc->bodyMaxByte : srv->bodyMaxByte;
         

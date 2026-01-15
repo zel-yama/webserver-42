@@ -23,10 +23,6 @@ location* findLocation(Server* srv, const std::string& path) {
 
         if (loc.locationPath == "/") {
             if (locLen > longestMatch) {
-        size_t locLen = loc.locationPath.length();
-
-        if (loc.locationPath == "/") {
-            if (locLen > longestMatch) {
                 bestMatch = &loc;
                 longestMatch = locLen;
             }
@@ -65,26 +61,26 @@ bool isMethodAllowed(const std::string& method, const std::vector<std::string>& 
 }
 
 void validateRequest(Request& req, Server* srv) {
-    // Find matching location
+
     req.loc = findLocation(srv, req.path);
     
-    if (!req.loc) {
+    
+    if (!req.loc || (req.loc->root.empty() && srv->root.empty())) {
         req.status = 404;
         return;
     }
     std::string root;
     if (req.loc->root.empty()) root = srv->root;
     else root = req.loc->root;
-    req.full_path = root + req.path;
-    
-    // Check for redirection
+    req.fullpath = root + req.path;
+
+
     if (!req.loc->returnP.empty()) {
         req.status = 301;
         req.headers["location"] = req.loc->returnP;
         return;
     }
     
-    // Check if method is allowed
     if (!isMethodAllowed(req.method, req.loc->allowedMethods)) {
         req.status = 405;
         return;

@@ -1,11 +1,12 @@
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
+#include "../../request/RequestParser.hpp"
 
 int myread(Client &connect) {
     char tmp[1024];
     int n = 0;
  
-    n = read(connect.fd, tmp, 1024);
+    n = read(connect.fd, tmp, 1023);
     printf("this n of read byte in while {%d}\n", n);
     if (n < 0)
         return -1;
@@ -13,7 +14,6 @@ int myread(Client &connect) {
         return 0;
   
     // tmp[n] = '\0';
-
     connect.byteSent += n;
 //     std::string t = std::string(tmp, sizeof(tmp)); 
 //             printf("t- > {%s}\n", t.c_str());//new how to append is can be problem in missing byte 
@@ -23,7 +23,7 @@ int myread(Client &connect) {
     return 1;
 }
 
-void readRequest(int fd, std::string& buffer, Client &connect, RequestParser &parser)
+void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *parser)
 {
     // read only for body  () 
     int readResult = myread(connect);
@@ -41,8 +41,7 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser &pa
     }
 
     try {
-        Request req = parser.parse(connect.fd, connect.buffer);
-        std::cout << req.body << "=====\n";
+        Request req = parser->parse(connect.fd, connect.buffer);
 
         if (req.complete) {
             connect.parsedRequest = req;

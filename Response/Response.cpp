@@ -1,4 +1,5 @@
 #include "../request/RequestParser.hpp"
+#include "../server/include/Server.hpp"
 #include "Response.hpp"
 #define CHUNK_SIZE 4096
 
@@ -175,8 +176,8 @@ void Response::processRequest(Request &req, Server &ser)
     setVersion(req.version);
     std::cout << "+++++++++++++++++++++++++++++" << std::endl;
     std::cout << req.method << std::endl;
-    // std::cout << req.loc->root << std::endl;
-    std::cout << req.full_path << std::endl;
+    std::cout << req.loc->root << std::endl;
+    std::cout << req.fullpath << std::endl;
     std::cout << req.status << std::endl;
     std::cout << req.version << std::endl;
     std::cout << "+++++++++++++++++++++++++++++" << std::endl;
@@ -188,7 +189,7 @@ void Response::processRequest(Request &req, Server &ser)
 
     if (req.method == "GET")
     {
-        handleGet(req.full_path, req, ser);
+        handleGet(req.fullpath, req, ser);
     }
     else
     {

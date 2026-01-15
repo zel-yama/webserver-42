@@ -3,7 +3,6 @@
 
 #include <string>
 #include <map>
-// #include "../server/include/Server.hpp"
 
 struct location;
 
@@ -18,31 +17,31 @@ struct Request {
     std::map<std::string, std::string> headers;
     bool complete;
     bool should_close;
+    std::string fullpath;
     location *loc;
-    std::string full_path;
 
-    Request() : complete(false), status(200), should_close(false) {}
+    Request();
 };
 
 class RequestParser {
-public:
-    Request parse(int fd, const std::string& data);
+    public:
+        Request parse(int fd, const std::string& data);
 
-private:
-    std::map<int, std::string> buffer;
+    private:
+        std::map<int, std::string> buffer;
 
-    std::string trim(const std::string& s);
-    std::string toLower(const std::string& s);
+        std::string trim(const std::string& s);
+        std::string toLower(const std::string& s);
 
-    bool isValidMethod(const std::string& m);
-    bool isValidVersion(const std::string& v);
+        bool isValidMethod(const std::string& m);
+        bool isValidVersion(const std::string& v);
 
-    bool isValidUriChar(char c);
-    bool isValidUri(const std::string& uri);
-    std::string normalizePath(const std::string& path);
+        bool isValidUriChar(char c);
+        bool isValidUri(const std::string& uri);
+        std::string normalizePath(const std::string& path);
 
-    size_t parseContentLength(const std::string& v);
-    bool decodeChunked(std::string& buf, std::string& out);
+        size_t parseContentLength(const std::string& v);
+        bool decodeChunked(std::string& buf, std::string& out);
 };
 
 #endif

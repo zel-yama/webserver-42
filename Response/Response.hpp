@@ -12,8 +12,9 @@
 // #include "../server/include/Server.hpp"
 // #include "../webserv.hpp"
 
-// struct Request;
+struct Request;
 class Server;
+
 
 class Response {
 private:

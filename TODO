@@ -9,3 +9,9 @@ nginx: [emerg] directive "limit_except" has no opening "{" in /home/mohidbel/ngi
 test 2 ----
 
 do something
+
+
+Content-Length = 3
+→ server reads exactly 3 bytes
+→ NOT more
+→ NOT less

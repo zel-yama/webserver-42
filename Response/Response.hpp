@@ -9,6 +9,7 @@
 #include <ctime>
 #include <sys/stat.h>
 #include "../request/RequestParser.hpp"
+// #include "../server/include/Server.hpp"
 // #include "../webserv.hpp"
 
 // struct Request;
@@ -24,10 +25,14 @@ private:
     std::string         raw;
     std::map<std::string, std::string> headers;
     std::map<int, std::string> statusMap;
+    bool        LargeFile;
+    std::string filePath;
+    size_t      fileSize;
 
 public:
     Response();
     ~Response();
+    location *loc;
 
     void setStatus(int code, const std::string& message);
     void setHeader(const std::string& key, const std::string& value);
@@ -51,7 +56,11 @@ public:
     std::string readFile(const std::string& path) const;
     bool existFile(const char *path) const;
     bool isDirectory(const char *path) const;
+    void handleDirectory(const std::string &path, const Request &req, const Server &srv);
     std::string build(); 
+    bool        isLargeFile() const;
+    std::string getFilePath() const;
+    size_t      getFileSize() const;
 };
 
 #endif

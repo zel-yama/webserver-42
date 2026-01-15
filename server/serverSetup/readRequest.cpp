@@ -12,7 +12,8 @@ int myread(Client &connect) {
     if (n == 0)
         return 0;
   
-    tmp[n] = '\0';
+    // tmp[n] = '\0';
+
     connect.byteSent += n;
 //     std::string t = std::string(tmp, sizeof(tmp)); 
 //             printf("t- > {%s}\n", t.c_str());//new how to append is can be problem in missing byte 
@@ -24,6 +25,7 @@ int myread(Client &connect) {
 
 void readRequest(int fd, std::string& buffer, Client &connect, RequestParser &parser)
 {
+    // read only for body  () 
     int readResult = myread(connect);
     
     if (readResult == -1) {
@@ -40,6 +42,7 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser &pa
 
     try {
         Request req = parser.parse(connect.fd, connect.buffer);
+        std::cout << req.body << "=====\n";
 
         if (req.complete) {
             connect.parsedRequest = req;

@@ -39,8 +39,8 @@ void bodySizeMax(size_t &val, std::string &str){
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    else 
-        throw std::runtime_error("invalid value in max body size ");
+    // else 
+    //     throw std::runtime_error("invalid value in max body size ");
     val = max;
 }
 

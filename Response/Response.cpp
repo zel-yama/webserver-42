@@ -1,9 +1,16 @@
+#include "../request/RequestParser.hpp"
 #include "Response.hpp"
+#define CHUNK_SIZE 4096
 
-void validateRequest(Request& req, Server* srv);
+void validateRequest(Request &req, Server *srv);
 
 Response::Response()
-    : statusCode(200), statusMessage("OK"), protocol("HTTP"), version("1.0"), body("<h1>Hello World</h1>")
+    : statusCode(200),
+      statusMessage("OK"),
+      protocol("HTTP"),
+      version("1.0"),
+      body("<h1>Hello World</h1>"),
+      LargeFile(false)
 {
     statusMap[200] = "OK";
     statusMap[201] = "Created";
@@ -26,7 +33,6 @@ Response::~Response() {}
 void Response::setStatus(int code, const std::string &message)
 {
     statusCode = code;
-    std::cout << code << std::endl;
     if (message.empty())
         statusMessage = statusMap[code];
     else
@@ -48,8 +54,9 @@ void Response::setBody(const std::string &body)
 {
     this->body = body;
     headers["Content-Length"] = toString(body.size());
+    std::cout << "=====> " << headers["Content-Length"] << " <===\n";
 }
-void Response::setVersion(const std::string& version)
+void Response::setVersion(const std::string &version)
 {
     this->version = version;
 }
@@ -68,7 +75,6 @@ const std::string &Response::getBody() const
 {
     return body;
 }
-
 
 bool Response::existFile(const char *path) const
 {
@@ -104,12 +110,11 @@ void Response::setContentLength(const std::string &path)
     file.close();
 }
 
-void Response::setContentType(const std::string& path)
+void Response::setContentType(const std::string &path)
 {
     std::string ext = getFileExtention(path);
     headers["Content-Type"] = getMimeType(ext);
 }
-
 
 std::string Response::readFile(const std::string &path) const
 {
@@ -130,8 +135,8 @@ const std::map<std::string, std::string> &Response::getHeaders() const
 
 std::string Response::getMimeType(const std::string &extension) const
 {
-    if (extension == "html" || extension == "htm")
-        return "text/html";
+    // if (extension == "html" || extension == "htm")
+    //     return "text/html";
     if (extension == "css")
         return "text/css";
     if (extension == "js")
@@ -146,90 +151,129 @@ std::string Response::getMimeType(const std::string &extension) const
         return "image/jpeg";
     if (extension == "png")
         return "image/png";
-    return "";
+    return "text/html";
 }
 
-void Response::processRequest( Request& req,  Server& ser)
+bool Response::isLargeFile() const
 {
-    std::string method = req.method;
-    std::string version = req.version;
-    std::string path = req.path;
-
-    if (req.status == 200) {
-        validateRequest(req, &ser);
-        // setStatus()
-        // setVersion(version);
-        // std::string fullPath = path;
-
-        // if (method == "GET")
-        //     handleGet(fullPath, req, ser);
-        setStatus(req.status, "");
-        setContentType(path);
-        setContentLength(path);
-        std::string content = readFile(path);
-        if (content.empty())
-        {
-            sendError(req.status, "");
-            return ;
-        }
-        setBody(content);
-    }
-    else {
-        setStatus(req.status, "");
-        setContentType(path);
-        setContentLength(path);
-        // setBody(content);
-    }
-
-
-
-    
+    return LargeFile;
 }
 
-void Response::handleGet(const std::string& path, const Request& req, const Server& srv)
+std::string Response::getFilePath() const
+{
+    return filePath;
+}
+
+size_t Response::getFileSize() const
+{
+    return fileSize;
+}
+
+void Response::processRequest(Request &req, Server &ser)
+{
+    validateRequest(req, &ser);
+    setVersion(req.version);
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    std::cout << req.method << std::endl;
+    // std::cout << req.loc->root << std::endl;
+    std::cout << req.full_path << std::endl;
+    std::cout << req.status << std::endl;
+    std::cout << req.version << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    if (req.status != 200)
+    {
+        sendError(req.status, "");
+        return;
+    }
+
+    if (req.method == "GET")
+    {
+        handleGet(req.full_path, req, ser);
+    }
+    else
+    {
+        sendError(405, "");
+    }
+}
+void Response::handleDirectory(const std::string &path,
+                               const Request &req,
+                               const Server &srv)
+{
+    if (path[path.size() - 1] != '/')
+    {
+        setStatus(301, "");
+        headers["Location"] = path + "/";
+        headers["Content-Length"] = "0";
+        body.clear();
+        return ;
+    }
+
+    std::string indexFile = path + "index.html";
+    if (existFile(indexFile.c_str()))
+    {
+        servFile(indexFile);
+        return ;
+    }
+
+    else
+        sendError(403, "");
+}
+
+void Response::handleGet(const std::string &path, const Request &req, const Server &srv)
 {
     if (existFile(path.c_str()))
-        servFile(path); return ;
-        
-    // if (isDirectory(path.c_str()))
-    // {
-    //     std::string autoindex = path;
-    //     if (path[path.length() - 1] != '/')
-    //         autoindex += '/';
-    //     autoindex += "index.html"; // i need a autoindex (conf file)
+    {
+        servFile(path);
+        return;
+    }
 
-    //     if (existFile(path.c_str()))
-    //         servFile(autoindex);
-    //     else
-            
-    // }
-    // else
-    //     sendError(404, "");
+    if (isDirectory(path.c_str()))
+    {
+        handleDirectory(path, req, srv);
+        return;
+    }
+    /*
+        if (req.loc.autoindexenabled())
+        {
+            generateautoindex(path);
+            return ;
+        }
+
+    */
+    else
+        sendError(404, "");
 }
-void Response::servFile(const std::string& path)
+void Response::servFile(const std::string &path)
 {
-    if (!existFile(path.c_str()))
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0)
     {
         sendError(404, "");
-        return ;
+        return;
     }
 
-    std::string content = readFile(path);
-    if (content.empty())
-    {
-        sendError(500, "Failed to read file");
-        return ;
-    }
-
+    fileSize = st.st_size;
     setStatus(200, "");
     setContentType(path);
-    setContentLength(path);
-    setBody(content);
 
+    headers["Content-Length"] = toString(fileSize);
+
+    if (fileSize <= CHUNK_SIZE)
+    {
+        LargeFile = false;
+        std::string content = readFile(path);
+        setBody(content);
+    }
+    else
+    {
+        LargeFile = true;
+        filePath = path;
+        body.clear();
+    }
 }
-void Response::sendError(int code, const std::string& message)
+void Response::sendError(int code, const std::string &message)
 {
-    if(!message.empty())
+    if (!message.empty())
         setStatus(code, message);
     else
         setStatus(code, "");
@@ -239,6 +283,7 @@ void Response::sendError(int code, const std::string& message)
 
 void Response::servErrorPage(int code)
 {
+    Request req;
     setStatus(code, "");
     headers["Content-Type"] = "text/html";
 
@@ -258,8 +303,8 @@ std::string Response::build()
 {
     std::ostringstream response;
 
-    response << protocol << "/" << version << " "
-        << statusCode << " " << statusMessage << "\r\n";
+    response << version << " "
+             << statusCode << " " << statusMessage << "\r\n";
 
     for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
     {
@@ -268,8 +313,11 @@ std::string Response::build()
 
     response << "\r\n";
 
-    if (statusCode != 204 || statusCode != 304 || !(statusCode >= 100 && statusCode < 200))
+    if (statusCode != 204 && statusCode != 304 &&
+        !(statusCode >= 100 && statusCode < 200))
+    {
         response << body;
+    }
 
     return response.str();
 }

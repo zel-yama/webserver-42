@@ -6,7 +6,7 @@
 #include <vector>
 #include <stdexcept>
 
-static const size_t MAX_HEADER_SIZE = 8192;
+// static const size_t MAX_HEADER_SIZE = 8192;
 
 /* ================= utils ================= */
 
@@ -126,11 +126,11 @@ Request RequestParser::parse(int fd, const std::string& data)
     std::string& b = buffer[fd];
 
     size_t headerEnd = b.find("\r\n\r\n");
-    if (headerEnd == std::string::npos)
+    if (headerEnd == std::string::npos || b.find("\n\n") != std::string::npos)
         return req;
 
-    if (headerEnd > MAX_HEADER_SIZE)
-        throw std::runtime_error("headers too large");
+    // if (headerEnd > MAX_HEADER_SIZE)
+    //     throw std::runtime_error("headers too large");
 
     std::istringstream hs(b.substr(0, headerEnd));
     std::string line;
@@ -174,10 +174,10 @@ Request RequestParser::parse(int fd, const std::string& data)
     if (req.version == "HTTP/1.0") {
         if (conn != "keep-alive")
             req.should_close = true;
-    } else { // HTTP/1.1
-        if (conn == "close")
-            req.should_close = true;
-    }
+    }//else { // HTTP/1.1
+    //     if (conn == "close")
+    //         req.should_close = true;
+    // }
 
     b.erase(0, headerEnd + 4);
 

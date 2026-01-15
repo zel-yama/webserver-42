@@ -3,6 +3,9 @@
 
 #include <string>
 #include <map>
+// #include "../server/include/Server.hpp"
+
+struct location;
 
 struct Request {
     std::string method;
@@ -15,8 +18,10 @@ struct Request {
     std::map<std::string, std::string> headers;
     bool complete;
     bool should_close;
+    location *loc;
+    std::string full_path;
 
-    Request() : complete(false), status(200) {}
+    Request() : complete(false), status(200), should_close(false) {}
 };
 
 class RequestParser {

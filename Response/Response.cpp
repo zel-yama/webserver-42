@@ -1,4 +1,7 @@
 #include "Response.hpp"
+#include "../request/RequestParser.hpp"
+#include "../server/include/Server.hpp"
+
 
 void validateRequest(Request& req, Server* srv);
 
@@ -154,6 +157,8 @@ void Response::processRequest( Request& req,  Server& ser)
     std::string method = req.method;
     std::string version = req.version;
     std::string path = req.path;
+    cout << "here ===>" <<  ser.indexFile[0];
+    cout << req.loc->indexFile.empty();
 
     if (req.status == 200) {
         validateRequest(req, &ser);

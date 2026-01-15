@@ -1,5 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
+#include "../../Response/Response.hpp"
 
 Server* getServerForClient(maptype& config, int serverId);
 void validateRequest(Request& req, Server* srv);
@@ -145,8 +146,8 @@ void sendResponse(maptype &config, Client &connect) {
     // }
     
 
-    srv->respone.processRequest(connect.parsedRequest, *srv);
-    std::string response = srv->respone.build();
+    srv->respone->processRequest(connect.parsedRequest, *srv);
+    std::string response = srv->respone->build();
 
     // std::cout << response << std::endl;
 

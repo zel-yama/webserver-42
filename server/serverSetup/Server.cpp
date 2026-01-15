@@ -2,6 +2,8 @@
 
 
 #include "../include/Server.hpp"
+#include "../../request/RequestParser.hpp"
+#include "../../Response/Response.hpp"
 
 Server::Server(){
     name = "Server";
@@ -10,7 +12,8 @@ Server::Server(){
     ipAdress = "0.0.0.0";
     outoIndex = false;
     port = 8080;
-    
+    parser = new RequestParser();
+    respone = new Response();
 
 }
 location::location(){

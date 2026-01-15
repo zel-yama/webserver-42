@@ -2,6 +2,8 @@
 
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
+#include "../../request/RequestParser.hpp"
+#include "../../Response/Response.hpp"
  ///should allawyz theck is connection timeout indeed  not just when u send response  
 // allawyz check client for timeout in case timeout and close mod and i should 
 // conclusesion now is monitor all  connection and i should disconnecte or rest  all expir ones  
@@ -42,11 +44,7 @@ void eventLoop(maptype config ){
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                 
                     Server *clientServer = getServerFromClient(config, *Cli);
-                    if (!clientServer) {
-                        std::cerr << "Error: Cannot find server for client " << Cli->fd << std::endl;
-                        deleteClient(config, Cli->fd, fdEp);
-                        continue;
-                    }
+
 
                     if (events[i].events & (EPOLLIN | EPOLLET)){
                         std::cout << "  they say what happnes " << std::endl;
@@ -54,11 +52,6 @@ void eventLoop(maptype config ){
                    
                         readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
 
-                        if (!Cli->keepAlive && !Cli->requestFinish) {
-                            std::cout << "Client " << Cli->fd << " disconnected, cleaning up" << std::endl;
-                            deleteClient(config, Cli->fd, fdEp);
-                            continue;
-                        }
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
                         // else 

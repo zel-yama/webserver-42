@@ -1,4 +1,5 @@
 #include "RequestParser.hpp"
+#include "../server/include/Server.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -6,9 +7,10 @@
 #include <vector>
 #include <stdexcept>
 
-static const size_t MAX_HEADER_SIZE = 8192;
 
-/* ================= utils ================= */
+Request::Request() : complete(false), status(200) {
+    loc = new location();
+}
 
 std::string RequestParser::trim(const std::string& s) {
     size_t b = s.find_first_not_of(" \t\r\n");
@@ -129,13 +131,9 @@ Request RequestParser::parse(int fd, const std::string& data)
     if (headerEnd == std::string::npos)
         return req;
 
-    if (headerEnd > MAX_HEADER_SIZE)
-        throw std::runtime_error("headers too large");
-
     std::istringstream hs(b.substr(0, headerEnd));
     std::string line;
 
-    /* request line */
     std::getline(hs, line);
     std::istringstream rl(line);
     rl >> req.method >> req.path >> req.version;

@@ -51,32 +51,32 @@ bool isMethodAllowed(const std::string& method, const std::vector<std::string>& 
 
 void validateRequest(Request& req, Server* srv) {
 
-    location* loc = findLocation(srv, req.path);
+    req.loc = findLocation(srv, req.path);
     
     
-    if (!loc || (loc->root.empty() && srv->root.empty())) {
+    if (!req.loc || (req.loc->root.empty() && srv->root.empty())) {
         req.status = 404;
         return;
     }
     std::string root;
-    if (loc->root.empty()) root = srv->root;
-    else root = loc->root;
+    if (req.loc->root.empty()) root = srv->root;
+    else root = req.loc->root;
     req.fullpath = root + req.path;
 
 
-    if (!loc->returnP.empty()) {
+    if (!req.loc->returnP.empty()) {
         req.status = 301;
-        req.headers["location"] = loc->returnP;
+        req.headers["location"] = req.loc->returnP;
         return;
     }
     
-    if (!isMethodAllowed(req.method, loc->allowedMethods)) {
+    if (!isMethodAllowed(req.method, req.loc->allowedMethods)) {
         req.status = 405;
         return;
     }
 
     if ((req.method == "POST" || req.method == "DELETE")) {
-        size_t maxSize = (loc->bodyMaxByte > 0) ? loc->bodyMaxByte : srv->bodyMaxByte;
+        size_t maxSize = (req.loc->bodyMaxByte > 0) ? req.loc->bodyMaxByte : srv->bodyMaxByte;
         
         if (req.body.size() > maxSize) {
             req.status = 413;

@@ -8,11 +8,10 @@
 #include <fstream>
 #include <ctime>
 #include <sys/stat.h>
-#include "../request/RequestParser.hpp"
-// #include "../webserv.hpp"
 
-// struct Request;
+struct Request;
 class Server;
+
 
 class Response {
 private:

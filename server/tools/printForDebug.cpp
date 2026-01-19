@@ -37,7 +37,7 @@ void printAttr(Server &Serv){
         std::cout << "serv name -- > " <<  Serv.ServerName << std::endl;
         std::cout << "port -> "<< Serv.port << std::endl;
         std::cout << "ipaddress -> "<< Serv.ipAdress << std::endl;
-       // std::cout << "autoindex -> " << Serv.outoIndex << std::endl;
+       std::cout << "autoindex -> " << Serv.outoIndex << std::endl;
         std::cout << "max byte size -> "<< Serv.bodyMaxByte << std::endl;
         std::cout << "root -> " << Serv.root << std::endl;
         printf("this is allowd methods \n");

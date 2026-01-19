@@ -11,6 +11,8 @@ Response::Response()
       protocol("HTTP"),
       version("1.0"),
       body("<h1>Hello World</h1>"),
+      srv(NULL),
+      req(NULL),
       LargeFile(false)
 {
     statusMap[200] = "OK";
@@ -49,6 +51,29 @@ static std::string toString(size_t n)
     std::ostringstream oss;
     oss << n;
     return oss.str();
+}
+
+void Response::setContext(Request *r, Server *s)
+{
+    req = r;
+    srv = s;
+}
+bool Response::hasReadPermission(const std::string &path) const
+{
+    if (access(path.c_str(), F_OK) != 0)
+        return false; 
+    if (access(path.c_str(), R_OK) != 0)
+        return false;  
+    return true;
+}
+
+bool Response::hasDirPermission(const std::string &path) const
+{
+    if (access(path.c_str(), F_OK) != 0)
+        return false; 
+    if (access(path.c_str(), R_OK | X_OK) != 0)
+        return false;
+    return true;
 }
 
 void Response::setBody(const std::string &body)
@@ -97,24 +122,10 @@ std::string Response::getFileExtention(const std::string &path) const
     return "";
 }
 
-void Response::setContentLength(const std::string &path)
-{
-    long size;
-    std::ifstream file(path.c_str(), std::ios::binary);
-    if (!file)
-        return;
-
-    file.seekg(0, std::ios::end);
-    size = file.tellg();
-    headers["Content-Length"] = toString(size);
-
-    file.close();
-}
-
 void Response::setContentType(const std::string &path)
 {
-    std::string ext = getFileExtention(path);
-    headers["Content-Type"] = getMimeType(ext);
+    std::string extension = getFileExtention(path);
+    headers["Content-Type"] = getMimeType(extension);
 }
 
 std::string Response::readFile(const std::string &path) const
@@ -136,8 +147,8 @@ const std::map<std::string, std::string> &Response::getHeaders() const
 
 std::string Response::getMimeType(const std::string &extension) const
 {
-    // if (extension == "html" || extension == "htm")
-    //     return "text/html";
+    if (extension == "html" || extension == "htm")
+        return "text/html";
     if (extension == "css")
         return "text/css";
     if (extension == "js")
@@ -148,11 +159,66 @@ std::string Response::getMimeType(const std::string &extension) const
         return "application/xml";
     if (extension == "txt")
         return "text/plain";
+    if (extension == "csv")
+        return "text/csv";
+    if (extension == "md")
+        return "text/markdown";
     if (extension == "jpg" || extension == "jpeg")
         return "image/jpeg";
     if (extension == "png")
         return "image/png";
-    return "text/html";
+    if (extension == "gif")
+        return "image/gif";
+    if (extension == "ico")
+        return "image/x-icon";
+    if (extension == "svg")
+        return "image/svg+xml";
+    if (extension == "bmp")
+        return "image/bmp";
+    if (extension == "webp")
+        return "image/webp";
+    if (extension == "mp3")
+        return "audio/mpeg";
+    if (extension == "wav")
+        return "audio/wav";
+    if (extension == "ogg")
+        return "audio/ogg";
+    if (extension == "mp4")
+        return "video/mp4";
+    if (extension == "webm")
+        return "video/webm";
+    if (extension == "avi")
+        return "video/x-msvideo";
+    if (extension == "pdf")
+        return "application/pdf";
+    if (extension == "zip")
+        return "application/zip";
+    if (extension == "tar")
+        return "application/x-tar";
+    if (extension == "gz")
+        return "application/gzip";
+    if (extension == "7z")
+        return "application/x-7z-compressed";
+    if (extension == "php")
+        return "application/x-httpd-php";
+    if (extension == "py")
+        return "text/x-python";
+    if (extension == "c")
+        return "text/x-csrc";
+    if (extension == "cpp" || extension == "cxx" || extension == "cc")
+        return "text/x-c++src";
+    if (extension == "h" || extension == "hpp")
+        return "text/x-chdr";
+    if (extension == "java")
+        return "text/x-java-source";
+    if (extension == "rb")
+        return "text/x-ruby";
+    if (extension == "sh")
+        return "application/x-sh";
+    if (extension == "jsonld")
+        return "application/ld+json";
+
+    return "application/octet-stream";
 }
 
 bool Response::isLargeFile() const
@@ -172,20 +238,27 @@ size_t Response::getFileSize() const
 
 void Response::processRequest(Request &req, Server &ser)
 {
-    validateRequest(req, &ser);
-    setVersion(req.version);
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
-    std::cout << req.method << std::endl;
-    std::cout << req.loc->root << std::endl;
-    std::cout << req.fullpath << std::endl;
-    std::cout << req.status << std::endl;
-    std::cout << req.version << std::endl;
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    setContext(&req, &ser);
+    setHeader("Server", "MyWebServer/1.0");
     if (req.status != 200)
     {
         sendError(req.status, "");
         return;
     }
+    validateRequest(req, &ser);
+    setVersion(req.version);
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    std::cout << req.method << std::endl;
+    std::cout << req.loc->root << std::endl;
+    std::cout << req.loc->outoIndex << std::endl;
+    std::cout << ser.outoIndex << std::endl;
+    std::cout << req.loc->locationPath << std::endl;
+    std::cout << ser.D_ErrorPages[404] << std::endl;
+    std::cout << req.loc->D_ErrorPages[404] << std::endl;
+    std::cout << req.fullpath << std::endl;
+    std::cout << req.status << std::endl;
+    std::cout << req.version << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
 
     if (req.method == "GET")
     {
@@ -200,6 +273,12 @@ void Response::handleDirectory(const std::string &path,
                                const Request &req,
                                const Server &srv)
 {
+    if (!hasDirPermission(path))
+    {
+        sendError(403, "");
+        return;
+    }
+
     if (path[path.size() - 1] != '/')
     {
         setStatus(301, "");
@@ -208,18 +287,95 @@ void Response::handleDirectory(const std::string &path,
         body.clear();
         return ;
     }
+    
+    const std::vector<std::string>* indexList = NULL;
 
-    std::string indexFile = path + "index.html";
-    if (existFile(indexFile.c_str()))
+    if (req.loc && !req.loc->indexFile.empty())
+        indexList = &req.loc->indexFile;
+    else if (!srv.indexFile.empty())
+        indexList = &srv.indexFile;
+
+    if (indexList)
     {
-        servFile(indexFile);
+        for (size_t i = 0; i < indexList->size(); ++i)
+        {
+            std::string fullPath = path + (*indexList)[i];
+            if (existFile(fullPath.c_str()))
+            {
+                servFile(fullPath);
+                return;
+            }
+        }
+    }
+    
+    if (req.loc->ex)
+    {
+        if (req.loc->outoIndex)
+            generateautoindex(path);
+        else
+            sendError(403, "");
+        return ;
+    }
+    if (srv.outoIndex)
+    {
+        generateautoindex(path);
         return ;
     }
 
     else
         sendError(403, "");
 }
+void Response::generateautoindex(const std::string &path)
+{
+    if (!hasDirPermission(path))
+    {
+        sendError(403, "");
+        return;
+    }
+    
+    DIR *dir = opendir(path.c_str());
+    if (!dir)
+    {
+      
+        if (access(path.c_str(), F_OK) != 0) 
+        {
+            sendError(404, "");
+        }
+        else if (access(path.c_str(), R_OK) != 0) 
+        {
+            sendError(403, "");
+        }
+        else
+        {
+            sendError(500, "");
+        }
+        return;
+    }
 
+    std::ostringstream html;
+    html << "<html><body>";
+    html << "<h1>Index of " << path << "</h1>";
+    html << "<ul>";
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        std::string name = entry->d_name;
+        if (name == "." || name == "..") continue;
+
+        html << "<li><a href=\"" << name;
+        if (entry->d_type == DT_DIR) html << "/";
+        html << "\">" << name << "</a></li>";
+    }
+
+    html << "</ul></body></html>";
+    closedir(dir);
+
+ 
+    setStatus(200, "");
+    headers["Content-Type"] = "text/html";
+    setBody(html.str());
+}
 void Response::handleGet(const std::string &path, const Request &req, const Server &srv)
 {
     if (existFile(path.c_str()))
@@ -233,14 +389,6 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
         handleDirectory(path, req, srv);
         return;
     }
-    /*
-        if (req.loc.autoindexenabled())
-        {
-            generateautoindex(path);
-            return ;
-        }
-
-    */
     else
         sendError(404, "");
 }
@@ -253,12 +401,20 @@ void Response::servFile(const std::string &path)
         return;
     }
 
+    if (!hasReadPermission(path))
+    {
+        sendError(403, "");
+        return;
+    }
+
     fileSize = st.st_size;
     setStatus(200, "");
     setContentType(path);
 
     headers["Content-Length"] = toString(fileSize);
-
+    setHeader("Cache-Control", "no-cache");
+    setHeader("Accept-Ranges", "bytes");
+    
     if (fileSize <= CHUNK_SIZE)
     {
         LargeFile = false;
@@ -274,13 +430,46 @@ void Response::servFile(const std::string &path)
 }
 void Response::sendError(int code, const std::string &message)
 {
-    if (!message.empty())
-        setStatus(code, message);
-    else
-        setStatus(code, "");
-    if (code != 200)
-        servErrorPage(code);
+    setStatus(code, message);
+
+    if (req && req->loc)
+    {
+        std::map<int, std::string>::iterator it =
+            req->loc->D_ErrorPages.find(code);
+
+        if (it != req->loc->D_ErrorPages.end())
+        {
+            std::string path = req->loc->root + it->second;
+            // std::cout << path << std::endl;
+            if (existFile(path.c_str()))
+            {
+                servFile(path);
+                return;
+            }
+        }
+    }
+
+    if (srv)
+    {
+        std::map<int, std::string>::iterator it =
+            srv->D_ErrorPages.find(code);
+
+        if (it != srv->D_ErrorPages.end())
+        {
+            std::string path = srv->root + it->second;
+            // std::cout << path << std::endl;
+            if (existFile(path.c_str()))
+            {
+                servFile(path);
+                return;
+            }
+        }
+    }
+
+    servErrorPage(code);
 }
+
+
 
 void Response::servErrorPage(int code)
 {

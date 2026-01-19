@@ -74,6 +74,7 @@ void locationCases(tockenIt &it, location &local){
         case AUTOINDEX:
             it++;
             outoIndexHandler(it->val, local.outoIndex);
+            local.ex = true;
             break;
         case INDEX:
             it++;

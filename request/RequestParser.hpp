@@ -25,7 +25,7 @@ struct Request {
 
 class RequestParser {
     public:
-        Request parse(int fd, const std::string& data);
+        Request parse(int fd, std::string& data);
 
     private:
         std::map<int, std::string> buffer;

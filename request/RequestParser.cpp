@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 
-Request::Request() : complete(false), status(200) {
+Request::Request() : complete(false), status(200), should_close(false) {
     loc = new location();
 }
 
@@ -30,12 +30,9 @@ bool RequestParser::isValidMethod(const std::string& m) {
     return m == "GET" || m == "POST" || m == "DELETE";
 }
 
-/* accept 1.1 input, behave like 1.0 */
 bool RequestParser::isValidVersion(const std::string& v) {
     return v == "HTTP/1.0" || v == "HTTP/1.1";
 }
-
-/* ================= URI ================= */
 
 bool RequestParser::isValidUriChar(char c) {
     if (std::isalnum(c))
@@ -87,8 +84,6 @@ std::string RequestParser::normalizePath(const std::string& path) {
     return r;
 }
 
-/* ================= body ================= */
-
 size_t RequestParser::parseContentLength(const std::string& v) {
     size_t n = 0;
     for (size_t i = 0; i < v.size(); i++) {
@@ -119,16 +114,29 @@ bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
     }
 }
 
-/* ================= PARSER ================= */
+std::string normalize(std::string &data) {
+    std::string nor;
+    for (size_t i = 0; i < data.size(); i++) {
+        if (data[i] == '\n') {
+            if (i == 0 || data[i - 1] != '\r')
+                nor += "\r\n"; 
+            else
+                nor += '\n';
+        } else {
+            nor += data[i];
+        }
+    }
+    return nor;
+}
 
-Request RequestParser::parse(int fd, const std::string& data)
+Request RequestParser::parse(int fd, std::string& data)
 {
     Request req;
-    buffer[fd] += data;
+    buffer[fd] += normalize(data);
     std::string& b = buffer[fd];
 
     size_t headerEnd = b.find("\r\n\r\n");
-    if (headerEnd == std::string::npos)
+    if (headerEnd == std::string::npos || b.find("\n\n") != std::string::npos)
         return req;
 
     std::istringstream hs(b.substr(0, headerEnd));
@@ -172,10 +180,10 @@ Request RequestParser::parse(int fd, const std::string& data)
     if (req.version == "HTTP/1.0") {
         if (conn != "keep-alive")
             req.should_close = true;
-    } else { // HTTP/1.1
-        if (conn == "close")
-            req.should_close = true;
-    }
+    }//else { // HTTP/1.1
+    //     if (conn == "close")
+    //         req.should_close = true;
+    // }
 
     b.erase(0, headerEnd + 4);
 
@@ -199,4 +207,3 @@ Request RequestParser::parse(int fd, const std::string& data)
 
     return req;
 }
-

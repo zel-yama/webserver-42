@@ -12,11 +12,21 @@ Server* getServerFromClient(maptype& config, Client& client) {
 }
 
 
+Server* getServerForClient(maptype& config, int serverId) {
+    if (config.find(serverId) != config.end()) {
+        Config* cfg = config[serverId];
+        if (cfg->name == "Server") {
+            return dynamic_cast<Server*>(cfg);
+        }
+    }
+    return NULL;
+}
+
 location* findLocation(Server* srv, const std::string& path) {
     location* bestMatch = NULL;
     size_t longestMatch = 0;
 
-    for (size_t i = 0; i < srv->objLocation.size(); i++) {
+    for (size_t i = 0; i < srv->objLocation.size(); ++i) {
         location& loc = srv->objLocation[i];
         size_t locLen = loc.locationPath.length();
 
@@ -28,17 +38,47 @@ location* findLocation(Server* srv, const std::string& path) {
             continue;
         }
 
-        if (path.compare(0, locLen, loc.locationPath) == 0) {
-            if (path.length() == locLen || path[locLen] == '/') {
-                if (locLen > longestMatch) {
-                    bestMatch = &loc;
-                    longestMatch = locLen;
-                }
+        if (path.compare(0, locLen, loc.locationPath) == 0 &&
+            (path.length() == locLen || path[locLen] == '/')) {
+            if (locLen > longestMatch) {
+                bestMatch = &loc;
+                longestMatch = locLen;
             }
         }
     }
+
     return bestMatch;
 }
+
+std::string joinPathWithLocation(Server* srv, location *loc, const std::string& reqPath) {
+    std::string root;
+    if (loc->root.empty())
+        root = srv->root;
+    else
+        root = loc->root;
+    std::string suffix;
+
+    // kanms7 loction mn path 
+    if (loc->locationPath != "/") {
+        if (reqPath.compare(0, loc->locationPath.length(), loc->locationPath) == 0)
+            suffix = reqPath.substr(loc->locationPath.length());
+    } else {
+        suffix = reqPath;
+    }
+
+    // cheak ila kan badi / ola khawi
+    if (!suffix.empty() && suffix[0] != '/')
+        suffix = "/" + suffix;
+
+    // Join path m3a root
+    std::string fullpath = root;
+    if (!fullpath.empty() && fullpath[fullpath.size() - 1] == '/' && !suffix.empty() && suffix[0] == '/')
+        fullpath.erase(fullpath.size() - 1); // remove extra '/' ila kant
+    fullpath += suffix;
+
+    return fullpath;
+}
+
 
 bool isMethodAllowed(const std::string& method, const std::vector<std::string>& allowed) {
     for (size_t i = 0; i < allowed.size(); i++) {
@@ -53,16 +93,11 @@ void validateRequest(Request& req, Server* srv) {
 
     req.loc = findLocation(srv, req.path);
     
-    
-    if (!req.loc || (req.loc->root.empty() && srv->root.empty())) {
+    if (!req.loc) {
         req.status = 404;
         return;
     }
-    std::string root;
-    if (req.loc->root.empty()) root = srv->root;
-    else root = req.loc->root;
-    req.fullpath = root + req.path;
-
+    req.fullpath = joinPathWithLocation(srv, req.loc, req.path);
 
     if (!req.loc->returnP.empty()) {
         req.status = 301;
@@ -85,12 +120,3 @@ void validateRequest(Request& req, Server* srv) {
     }
 }
 
-Server* getServerForClient(maptype& config, int serverId) {
-    if (config.find(serverId) != config.end()) {
-        Config* cfg = config[serverId];
-        if (cfg->name == "Server") {
-            return dynamic_cast<Server*>(cfg);
-        }
-    }
-    return NULL;
-}

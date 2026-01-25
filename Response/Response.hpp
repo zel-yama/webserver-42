@@ -71,6 +71,9 @@ public:
     void setContext(Request *r, Server *s);
     bool hasReadPermission(const std::string &path) const;
     bool hasDirPermission(const std::string &path) const;
+    void handlePost(const std::string &path, const Request &req, const Server &srv);
+    void parseMultipartUpload(const std::string &dir,
+                                    const Request &req);
 };
 
 #endif

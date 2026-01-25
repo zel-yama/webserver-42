@@ -52,6 +52,8 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             std::cout << "Request parsed successfully:" << std::endl;
             std::cout << "  Method: " << req.method << std::endl;
             std::cout << "  Path: " << req.path << std::endl;
+            // std::cout << "Content-type" << req.headers["Content-Type"] << std::endl; // when we do at() curl response > curl -X POST http://localhost:8080/upload \-d "Hello world"
+            //curl: (1) Received HTTP/0.9 when not allowed
             std::cout << "  Version: " << req.version << std::endl;
             std::cout << "  Status: " << req.status << std::endl;
             std::cout << "  Keep-Alive: " << (req.should_close ? "NO" : "YES") << std::endl;

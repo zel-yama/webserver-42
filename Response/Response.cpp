@@ -61,16 +61,16 @@ void Response::setContext(Request *r, Server *s)
 bool Response::hasReadPermission(const std::string &path) const
 {
     if (access(path.c_str(), F_OK) != 0)
-        return false; 
+        return false;
     if (access(path.c_str(), R_OK) != 0)
-        return false;  
+        return false;
     return true;
 }
 
 bool Response::hasDirPermission(const std::string &path) const
 {
     if (access(path.c_str(), F_OK) != 0)
-        return false; 
+        return false;
     if (access(path.c_str(), R_OK | X_OK) != 0)
         return false;
     return true;
@@ -264,9 +264,23 @@ void Response::processRequest(Request &req, Server &ser)
     {
         handleGet(req.fullpath, req, ser);
     }
+    else if (req.method == "POST")
+    {
+    }
     else
     {
         sendError(405, "");
+    }
+}
+
+void Response::handlePost(const std::string &path,
+                          const Request &req,
+                          const Server &srv)
+{
+    if (req.body.size() > std::atoi(srv.ClientMaxBody.c_str()))
+    {
+        sendError(413, "");
+        return ;
     }
 }
 void Response::handleDirectory(const std::string &path,
@@ -285,10 +299,10 @@ void Response::handleDirectory(const std::string &path,
         headers["Location"] = path + "/";
         headers["Content-Length"] = "0";
         body.clear();
-        return ;
+        return;
     }
-    
-    const std::vector<std::string>* indexList = NULL;
+
+    const std::vector<std::string> *indexList = NULL;
 
     if (req.loc && !req.loc->indexFile.empty())
         indexList = &req.loc->indexFile;
@@ -307,19 +321,19 @@ void Response::handleDirectory(const std::string &path,
             }
         }
     }
-    
+
     if (req.loc->ex)
     {
         if (req.loc->outoIndex)
             generateautoindex(path);
         else
             sendError(403, "");
-        return ;
+        return;
     }
     if (srv.outoIndex)
     {
         generateautoindex(path);
-        return ;
+        return;
     }
 
     else
@@ -332,16 +346,16 @@ void Response::generateautoindex(const std::string &path)
         sendError(403, "");
         return;
     }
-    
+
     DIR *dir = opendir(path.c_str());
     if (!dir)
     {
-      
-        if (access(path.c_str(), F_OK) != 0) 
+
+        if (access(path.c_str(), F_OK) != 0)
         {
             sendError(404, "");
         }
-        else if (access(path.c_str(), R_OK) != 0) 
+        else if (access(path.c_str(), R_OK) != 0)
         {
             sendError(403, "");
         }
@@ -361,17 +375,18 @@ void Response::generateautoindex(const std::string &path)
     while ((entry = readdir(dir)) != NULL)
     {
         std::string name = entry->d_name;
-        if (name == "." || name == "..") continue;
+        if (name == "." || name == "..")
+            continue;
 
         html << "<li><a href=\"" << name;
-        if (entry->d_type == DT_DIR) html << "/";
+        if (entry->d_type == DT_DIR)
+            html << "/";
         html << "\">" << name << "</a></li>";
     }
 
     html << "</ul></body></html>";
     closedir(dir);
 
- 
     setStatus(200, "");
     headers["Content-Type"] = "text/html";
     setBody(html.str());
@@ -414,7 +429,7 @@ void Response::servFile(const std::string &path)
     headers["Content-Length"] = toString(fileSize);
     setHeader("Cache-Control", "no-cache");
     setHeader("Accept-Ranges", "bytes");
-    
+
     if (fileSize <= CHUNK_SIZE)
     {
         LargeFile = false;
@@ -468,8 +483,6 @@ void Response::sendError(int code, const std::string &message)
 
     servErrorPage(code);
 }
-
-
 
 void Response::servErrorPage(int code)
 {

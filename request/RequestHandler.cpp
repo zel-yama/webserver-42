@@ -21,7 +21,7 @@ location* findLocation(Server* srv, const std::string& path) {
         location& loc = srv->objLocation[i];
         size_t locLen = loc.locationPath.length();
 
-        if (loc.locationPath == "/") {
+        if (loc.locationPath == "/") {                                                                                                                                                                                  
             if (locLen > longestMatch) {
                 bestMatch = &loc;
                 longestMatch = locLen;

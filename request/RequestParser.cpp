@@ -119,7 +119,6 @@ bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
     }
 }
 
-/* ================= PARSER ================= */
 
 Request RequestParser::parse(int fd, const std::string& data)
 {

@@ -56,6 +56,7 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             //curl: (1) Received HTTP/0.9 when not allowed
             std::cout << "  Version: " << req.version << std::endl;
             std::cout << "  Status: " << req.status << std::endl;
+            std::cout << "  Status: " << req.headers["content-length"] << std::endl;
             std::cout << "  Keep-Alive: " << (req.should_close ? "NO" : "YES") << std::endl;
             std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
         } else {

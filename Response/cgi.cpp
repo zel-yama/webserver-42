@@ -1,5 +1,7 @@
 #include "cgi.hpp"
 #include <cstring>
+#include <cstdlib>
+#include <sstream>
 #include "../request/RequestParser.hpp"
 
 
@@ -16,7 +18,9 @@ void Cgi::buildEnv(const Request& req)
     env["REQUEST_METHOD"]   = req.method;
     env["SCRIPT_FILENAME"]  = req.path;
     env["QUERY_STRING"]     = req.query;
-    env["CONTENT_LENGTH"]   = std::to_string(body.size());
+    std::ostringstream oss;
+    oss << body.size();
+    env["CONTENT_LENGTH"]   = oss.str();
     // env["CONTENT_TYPE"]     = req.headers["Content-Type"];
     env["SERVER_PROTOCOL"]  = "HTTP/1.0";
 }
@@ -51,7 +55,7 @@ std::string Cgi::execute(const std::string& cgiPath,
     if (pid == 0)
     {
         dup2(inPipe[0], STDIN_FILENO);
-        dup2(outPipe[1], STDIN_FILENO);
+        dup2(outPipe[1], STDOUT_FILENO);
         
         close(inPipe[1]);
         close(inPipe[0]);
@@ -80,15 +84,16 @@ std::string Cgi::execute(const std::string& cgiPath,
         ssize_t r;
 
         while ((r = read(outPipe[0], buffer, sizeof(buffer))) > 0)
-            output.append(buffer);
-            
-            close(outPipe[0]);
-            waitpid(pid, NULL, 0);
-            
-            for (size_t i = 0; env[i]; i++)
+            output.append(buffer, r);
+        
+        close(outPipe[0]);
+        waitpid(pid, NULL, 0);
+        
+        for (size_t i = 0; env[i]; i++)
             delete[] env[i];
-            delete[] env;
-            
-            return output;
-        }
+        delete[] env;
+        
+        return output;
+    }
+    return "";
 }

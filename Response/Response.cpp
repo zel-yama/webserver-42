@@ -1,6 +1,7 @@
 #include "../request/RequestParser.hpp"
 #include "../server/include/Server.hpp"
 #include "Response.hpp"
+#include "cgi.hpp"
 #define CHUNK_SIZE 4096
 
 void validateRequest(Request &req, Server *srv);
@@ -266,6 +267,7 @@ void Response::processRequest(Request &req, Server &ser)
     }
     else if (req.method == "POST")
     {
+        handlePost(req.path, req, ser);
     }
     else
     {
@@ -280,8 +282,43 @@ void Response::handlePost(const std::string &path,
     if (req.body.size() > std::atoi(srv.ClientMaxBody.c_str()))
     {
         sendError(413, "");
-        return ;
+        return;
     }
+
+    if (existFile(path.c_str()))
+    {
+        std::string ext = getFileExtention(path);
+        
+        if (ext == "php" || ext == "py")
+        {
+            Cgi cgi(req);
+            std::string output = cgi.execute(path, path);
+            setStatus(200, "");
+            setBody(output);
+            return;
+        }
+
+        std::ofstream file(path.c_str(), std::ios::binary | std::ios::app);
+        if (!file.is_open())
+        {
+            sendError(500, "");
+            return;
+        }
+        file.write(req.body.c_str(), req.body.size());
+        file.close();
+
+        setStatus(200, "");
+        setBody("<h1>Data saved successfully</h1>");
+        return;
+    }
+
+    if (isDirectory(path.c_str()))
+    {
+        sendError(405, "");
+        return;
+    }
+
+    sendError(404, "");
 }
 void Response::handleDirectory(const std::string &path,
                                const Request &req,
@@ -395,6 +432,15 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
 {
     if (existFile(path.c_str()))
     {
+        std::string ext = getFileExtention(path);
+        if (ext == "py")
+        {
+            Cgi cgi(req);
+            std::string output = cgi.execute(path, path);
+            setStatus(200, "");
+            setBody(output);
+            return;
+        }
         servFile(path);
         return;
     }
@@ -501,6 +547,7 @@ void Response::servErrorPage(int code)
          << "</html>\n";
     setBody(html.str());
 }
+
 
 std::string Response::build()
 {

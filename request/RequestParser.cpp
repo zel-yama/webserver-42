@@ -127,7 +127,7 @@ Request RequestParser::parse(int fd, const std::string& data)
     std::string& b = buffer[fd];
 
     size_t headerEnd = b.find("\r\n\r\n");
-    if (headerEnd == std::string::npos || b.find("\n\n") != std::string::npos)
+    if (headerEnd == std::string::npos)
         return req;
 
     std::istringstream hs(b.substr(0, headerEnd));
@@ -137,6 +137,7 @@ Request RequestParser::parse(int fd, const std::string& data)
     std::istringstream rl(line);
     rl >> req.method >> req.path >> req.version;
 
+    cout << line << endl;
     if (!isValidMethod(req.method) || !isValidVersion(req.version))
         throw std::runtime_error("bad request line");
 

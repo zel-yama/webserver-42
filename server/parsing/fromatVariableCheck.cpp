@@ -39,8 +39,8 @@ void bodySizeMax(size_t &val, std::string &str){
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    else 
-        throw std::runtime_error("invalid value in max body size ");
+    // else 
+    //     throw std::runtime_error("invalid value in max body size ");
     val = max;
 }
 
@@ -110,7 +110,8 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
 
 void outoIndexHandler(std::string val, bool &cond){
     ///printf("auto index handle %s\n", val.c_str());
-    if (val.compare("on"))
+
+    if (!val.compare("on"))
         cond = true;
     else 
         cond = false;

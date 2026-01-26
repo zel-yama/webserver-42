@@ -1,4 +1,3 @@
-
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
@@ -56,6 +55,7 @@ struct location {
     std::vector<std::string>            indexFile;
     size_t                              bodyMaxByte;
     bool                                outoIndex;
+    bool                                ex;
     std::map<int, std::string >         D_ErrorPages;
 };
 

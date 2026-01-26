@@ -16,11 +16,12 @@ struct Request {
     
     std::map<std::string, std::string> headers;
     bool complete;
-    bool should_close;
+    bool keepalive;
     std::string fullpath;
     location *loc;
 
     Request();
+    ~Request();
 };
 
 class RequestParser {

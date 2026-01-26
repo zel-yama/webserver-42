@@ -8,8 +8,12 @@
 #include <stdexcept>
 
 
-Request::Request() : complete(false), status(200), should_close(false) {
+Request::Request() : complete(false), status(200), keepalive(false) {
     loc = new location();
+}
+
+Request::~Request() {
+    delete loc;
 }
 
 std::string RequestParser::trim(const std::string& s) {
@@ -136,7 +140,7 @@ Request RequestParser::parse(int fd, std::string& data)
     std::string& b = buffer[fd];
 
     size_t headerEnd = b.find("\r\n\r\n");
-    if (headerEnd == std::string::npos || b.find("\n\n") != std::string::npos)
+    if (headerEnd == std::string::npos)
         return req;
 
     std::istringstream hs(b.substr(0, headerEnd));
@@ -145,6 +149,8 @@ Request RequestParser::parse(int fd, std::string& data)
     std::getline(hs, line);
     std::istringstream rl(line);
     rl >> req.method >> req.path >> req.version;
+    if (req.method.empty() || req.path.empty() || req.version.empty())
+        throw std::runtime_error("incomplete request line");
 
     if (!isValidMethod(req.method) || !isValidVersion(req.version))
         throw std::runtime_error("bad request line");
@@ -166,24 +172,28 @@ Request RequestParser::parse(int fd, std::string& data)
         if (line == "\r")
             break;
         size_t c = line.find(':');
-        // if (c == std::string::npos)
-        //     throw std::runtime_error("bad header");
+        if (c == std::string::npos)
+            throw std::runtime_error("bad header");
 
         req.headers[toLower(trim(line.substr(0, c)))] =
             trim(line.substr(c + 1));
     }
 
-    /* ---- CONNECTION DECISION (CRITICAL) ---- */
-    req.should_close = false;
-    std::string conn = toLower(req.headers["connection"]);
+    /* ---- CONNECTION ---- */
 
-    if (req.version == "HTTP/1.0") {
-        if (conn != "keep-alive")
-            req.should_close = true;
-    }//else { // HTTP/1.1
-    //     if (conn == "close")
-    //         req.should_close = true;
-    // }
+    std::string conn;
+    if (req.headers.count("connection"))
+        conn = toLower(req.headers["connection"]);
+
+    if (req.version == "HTTP/1.1") {
+        // HTTP/1.1 default is keep-alive
+        req.keepalive = (conn != "close");
+    }
+    else {
+        // HTTP/1.0 default is close
+        req.keepalive = (conn == "keep-alive");
+    }
+
 
     b.erase(0, headerEnd + 4);
 
@@ -202,7 +212,7 @@ Request RequestParser::parse(int fd, std::string& data)
 
     req.complete = true;
 
-    if (req.should_close)
+    if (!req.keepalive)
         buffer.erase(fd);
 
     return req;

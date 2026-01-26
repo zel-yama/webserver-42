@@ -19,6 +19,7 @@ Server::Server(){
 location::location(){
     this->bodyMaxByte  = 0;
     this->outoIndex = false;
+    this->ex = false;
     
 }
 

@@ -23,8 +23,24 @@ int myread(Client &connect) {
     return 1;
 }
 
+bool allowKeepAlive(const Request& req)
+{
+    // You can tighten this later
+    if (!req.keepalive)
+        return false;
+
+    if (req.status >= 400)
+        return false;
+
+    if (!req.complete)
+        return false;
+
+    return true;
+}
+
 void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *parser)
 {
+    // read only for body  () 
     int readResult = myread(connect);
     
     if (readResult == -1) {
@@ -46,14 +62,20 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             connect.parsedRequest = req;
             connect.requestFinish = true;
         
-            connect.keepAlive = !req.should_close;
+            if (allowKeepAlive(req))
+                connect.keepAlive = true;
+            else
+                connect.keepAlive = false;
 
             std::cout << "Request parsed successfully:" << std::endl;
             std::cout << "  Method: " << req.method << std::endl;
             std::cout << "  Path: " << req.path << std::endl;
+            // std::cout << "Content-type" << req.headers["Content-Type"] << std::endl; // when we do at() curl response > curl -X POST http://localhost:8080/upload \-d "Hello world"
+            //curl: (1) Received HTTP/0.9 when not allowed
             std::cout << "  Version: " << req.version << std::endl;
             std::cout << "  Status: " << req.status << std::endl;
-            std::cout << "  Keep-Alive: " << (req.should_close ? "NO" : "YES") << std::endl;
+            std::cout << "  Status: " << req.headers["content-length"] << std::endl;
+            std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
             std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
         } else {
             std::cout << "Request incomplete, waiting for more data..." << std::endl;

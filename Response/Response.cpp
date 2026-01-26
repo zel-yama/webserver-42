@@ -292,7 +292,7 @@ void Response::handlePost(const std::string &path,
             return;
         }
 
-        std::ofstream file(path.c_str(), std::ios::binary | std::ios::app);
+        std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc);
         if (!file.is_open())
         {
             sendError(500, "");
@@ -311,8 +311,8 @@ void Response::handlePost(const std::string &path,
         sendError(405, "");
         return;
     }
-    
-    std::ofstream file(path.c_str(), std::ios::binary);
+
+    std::ofstream file(path.c_str(), std::ios::out);
     if (!file.is_open())
     {
         sendError(500, "");

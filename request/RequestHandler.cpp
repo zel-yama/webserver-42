@@ -1,108 +1,107 @@
-#include "RequestHandler.hpp"
-#include <algorithm>
-#include <iostream>
+#include "../server/include/Server.hpp"
+#include "RequestParser.hpp"
 
-RequestHandler::RequestHandler() {}
-
-Request RequestHandler::handleRequest(int fd, const std::string& rawData, const ServerConfig& config) {
-    Request req = parser.parse(fd, rawData);
-    
-
-    if (!req.complete || req.status != 200) {
-        return req;
+Server* getServerFromClient(maptype& config, Client& client) {
+    if (config.find(client.serverId) != config.end()) {
+        Config* cfg = config[client.serverId];
+        if (cfg->name == "Server") {
+            return dynamic_cast<Server*>(cfg);
+        }
     }
-
-    Location* matchedLocation = findMatchingLocation(req.path, config.locations);
-
-    if (!matchedLocation) {
-        req.status = 404;
-        return req;
-    }
-    
-    checkRedirection(req, matchedLocation);
-    if (req.status == 301) {
-        return req;
-    }
-    
-    validateMethod(req, matchedLocation);
-    if (req.status == 405) {
-        return req;
-    }
-    
-    validateBodySize(req, config.max_body_size);
-    if (req.status == 413) {
-        return req;
-    }
-
-    // if (req.method == "POST") {
-    //     if (!req.hasHeader("content-length")) {
-    //         std::cerr << "NOT FOUND - returning 400" << std::endl;
-    //         req.status = 400;
-    //         req.complete = true;
-    //         return req;
-    //     }
-    //     std::cerr << "FOUND" << std::endl;
-    // }
-
-    return req;
+    return NULL;
 }
 
-Location* RequestHandler::findMatchingLocation(const std::string& uri, const std::vector<Location>& locations) {
-    Location* bestMatch = NULL;
+
+location* findLocation(Server* srv, const std::string& path) {
+    location* bestMatch = NULL;
     size_t longestMatch = 0;
-    
-    for (size_t i = 0; i < locations.size(); i++) {
-        const Location& loc = locations[i];
-        
-        if (uri.find(loc.path) == 0) {
-            size_t locLen = loc.path.length();
-        
-            bool isValidMatch = false;
-            
-            if (uri.length() == locLen) {
-                isValidMatch = true;
-            } else if (uri[locLen] == '/') {
-                isValidMatch = true;
-            } else if (locLen > 1 && loc.path[locLen - 1] == '/') {
-                isValidMatch = true;
-            }
-            
-            if (isValidMatch && locLen > longestMatch) {
-                bestMatch = const_cast<Location*>(&loc);
+
+
+    for (size_t i = 0; i < srv->objLocation.size(); i++) {
+        location& loc = srv->objLocation[i];
+        size_t locLen = loc.locationPath.length();
+
+        if (loc.locationPath == "/") {                                                                                                                                                                                  
+            if (locLen > longestMatch) {
+                bestMatch = &loc;
                 longestMatch = locLen;
+            }
+            continue;
+        }
+
+        if (path.compare(0, locLen, loc.locationPath) == 0) {
+            if (path.length() == locLen || path[locLen] == '/') {
+                if (locLen > longestMatch) {
+                    bestMatch = &loc;
+                    longestMatch = locLen;
+                }
+            }
+            continue;
+        }
+
+        if (path.compare(0, locLen, loc.locationPath) == 0) {
+            if (path.length() == locLen || path[locLen] == '/') {
+                if (locLen > longestMatch) {
+                    bestMatch = &loc;
+                    longestMatch = locLen;
+                }
             }
         }
     }
-    
     return bestMatch;
 }
 
-bool RequestHandler::isMethodAllowed(const std::string& method, 
-                                     const std::vector<std::string>& allowedMethods) {
-    for (size_t i = 0; i < allowedMethods.size(); i++) {
-        if (allowedMethods[i] == method) {
+bool isMethodAllowed(const std::string& method, const std::vector<std::string>& allowed) {
+    for (size_t i = 0; i < allowed.size(); i++) {
+        if (allowed[i] == method) {
             return true;
         }
     }
     return false;
 }
 
-void RequestHandler::validateMethod(Request& req, const Location* location) {
-    if (!isMethodAllowed(req.method, location->allowed_methods)) {
-        req.status = 405;
-    }
-}
+void validateRequest(Request& req, Server* srv) {
 
-void RequestHandler::validateBodySize(Request& req, size_t maxBodySize) {
-    if ((req.method == "POST" || req.method == "PUT") && req.body.size() > maxBodySize) {
-        req.status = 413; 
-        req.complete = true;
+    req.loc = findLocation(srv, req.path);
+    
+    
+    if (!req.loc || (req.loc->root.empty() && srv->root.empty())) {
+        req.status = 404;
+        return;
     }
-}
+    std::string root;
+    if (req.loc->root.empty()) root = srv->root;
+    else root = req.loc->root;
+    req.fullpath = root + req.path;
 
-void RequestHandler::checkRedirection(Request& req, const Location* location) {
-    if (!location->redirect.empty()) {
+
+    if (!req.loc->returnP.empty()) {
         req.status = 301;
-        // req.redirectUrl = location->redirect;
+        req.headers["location"] = req.loc->returnP;
+        return;
     }
+    
+    if (!isMethodAllowed(req.method, req.loc->allowedMethods)) {
+        req.status = 405;
+        return;
+    }
+
+    if ((req.method == "POST" || req.method == "DELETE")) {
+        size_t maxSize = (req.loc->bodyMaxByte > 0) ? req.loc->bodyMaxByte : srv->bodyMaxByte;
+        
+        if (req.body.size() > maxSize) {
+            req.status = 413;
+            return;
+        }
+    }
+}
+
+Server* getServerForClient(maptype& config, int serverId) {
+    if (config.find(serverId) != config.end()) {
+        Config* cfg = config[serverId];
+        if (cfg->name == "Server") {
+            return dynamic_cast<Server*>(cfg);
+        }
+    }
+    return NULL;
 }

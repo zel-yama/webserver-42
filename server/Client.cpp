@@ -1,6 +1,6 @@
 
-#include "Client.hpp"
-
+#include "../webserv.hpp"
+#include "include/Client.hpp"
 Client::Client(){
     name = "client";
     keepAlive = false;
@@ -19,5 +19,8 @@ Client::Client(){
     "<html><body><h1>Hello!</h1><p>This is a random response.</p></body></html>";
     sending = false;
     responseSize = 8000;
+
+    // mine ..... mohamed
+    parsedRequest = Request();
+    // respons = Response();
 }
-   

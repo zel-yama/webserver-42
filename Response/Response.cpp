@@ -267,7 +267,7 @@ void Response::processRequest(Request &req, Server &ser)
     }
     else if (req.method == "POST")
     {
-        handlePost(req.path, req, ser);
+        handlePost(req.fullpath, req, ser);
     }
     else
     {
@@ -279,12 +279,6 @@ void Response::handlePost(const std::string &path,
                           const Request &req,
                           const Server &srv)
 {
-    if (req.body.size() > std::atoi(srv.ClientMaxBody.c_str()))
-    {
-        sendError(413, "");
-        return;
-    }
-
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
@@ -298,7 +292,7 @@ void Response::handlePost(const std::string &path,
             return;
         }
 
-        std::ofstream file(path.c_str(), std::ios::binary | std::ios::app);
+        std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc);
         if (!file.is_open())
         {
             sendError(500, "");
@@ -318,7 +312,17 @@ void Response::handlePost(const std::string &path,
         return;
     }
 
-    sendError(404, "");
+    std::ofstream file(path.c_str(), std::ios::out);
+    if (!file.is_open())
+    {
+        sendError(500, "");
+        return;
+    }
+    file.write(req.body.c_str(), req.body.size());
+    file.close();
+
+    setStatus(201, "");
+    setBody("<h1>Data saved successfully</h1>");
 }
 void Response::handleDirectory(const std::string &path,
                                const Request &req,

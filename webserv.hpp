@@ -28,7 +28,7 @@
     #include <cctype>
     #include <exception>
 
-  
+   #include <netdb.h>
     
     
    

@@ -41,5 +41,8 @@ test:  client_max_body_size 1515515151181854181784515441817854M; cas
 case of rules  : 
 
 rules i should put ->   location  locationpath   open  variable value end of value;
-server open variable value end of value  
 
+server open variable value end of value  
+return 444 "this well be here well return response body i think"
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+he check is Listen exsit if string like listen ueaiena this ip address but only number he consider it as port 4334343434 and he check port range can be over range 

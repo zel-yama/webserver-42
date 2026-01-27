@@ -21,7 +21,7 @@ class Server : public Config {
     
     Server();
     
-    std::vector<std::string>                 indexFile;
+    std::vector<std::string>            indexFile;
     unsigned int                        port;
     std::string                         ipAdress;
     std::string                         returnP;

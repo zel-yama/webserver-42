@@ -1,8 +1,24 @@
 
 #include "../include/parsing.hpp"
+void accept(tockens tokn, TYPE tokn1){
+    if (tokn.mytocken != tokn1)
+        throw std::runtime_error("this is <" + tokn.val +  "> unexpected tokens ");
+}
 
 void applyRules(std::vector<tockens> &tocknes){
-    (void)tocknes;
+
+    tockenIt it = tocknes.begin();
+    while ((it + 1) != tocknes.end()){
+            if (it->mytocken == SERVER)
+                accept(*(it + 1), OPENED_PRACKET);
+            if (it->mytocken == LOCATIONPATH)
+                accept(*(it + 1), OPENED_PRACKET);
+            if (it->mytocken == LOCATION)
+                accept(*(it +1), LOCATIONPATH);
+            if (it->mytocken > 7)
+                accept(*(it + 1), VALUE);
+            it++;
+    }
 }
 
 
@@ -44,5 +60,5 @@ void bracketValidtion(std::vector<tockens> &tockens){
         }
         it++;
     }
-    
+    applyRules(tockens);
 }

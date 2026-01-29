@@ -44,7 +44,7 @@ void eventLoop(maptype config ){
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                 
                     Server *clientServer = getServerFromClient(config, *Cli);
-
+ 
 
                     if (events[i].events & (EPOLLIN | EPOLLET)){
                         std::cout << "  they say what happnes " << std::endl;
@@ -54,8 +54,8 @@ void eventLoop(maptype config ){
 
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
-                        // else 
-                        //     continue;
+                        else 
+                            continue;
                     }
                     if (events[i].events & EPOLLOUT ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));

@@ -8,12 +8,12 @@
 #include <stdexcept>
 
 
-Request::Request() : complete(false), status(200), keepalive(false) {
-    loc = new location();
+Request::Request() : complete(false), status(200), keepalive(false), loc(NULL) {
+    // loc = new location();
 }
 
 Request::~Request() {
-    delete loc;
+    // delete loc;
 }
 
 std::string RequestParser::trim(const std::string& s) {
@@ -93,7 +93,7 @@ size_t RequestParser::parseContentLength(const std::string& v) {
     for (size_t i = 0; i < v.size(); i++) {
         if (!isdigit(v[i]))
             throw std::runtime_error("bad content-length");
-        n = n * 10 + (v[i] - '0');
+        n = n * 10 + (v[i] - '0'); //overflow ?
     }
     return n;
 }
@@ -118,14 +118,24 @@ bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
     }
 }
 
+void RequestParser::clearBuffer(int fd) {
+    buffer.erase(fd);
+}
+
+
 std::string normalize(std::string &data) {
     std::string nor;
+    nor.reserve(data.size() + data.size() / 10); // Reserve extra space
+    
     for (size_t i = 0; i < data.size(); i++) {
-        if (data[i] == '\n') {
-            if (i == 0 || data[i - 1] != '\r')
-                nor += "\r\n"; 
-            else
-                nor += '\n';
+        if (data[i] == '\r') {
+            nor += "\r\n";
+            // Skip the next character if it's \n (CRLF -> CRLF)
+            if (i + 1 < data.size() && data[i + 1] == '\n')
+                i++;
+        } else if (data[i] == '\n') {
+            // Bare LF -> CRLF
+            nor += "\r\n";
         } else {
             nor += data[i];
         }
@@ -136,6 +146,11 @@ std::string normalize(std::string &data) {
 Request RequestParser::parse(int fd, std::string& data)
 {
     Request req;
+    //     const size_t MAX_BUFFER_SIZE = 10485760; // 10MB
+    // if (buffer[fd].size() + data.size() > MAX_BUFFER_SIZE) {
+    //     buffer.erase(fd);
+    //     throw std::runtime_error("request too large");
+    // }
     buffer[fd] += normalize(data);
     std::string& b = buffer[fd];
 
@@ -146,16 +161,22 @@ Request RequestParser::parse(int fd, std::string& data)
     std::istringstream hs(b.substr(0, headerEnd));
     std::string line;
 
-    std::getline(hs, line);
+    if (!std::getline(hs, line))
+        throw std::runtime_error("empty request");
+    
+    // Remove trailing \r if present
+    if (!line.empty() && line[line.size() - 1] == '\r')
+        line.erase(line.size() - 1);
+
     std::istringstream rl(line);
     rl >> req.method >> req.path >> req.version;
+
     if (req.method.empty() || req.path.empty() || req.version.empty())
         throw std::runtime_error("incomplete request line");
 
     if (!isValidMethod(req.method) || !isValidVersion(req.version))
         throw std::runtime_error("bad request line");
 
-    /* query */
     size_t q = req.path.find('?');
     if (q != std::string::npos) {
         req.query = req.path.substr(q + 1);
@@ -167,37 +188,52 @@ Request RequestParser::parse(int fd, std::string& data)
 
     req.path = normalizePath(req.path);
 
-    /* headers */
     while (std::getline(hs, line)) {
-        if (line == "\r")
-            break;
-        size_t c = line.find(':');
-        if (c == std::string::npos)
-            throw std::runtime_error("bad header");
+        if (!line.empty() && line.back() == '\r')
+            line.pop_back();
 
-        req.headers[toLower(trim(line.substr(0, c)))] =
-            trim(line.substr(c + 1));
+        if (line.empty())
+            break;
+
+        size_t c = line.find(':');
+
+        if (c == std::string::npos) {
+            throw std::runtime_error("400: malformed header (missing colon)");
+        }
+
+        std::string headerName = trim(line.substr(0, c));
+        std::string headerValue = trim(line.substr(c + 1));
+
+        if (headerName.empty()) {
+            throw std::runtime_error("400: empty header name");
+        }
+
+        headerName = toLower(headerName);
+
+        if (headerName == "content-length" &&
+            req.headers.count("content-length")) {
+            throw std::runtime_error("400: duplicate content-length");
+        }
+
+        req.headers[headerName] = headerValue;
     }
 
-    /* ---- CONNECTION ---- */
 
     std::string conn;
     if (req.headers.count("connection"))
         conn = toLower(req.headers["connection"]);
 
     if (req.version == "HTTP/1.1") {
-        // HTTP/1.1 default is keep-alive
         req.keepalive = (conn != "close");
     }
     else {
-        // HTTP/1.0 default is close
         req.keepalive = (conn == "keep-alive");
     }
 
 
     b.erase(0, headerEnd + 4);
 
-    /* body */
+
     if (req.headers["transfer-encoding"] == "chunked") {
         if (!decodeChunked(b, req.body))
             return req;
@@ -212,8 +248,26 @@ Request RequestParser::parse(int fd, std::string& data)
 
     req.complete = true;
 
-    if (!req.keepalive)
-        buffer.erase(fd);
+    if (req.headers.count("content-type")) {
+        std::string contentType = req.headers["content-type"];
+        std::string lowerCT = toLower(contentType);
+        
+        if (lowerCT.find("multipart/form-data") != std::string::npos) {
+            std::string boundary = extractBoundary(contentType);
+            
+            if (!boundary.empty()) {
+                std::cout << "Parsing multipart with boundary: " << boundary << std::endl;
+                
+                if (!parseMultipart(req.body, boundary, req)) {
+                    std::cerr << "Warning: Failed to parse multipart data" << std::endl;
+                }
+            } else {
+                std::cerr << "Warning: multipart/form-data without boundary" << std::endl;
+            }
+        }
+    }
+    // if (!req.keepalive)
+    //     buffer.erase(fd);
 
     return req;
 }

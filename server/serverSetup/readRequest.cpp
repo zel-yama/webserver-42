@@ -25,12 +25,12 @@ int myread(Client &connect) {
 
 bool allowKeepAlive(const Request& req)
 {
-    // You can tighten this later
+    if (req.status >= 400)
+        return false;
+
     if (!req.keepalive)
         return false;
 
-    if (req.status >= 400)
-        return false;
 
     if (!req.complete)
         return false;
@@ -40,7 +40,6 @@ bool allowKeepAlive(const Request& req)
 
 void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *parser)
 {
-    // read only for body  () 
     int readResult = myread(connect);
     
     if (readResult == -1) {
@@ -70,8 +69,6 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             std::cout << "Request parsed successfully:" << std::endl;
             std::cout << "  Method: " << req.method << std::endl;
             std::cout << "  Path: " << req.path << std::endl;
-            // std::cout << "Content-type" << req.headers["Content-Type"] << std::endl; // when we do at() curl response > curl -X POST http://localhost:8080/upload \-d "Hello world"
-            //curl: (1) Received HTTP/0.9 when not allowed
             std::cout << "  Version: " << req.version << std::endl;
             std::cout << "  Status: " << req.status << std::endl;
             std::cout << "  Status: " << req.headers["content-length"] << std::endl;

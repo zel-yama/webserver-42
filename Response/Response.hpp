@@ -72,8 +72,11 @@ public:
     bool hasReadPermission(const std::string &path) const;
     bool hasDirPermission(const std::string &path) const;
     void handlePost(const std::string &path, const Request &req, const Server &srv);
-    void parseMultipartUpload(const std::string &dir,
-                                    const Request &req);
+    // void parseMultipartUpload(const std::string &dir,
+    //                                 const Request &req);
+    void handleDelete(const std::string &path,
+        const Request &req,
+        const Server &srv);
 };
 
 #endif

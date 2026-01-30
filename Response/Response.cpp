@@ -241,12 +241,12 @@ void Response::processRequest(Request &req, Server &ser)
 {
     setContext(&req, &ser);
     setHeader("Server", "MyWebServer/1.0");
+    validateRequest(req, &ser);
     if (req.status != 200)
     {
         sendError(req.status, "");
         return;
     }
-    validateRequest(req, &ser);
     setVersion(req.version);
     std::cout << "+++++++++++++++++++++++++++++" << std::endl;
     std::cout << req.method << std::endl;
@@ -269,6 +269,10 @@ void Response::processRequest(Request &req, Server &ser)
     {
         handlePost(req.fullpath, req, ser);
     }
+    else if (req.method == "DELETE")
+    {
+        handleDelete(req.fullpath, req, ser);
+    }
     else
     {
         sendError(405, "");
@@ -282,7 +286,7 @@ void Response::handlePost(const std::string &path,
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
-        
+
         if (ext == "php" || ext == "py")
         {
             Cgi cgi(req);
@@ -301,7 +305,7 @@ void Response::handlePost(const std::string &path,
         file.write(req.body.c_str(), req.body.size());
         file.close();
 
-        setStatus(200, "");
+        setStatus(201, "");
         setBody("<h1>Data saved successfully</h1>");
         return;
     }
@@ -324,6 +328,7 @@ void Response::handlePost(const std::string &path,
     setStatus(201, "");
     setBody("<h1>Data saved successfully</h1>");
 }
+
 void Response::handleDirectory(const std::string &path,
                                const Request &req,
                                const Server &srv)
@@ -432,6 +437,7 @@ void Response::generateautoindex(const std::string &path)
     headers["Content-Type"] = "text/html";
     setBody(html.str());
 }
+
 void Response::handleGet(const std::string &path, const Request &req, const Server &srv)
 {
     if (existFile(path.c_str()))
@@ -440,7 +446,7 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
         if (ext == "py")
         {
             Cgi cgi(req);
-            std::string output = cgi.execute(path, path);
+            std::string output = cgi.execute("/usr/bin/python3", path);
             setStatus(200, "");
             setBody(output);
             return;
@@ -552,12 +558,39 @@ void Response::servErrorPage(int code)
     setBody(html.str());
 }
 
+void Response::handleDelete(const std::string &path,
+                            const Request &req,
+                            const Server &srv)
+{
+    if (!existFile(path.c_str()))
+    {
+        sendError(404, "");
+        return;
+    }
+    if (isDirectory(path.c_str()))
+    {
+        sendError(409, "");
+        return;
+    }
+    if (access(path.c_str(), W_OK) != 0)
+    {
+        sendError(403, "");
+        return;
+    }
+    if (std::remove(path.c_str()) != 0)
+    {
+        sendError(500, "");
+        return;
+    }
+    setStatus(204, "");
+    body.clear();
+}
 
 std::string Response::build()
 {
     std::ostringstream response;
 
-    response << version << " "
+    response << req->version << " "
              << statusCode << " " << statusMessage << "\r\n";
 
     for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)

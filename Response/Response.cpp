@@ -59,6 +59,18 @@ void Response::setContext(Request *r, Server *s)
     req = r;
     srv = s;
 }
+
+std::string Response::getDateHeader() const
+{
+    time_t now = time(0);
+    struct tm tm;
+    gmtime_r(&now, &tm);
+    
+    char buf[100];
+    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &tm);
+    return std::string(buf);
+}
+
 bool Response::hasReadPermission(const std::string &path) const
 {
     if (access(path.c_str(), F_OK) != 0)
@@ -286,7 +298,13 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 void Response::processRequest(Request &req, Server &ser)
 {
     setContext(&req, &ser);
-    setHeader("Server", "MyWebServer/1.0");
+    setHeader("Server", req.version);
+
+    if (req.should_close)
+        setHeader("Connection", "close");
+    else
+        setHeader("Connection", "keep-alive");
+
     validateRequest(req, &ser);
     if (req.status != 200)
     {
@@ -671,6 +689,9 @@ std::string Response::build()
 
     response << req->version << " "
              << statusCode << " " << statusMessage << "\r\n";
+
+    if (headers.find("Date") == headers.end())
+        response << "Date: " << getDateHeader() << "\r\n";
 
     for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
     {

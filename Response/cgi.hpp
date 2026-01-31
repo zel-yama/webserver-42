@@ -8,6 +8,7 @@
 class Cgi{
     private:
         std::string body;
+        std::string uploadPath;
         std::map<std::string, std::string> env;
 
         void buildEnv(const Request& req);

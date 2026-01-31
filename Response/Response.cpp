@@ -237,6 +237,52 @@ size_t Response::getFileSize() const
     return fileSize;
 }
 
+void Response::applyCgiResponse(const std::string &cgiOutput)
+{
+    size_t pos = cgiOutput.find("\r\n\r\n");
+    if (pos == std::string::npos)
+        pos = cgiOutput.find("\n\n");
+
+    if (pos == std::string::npos)
+    {
+        setBody(cgiOutput);
+        return;
+    }
+
+    std::string headersPart = cgiOutput.substr(0, pos);
+    size_t offset;
+
+    if (cgiOutput[pos + 1] == '\r')
+        offset = 4;
+    else
+        offset = 2;
+
+    std::string bodyPart = cgiOutput.substr(pos + offset);
+    std::istringstream iss(headersPart);
+    std::string line;
+    while (std::getline(iss, line))
+    {
+        if (line.empty() || line == "\r")
+            continue;
+
+        size_t colonPos = line.find(':');
+        if (colonPos != std::string::npos)
+        {
+            std::string key = line.substr(0, colonPos);
+            std::string value = line.substr(colonPos + 1);
+
+            while (!value.empty() && (value[0] == ' ' || value[0] == '\t'))
+                value = value.substr(1);
+            while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
+                value = value.substr(0, value.size() - 1);
+
+            setHeader(key, value);
+        }
+    }
+
+    setBody(bodyPart);
+}
+
 void Response::processRequest(Request &req, Server &ser)
 {
     setContext(&req, &ser);
@@ -287,12 +333,28 @@ void Response::handlePost(const std::string &path,
     {
         std::string ext = getFileExtention(path);
 
-        if (ext == "php" || ext == "py")
+        int cgiEnabled = srv.cgiStatus;
+        std::string cgiPath = srv.cgiPath;
+        std::string cgiExten = srv.cgiExten;
+
+        if (req.loc && req.loc->cgiStatus != -1)
+            cgiEnabled = req.loc->cgiStatus;
+        if (req.loc && !req.loc->cgiPath.empty())
+            cgiPath = req.loc->cgiPath;
+        if (req.loc && !req.loc->cgiExten.empty())
+            cgiExten = req.loc->cgiExten;
+
+        if (cgiEnabled == 1 && (ext == cgiExten || (cgiExten[0] == '.' && ext == cgiExten.substr(1))))
         {
             Cgi cgi(req);
-            std::string output = cgi.execute(path, path);
+
+            std::string uploadPath = srv.uploadPath;
+            if (req.loc && !req.loc->uploadPath.empty())
+                uploadPath = req.loc->uploadPath;
+
+            std::string output = cgi.execute(cgiPath, path);
             setStatus(200, "");
-            setBody(output);
+            applyCgiResponse(output);
             return;
         }
 
@@ -443,12 +505,29 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
-        if (ext == "py")
+
+        int cgiEnabled = srv.cgiStatus;
+        std::string cgiPath = srv.cgiPath;
+        std::string cgiExten = srv.cgiExten;
+
+        if (req.loc && req.loc->cgiStatus != -1)
+            cgiEnabled = req.loc->cgiStatus;
+        if (req.loc && !req.loc->cgiPath.empty())
+            cgiPath = req.loc->cgiPath;
+        if (req.loc && !req.loc->cgiExten.empty())
+            cgiExten = req.loc->cgiExten;
+
+        if (cgiEnabled == 1 && (ext == cgiExten || (cgiExten[0] == '.' && ext == cgiExten.substr(1))))
         {
             Cgi cgi(req);
-            std::string output = cgi.execute("/usr/bin/python3", path);
+
+            std::string uploadPath = srv.uploadPath;
+            if (req.loc && !req.loc->uploadPath.empty())
+                uploadPath = req.loc->uploadPath;
+
+            std::string output = cgi.execute(cgiPath, path);
             setStatus(200, "");
-            setBody(output);
+            applyCgiResponse(output);
             return;
         }
         servFile(path);

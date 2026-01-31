@@ -77,6 +77,7 @@ public:
     void handleDelete(const std::string &path,
         const Request &req,
         const Server &srv);
+    void applyCgiResponse(const std::string &cgiOutput);
 };
 
 #endif

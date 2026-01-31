@@ -7,10 +7,10 @@
 struct location;
 
 struct MultipartPart {
-    std::string name;          // Field name
-    std::string filename;      // Original filename (if file upload)
-    std::string contentType;   // Content-Type of this part
-    std::string content;       // The actual data
+    std::string name;
+    std::string filename;
+    std::string contentType;
+    std::string content;
 };
 
 
@@ -54,8 +54,8 @@ class RequestParser {
         size_t parseContentLength(const std::string& v);
         bool decodeChunked(std::string& buf, std::string& out);
         
-        std::string extractBoundary(const std::string& contentType);
-        bool parseMultipart(const std::string& body, const std::string& boundary, Request& req);
+        std::string extractBoundary(std::string& contentType);
+        bool parseMultipart(std::string& body, std::string& boundary, Request& req);
 };
 
 #endif

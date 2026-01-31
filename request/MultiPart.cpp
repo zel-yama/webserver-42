@@ -7,24 +7,22 @@
 #include <vector>
 #include <stdexcept>
 
-std::string RequestParser::extractBoundary(const std::string& contentType) {
+std::string RequestParser::extractBoundary(std::string& contentType) {
     std::string lower = toLower(contentType);
     size_t pos = lower.find("boundary=");
     
     if (pos == std::string::npos)
         return "";
     
-    pos += 9; // length of "boundary="
-    
-    // Skip quotes if present
+    pos += 9;
+
     if (pos < contentType.size() && contentType[pos] == '"') {
         pos++;
         size_t endQuote = contentType.find('"', pos);
         if (endQuote != std::string::npos)
             return contentType.substr(pos, endQuote - pos);
     }
-    
-    // No quotes, find end of boundary (space, semicolon, or end)
+
     size_t end = contentType.find_first_of("; \t\r\n", pos);
     if (end == std::string::npos)
         return contentType.substr(pos);
@@ -32,7 +30,7 @@ std::string RequestParser::extractBoundary(const std::string& contentType) {
     return contentType.substr(pos, end - pos);
 }
 
-bool RequestParser::parseMultipart(const std::string& body, const std::string& boundary, Request& req) {
+bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Request& req) {
     if (boundary.empty()) {
         std::cerr << "Error: Empty boundary in multipart" << std::endl;
         return false;
@@ -42,8 +40,7 @@ bool RequestParser::parseMultipart(const std::string& body, const std::string& b
     std::string endDelimiter = "--" + boundary + "--";
     
     size_t pos = 0;
-    
-    // Find first boundary
+
     pos = body.find(delimiter);
     if (pos == std::string::npos) {
         std::cerr << "Error: No boundary found in multipart body" << std::endl;
@@ -53,46 +50,36 @@ bool RequestParser::parseMultipart(const std::string& body, const std::string& b
     pos += delimiter.length();
     
     while (pos < body.size()) {
-        // Skip \r\n after boundary
         if (pos + 1 < body.size() && body[pos] == '\r' && body[pos + 1] == '\n')
             pos += 2;
         else if (pos < body.size() && body[pos] == '\n')
             pos++;
-        
-        // Check if this is the end delimiter
+
         if (body.compare(pos - delimiter.length(), endDelimiter.length(), endDelimiter) == 0)
             break;
         
-        // Find next boundary
         size_t nextBoundary = body.find(delimiter, pos);
         if (nextBoundary == std::string::npos)
             break;
-        
-        // Extract this part (between current pos and next boundary)
+
         std::string part = body.substr(pos, nextBoundary - pos);
-        
-        // Find headers end in this part
+
         size_t headersEnd = part.find("\r\n\r\n");
         if (headersEnd == std::string::npos)
             headersEnd = part.find("\n\n");
         
         if (headersEnd != std::string::npos) {
-            // Extract headers
             std::string headersSection = part.substr(0, headersEnd);
-            
-            // Adjust position based on delimiter type
+
             size_t contentStart = headersEnd + 4; // For \r\n\r\n
             if (part.substr(headersEnd, 2) == "\n\n")
                 contentStart = headersEnd + 2;
-            
-            // Extract content
+
             std::string content = part.substr(contentStart);
-            
-            // Remove trailing CRLF from content
+
             while (!content.empty() && (content[content.size() - 1] == '\n' || content[content.size() - 1] == '\r'))
                 content.erase(content.size() - 1);
-            
-            // Parse headers
+
             std::istringstream hs(headersSection);
             std::string line;
             std::string name, filename, contentType;
@@ -103,11 +90,9 @@ bool RequestParser::parseMultipart(const std::string& body, const std::string& b
                 
                 if (line.empty())
                     break;
-                
-                // Look for Content-Disposition
+
                 std::string lowerLine = toLower(line);
                 if (lowerLine.find("content-disposition:") == 0) {
-                    // Extract name
                     size_t namePos = line.find("name=\"");
                     if (namePos != std::string::npos) {
                         namePos += 6;
@@ -115,8 +100,7 @@ bool RequestParser::parseMultipart(const std::string& body, const std::string& b
                         if (nameEnd != std::string::npos)
                             name = line.substr(namePos, nameEnd - namePos);
                     }
-                    
-                    // Extract filename if present
+
                     size_t filePos = line.find("filename=\"");
                     if (filePos != std::string::npos) {
                         filePos += 10;

@@ -66,7 +66,7 @@ std::string joinPathWithLocation(Server* srv, location *loc, const std::string& 
         suffix = reqPath;
     }
 
-    // cheak ila kan badi / ola khawi
+    // check ila kan badi / ola khawi
     if (!suffix.empty() && suffix[0] != '/')
         suffix = "/" + suffix;
 

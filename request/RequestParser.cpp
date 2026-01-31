@@ -146,7 +146,7 @@ std::string normalize(std::string &data) {
 Request RequestParser::parse(int fd, std::string& data)
 {
     Request req;
-    //     const size_t MAX_BUFFER_SIZE = 10485760; // 10MB
+    //     size_t MAX_BUFFER_SIZE = 10485760; // 10MB
     // if (buffer[fd].size() + data.size() > MAX_BUFFER_SIZE) {
     //     buffer.erase(fd);
     //     throw std::runtime_error("request too large");
@@ -163,8 +163,7 @@ Request RequestParser::parse(int fd, std::string& data)
 
     if (!std::getline(hs, line))
         throw std::runtime_error("empty request");
-    
-    // Remove trailing \r if present
+
     if (!line.empty() && line[line.size() - 1] == '\r')
         line.erase(line.size() - 1);
 

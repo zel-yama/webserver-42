@@ -4,21 +4,37 @@
 
 int myread(Client &connect) {
     char tmp[1024];
-    int n = 0;
- 
-    n = read(connect.fd, tmp, 1023);
-    printf("this n of read byte in while {%d}\n", n);
-    if (n < 0)
-        return -1;
-    if (n == 0)
-        return 0;
-  
-    // tmp[n] = '\0';
-    connect.byteSent += n;
-//     std::string t = std::string(tmp, sizeof(tmp)); 
-//             printf("t- > {%s}\n", t.c_str());//new how to append is can be problem in missing byte 
-//     connect.buffer += tmp;
-    connect.buffer.append(tmp, n);  // khas append just exactly n bytes
+    
+    while (true) {
+        int n = 0;
+    
+        n = read(connect.fd, tmp, 1023);
+        if (n > 0) {
+            printf("this n of read byte in while {%d}\n", n);
+            connect.byteSent += n;
+            connect.buffer.append(tmp, n);
+            continue;
+        }
+
+        if (n == 0) {
+            return 0;
+        }
+
+/*
+EAGAIN	no data now, try later 
+ola khdm be :
+EWOULDBLOCK	same meaning
+*/
+
+        if (n < 0) {
+            if (errno == EAGAIN) {
+                break ;
+            } else {
+                perror("read");
+                return -1;
+            }
+        }
+    }
     
     return 1;
 }
@@ -43,7 +59,6 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
     int readResult = myread(connect);
     
     if (readResult == -1) {
-        std::cerr << "Read error on fd " << fd << std::endl;
         return;
     }
     
@@ -74,6 +89,8 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             std::cout << "  Status: " << req.headers["content-length"] << std::endl;
             std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
             std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
+
+            // khask tb3 multi part for debag
         } else {
             std::cout << "Request incomplete, waiting for more data..." << std::endl;
         }

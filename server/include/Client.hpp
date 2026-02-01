@@ -6,7 +6,7 @@
 // #include <vector>
 // #include <sys/socket.h>
 // #include <sys/epoll.h>
-#include "../../webserv.hpp"
+#include "../../request/RequestParser.hpp"
 #include "Config.hpp"
 // #include <arpa/inet.h>
 class Client: public Config{
@@ -32,6 +32,10 @@ class Client: public Config{
         long byteSent;
         long responseSize;
         long bodysizeRequest;
+
+        // i add this
+        Request parsedRequest;
+        // Response respons;
 };
 
 #endif

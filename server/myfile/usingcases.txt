@@ -38,6 +38,7 @@ test:   error_page   500 502 503 504  /50x.html;
 test:  client_max_body_size 1515515151181854181784515441817854M; cas
     nginx: [emerg] "client_max_body_size" directive invalid value in /home/zel-yama/nginx/conf/nginx.conf:6
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+<<<<<<< HEAD:server/usingcases.txt
 case of rules  : 
 
 rules i should put ->   location  locationpath   open  variable value end of value;
@@ -46,3 +47,11 @@ server open variable value end of value
 return 444 "this well be here well return response body i think"
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 he check is Listen exsit if string like listen ueaiena this ip address but only number he consider it as port 4334343434 and he check port range can be over range 
+=======
+return -> return 333 "string" remove qoute 
+------------------------------------------
+return -> check return code is should be valid value 
+--------------------------------------------------
+turn vector to maps to find value fast 
+-------------------------
+>>>>>>> origin/master:server/myfile/usingcases.txt

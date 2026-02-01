@@ -36,3 +36,8 @@ int mysend(Client &connect){
     return 1;
 }
 
+void    costumThrow(std::string des, std::string invalid){
+
+    throw std::runtime_error(des + " -> [" + invalid + "]");
+}
+

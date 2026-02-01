@@ -304,6 +304,12 @@ void Response::processRequest(Request &req, Server &ser)
         setHeader("Connection", "close");
     else
         setHeader("Connection", "keep-alive");
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    std::cout << req.method << std::endl;
+    std::cout << req.fullpath << std::endl;
+    std::cout << req.status << std::endl;
+    std::cout << req.version << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
 
     validateRequest(req, &ser);
     if (req.status != 200)
@@ -312,18 +318,6 @@ void Response::processRequest(Request &req, Server &ser)
         return;
     }
     setVersion(req.version);
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
-    std::cout << req.method << std::endl;
-    std::cout << req.loc->root << std::endl;
-    std::cout << req.loc->outoIndex << std::endl;
-    std::cout << ser.outoIndex << std::endl;
-    std::cout << req.loc->locationPath << std::endl;
-    std::cout << ser.D_ErrorPages[404] << std::endl;
-    std::cout << req.loc->D_ErrorPages[404] << std::endl;
-    std::cout << req.fullpath << std::endl;
-    std::cout << req.status << std::endl;
-    std::cout << req.version << std::endl;
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
 
     if (req.method == "GET")
     {

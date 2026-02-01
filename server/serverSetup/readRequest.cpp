@@ -20,12 +20,6 @@ int myread(Client &connect) {
             return 0;
         }
 
-/*
-EAGAIN	no data now, try later 
-ola khdm be :
-EWOULDBLOCK	same meaning
-*/
-
         if (n < 0) {
             if (errno == EAGAIN) {
                 break ;
@@ -69,38 +63,28 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
         return;
     }
 
-    try {
-        Request req = parser->parse(connect.fd, connect.buffer);
+    Request req = parser->parse(connect.fd, connect.buffer);
 
-        if (req.complete) {
-            connect.parsedRequest = req;
-            connect.requestFinish = true;
-        
-            if (allowKeepAlive(req))
-                connect.keepAlive = true;
-            else
-                connect.keepAlive = false;
-
-            std::cout << "Request parsed successfully:" << std::endl;
-            std::cout << "  Method: " << req.method << std::endl;
-            std::cout << "  Path: " << req.path << std::endl;
-            std::cout << "  Version: " << req.version << std::endl;
-            std::cout << "  Status: " << req.status << std::endl;
-            std::cout << "  Status: " << req.headers["content-length"] << std::endl;
-            std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
-            std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
-
-            // khask tb3 multi part for debag
-        } else {
-            std::cout << "Request incomplete, waiting for more data..." << std::endl;
-        }
-        
-    } catch (const std::exception& e) {
-        std::cerr << "✗ Request parsing error: " << e.what() << std::endl;
-
-        connect.parsedRequest.status = 400;
-        connect.parsedRequest.complete = true;
+    if (req.complete) {
+        connect.parsedRequest = req;
         connect.requestFinish = true;
-        connect.keepAlive = false;
+    
+        if (allowKeepAlive(req))
+            connect.keepAlive = true;
+        else
+            connect.keepAlive = false;
+
+        std::cout << "Request parsed successfully:" << std::endl;
+        std::cout << "  Method: " << req.method << std::endl;
+        std::cout << "  Path: " << req.path << std::endl;
+        std::cout << "  Version: " << req.version << std::endl;
+        std::cout << "  Status: " << req.status << std::endl;
+        std::cout << "  content-type: " << req.headers["content-type"]  << std::endl;
+        std::cout << "  content-length: " << req.headers["content-length"] << std::endl;
+        std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
+        std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
+
+    } else {
+        std::cout << "Request incomplete, waiting for more data..." << std::endl;
     }
 }

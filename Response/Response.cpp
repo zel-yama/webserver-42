@@ -300,7 +300,7 @@ void Response::processRequest(Request &req, Server &ser)
     setContext(&req, &ser);
     setHeader("Server", req.version);
 
-    if (req.should_close)
+    if (!req.keepalive)
         setHeader("Connection", "close");
     else
         setHeader("Connection", "keep-alive");

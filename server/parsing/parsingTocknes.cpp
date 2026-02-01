@@ -103,8 +103,18 @@ void checkTockens(tockens &tockn){
 		tockn.mytocken = LISTEN;
 	else if (!tockn.val.compare("error_page"))
 		tockn.mytocken = ERRORPAGE;
-else if (!tockn.val.compare("location"))
+	else if (!tockn.val.compare("location"))
 		tockn.mytocken = LOCATION;
+	else if (!tockn.val.compare("cgiExten"))
+		tockn.mytocken = CGIEXTEN;
+	else if (!tockn.val.compare("CGI"))
+		tockn.mytocken = CGI;
+	else if (!tockn.val.compare("uploadPath"))
+		tockn.mytocken = UPLOADPATH;
+	else if (!tockn.val.compare("upload"))
+		tockn.mytocken = UPLOAD;
+	else if (!tockn.val.compare("cgiPath"))
+		tockn.mytocken = CGIPATH;
 	else 
 		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
 
@@ -118,7 +128,7 @@ void validatoinVarFormat( tockens &mytockens){
 			mytockens.val =  mytockens.val.substr(0, mytockens.val.size()-1);
 		}
 		else{
-			throw std::runtime_error("invald var name ");
+			throw std::runtime_error("invalid var name ");
 		}
 		mytockens.val =  removeSpaces(mytockens.val);
 	}

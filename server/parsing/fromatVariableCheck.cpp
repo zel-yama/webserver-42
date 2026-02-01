@@ -51,7 +51,7 @@ void variableSingleValue(std::string str, std::string &buff){
     ss >> buff;
     ss >> isEMpty;
     if (!isEMpty.empty())
-        throw std::runtime_error("invald  excrat value{" + str + "}");
+        throw std::runtime_error("invalid  extra value -> {" + str + "}");
 }
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
@@ -72,6 +72,18 @@ std::vector<std::string> splitV(std::string &str){
         v.push_back(store);     
     }
     return v;
+}
+void returnP(std::string token, std::string &path, int &exitCode){
+
+    std::stringstream ss(token);
+
+    std::string s;
+    ss >> s;
+    exitCode = convertString(s);
+    if (exitCode == -1)
+        costumThrow("invalid number of arguments", token);
+    if (!ss.eof())
+        ss >> path;
 }
 
 int convertString(std::string &str){
@@ -108,13 +120,13 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
 
 }
 
-void outoIndexHandler(std::string val, bool &cond){
+void outoIndexHandler(std::string val, int &cond){
     ///printf("auto index handle %s\n", val.c_str());
 
     if (!val.compare("on"))
-        cond = true;
+        cond = 1;
     else 
-        cond = false;
+        cond = 0;
 
 }
 

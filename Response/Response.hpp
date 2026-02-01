@@ -46,6 +46,7 @@ public:
     void setContentType(const std::string &path);
     void setVersion(const std::string &version);
     int getStatusCode() const;
+    std::string Response::getDateHeader() const;
 
     const std::string &getStatusMessage() const;
     const std::string &getBody() const;
@@ -72,8 +73,12 @@ public:
     bool hasReadPermission(const std::string &path) const;
     bool hasDirPermission(const std::string &path) const;
     void handlePost(const std::string &path, const Request &req, const Server &srv);
-    void parseMultipartUpload(const std::string &dir,
-                                    const Request &req);
+    // void parseMultipartUpload(const std::string &dir,
+    //                                 const Request &req);
+    void handleDelete(const std::string &path,
+        const Request &req,
+        const Server &srv);
+    void applyCgiResponse(const std::string &cgiOutput);
 };
 
 #endif

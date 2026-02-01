@@ -8,6 +8,7 @@
 Cgi::Cgi(const Request& req)
 {
     body = req.body;
+    uploadPath = "./";
     buildEnv(req);
 }
 
@@ -21,7 +22,11 @@ void Cgi::buildEnv(const Request& req)
     std::ostringstream oss;
     oss << body.size();
     env["CONTENT_LENGTH"]   = oss.str();
-    // env["CONTENT_TYPE"]     = req.headers["Content-Type"];
+    
+    std::map<std::string, std::string>::const_iterator it = req.headers.find("content-type");
+    if (it != req.headers.end())
+        env["CONTENT_TYPE"] = it->second;
+    
     env["SERVER_PROTOCOL"]  = "HTTP/1.0";
 }
 char **Cgi::envto2Darray() const
@@ -89,8 +94,9 @@ std::string Cgi::execute(const std::string& cgiPath,
         close(outPipe[0]);
         waitpid(pid, NULL, 0);
         
-        for (size_t i = 0; env[i]; i++)
-            delete[] env[i];
+        size_t i = 0;
+        while (env[i])
+            delete[] env[i++];
         delete[] env;
         
         return output;

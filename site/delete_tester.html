@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DELETE Method Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #dc3545; color: white; padding: 10px 30px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background-color: #c82333; }
+        .btn-test { background-color: #007bff; }
+        .btn-test:hover { background-color: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; }
+        .result.show { display: block; }
+        .success { background-color: #d4edda; border-left: 4px solid #28a745; }
+        .error { background-color: #f8d7da; border-left: 4px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ DELETE Method Tester</h1>
+        
+        <div class="form-group">
+            <label>File Path to Delete:</label>
+            <input type="text" id="filePath" placeholder="/testfile.html" value="/testfile.html">
+        </div>
+
+        <div>
+            <button onclick="sendDelete()">🗑️ Delete File</button>
+            <button class="btn-test" onclick="testMissing()">Test Missing (404)</button>
+            <button class="btn-test" onclick="testDirectory()">Test Directory (405)</button>
+        </div>
+
+        <div id="result" class="result">
+            <strong>Status:</strong> <span id="status"></span><br>
+            <strong>Message:</strong> <span id="message"></span>
+        </div>
+    </div>
+
+    <script>
+        async function sendDelete() {
+            const path = document.getElementById('filePath').value.trim();
+            if (!path) {
+                showResult('400', 'Please enter a file path', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(path, { method: 'DELETE' });
+                let msg = '';
+                let success = false;
+
+                if (response.status === 204) {
+                    msg = '✓ File deleted successfully';
+                    success = true;
+                } else if (response.status === 404) {
+                    msg = 'File not found';
+                } else if (response.status === 405) {
+                    msg = 'Cannot delete directory';
+                } else if (response.status === 403) {
+                    msg = 'Permission denied';
+                } else {
+                    msg = response.statusText;
+                }
+
+                showResult(response.status, msg, success);
+            } catch (error) {
+                showResult('Error', error.message, false);
+            }
+        }
+
+        function testMissing() {
+            document.getElementById('filePath').value = '/missing-' + Date.now() + '.txt';
+            sendDelete();
+        }
+
+        function testDirectory() {
+            document.getElementById('filePath').value = '/site/';
+            sendDelete();
+        }
+
+        function showResult(status, message, success) {
+            const result = document.getElementById('result');
+            document.getElementById('status').textContent = status;
+            document.getElementById('message').textContent = message;
+            result.className = 'result show ' + (success ? 'success' : 'error');
+        }
+    </script>
+</body>
+</html>

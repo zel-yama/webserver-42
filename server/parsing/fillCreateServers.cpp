@@ -44,9 +44,28 @@ void serverCases(tockenIt &it, Server &serv){
             break;
         case RETURN:
             it++;
-            variableSingleValue(it->val, serv.returnP );
+            returnP(it->val, serv.returnP, serv.returnCode);
             break;
-        
+        case CGI:
+            it++;
+            outoIndexHandler(it->val, serv.cgiStatus);
+            break;
+        case CGIEXTEN:
+            it++;
+            variableSingleValue(it->val, serv.cgiExten);
+            break;
+        case CGIPATH:
+            it++;
+            variableSingleValue(it->val, serv.cgiPath);
+            break;
+        case UPLOAD:
+            it++;
+            outoIndexHandler(it->val, serv.upload);
+            break;
+        case UPLOADPATH:
+            it++;
+            variableSingleValue(it->val, serv.uploadPath);
+            break;
         default:
             throw std::runtime_error("invalid value {"+ it->val + "} put invalid config in server");
             break;
@@ -90,9 +109,30 @@ void locationCases(tockenIt &it, location &local){
             break;
         case RETURN:
             it++;
-            variableSingleValue(it->val, local.returnP);
+            returnP(it->val,local.returnP, local.returnCode );
+            break;
+        case CGI:
+            it++;
+            outoIndexHandler(it->val, local.cgiStatus);
+            break;
+        case CGIEXTEN:
+            it++;
+            variableSingleValue(it->val, local.cgiExten);
+            break;
+        case CGIPATH:
+            it++;
+            variableSingleValue(it->val, local.cgiPath);
+            break;
+        case UPLOAD:
+            it++;
+            outoIndexHandler(it->val, local.upload);
+            break;
+        case UPLOADPATH:
+            it++;
+            variableSingleValue(it->val, local.uploadPath);
+            break;
         default:
-            throw std::runtime_error("invalid value {"+ it->val + "} put invalid config in location");
+            throw std::runtime_error("invalid value {"+ it->val + "} put valid config in location");
             break;
     }
 }

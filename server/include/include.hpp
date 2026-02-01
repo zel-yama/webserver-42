@@ -24,6 +24,10 @@ typedef enum TYPE{
     CGI, 
     AUTOINDEX,
     INDEX,
+    UPLOADPATH,
+    CGIPATH,
+    CGIEXTEN,
+    UPLOAD,
 }   TYPE;
 typedef struct tockens{
     TYPE mytocken;

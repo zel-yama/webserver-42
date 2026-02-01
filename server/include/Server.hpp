@@ -26,9 +26,15 @@ class Server : public Config {
     size_t                              bodyMaxByte;
     std::string                         root;
     // std::map<int,std::string>                error_pages;
+    int upload;
+    std::string     uploadPath;
+    std::string     cgiPath;
+    std::string  cgiExten;
+    int cgiStatus;
         std::vector<std::string>            allowedMethods;
-        bool                                outoIndex;
+        int                              outoIndex;
         int                                 fd;
+        int                                 returnCode ;
         struct sockaddr_in                  addressServer;
         std::string                         ServerName;
         std::string                         ClientMaxBody;
@@ -48,14 +54,20 @@ typedef std::vector<Server> servers;
 struct location {
  
     location();
+    int                                  upload;
+    std::string                          uploadPath;
+    std::string                          cgiPath;
+    std::string                          cgiExten;
+    int                                  cgiStatus;
     std::vector<std::string>            allowedMethods;
     std::string                         root;
     std::string                         returnP;
+    int                                 returnCode;
     std::string                         locationPath;
     std::vector<std::string>            indexFile;
     size_t                              bodyMaxByte;
-    bool                                outoIndex;
-    bool                                ex;
+    int                                outoIndex;
+    int                                 ex;
     std::map<int, std::string >         D_ErrorPages;
 };
 
@@ -67,6 +79,6 @@ size_t countBuffersize(std::string buffer, Client &connect);
 
 // Helper to get server from client (me again)
 Server* getServerFromClient(maptype& config, Client& client);
-
+void    costumThrow(std::string des, std::string invalid);
 
 #endif

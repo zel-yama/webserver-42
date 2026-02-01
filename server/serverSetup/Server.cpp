@@ -6,6 +6,12 @@
 #include "../../Response/Response.hpp"
 
 Server::Server(){
+    this->cgiStatus = 0;
+    this->upload = 0;
+    this->outoIndex = 0;
+    this->serverId = 0;
+    this->returnCode = 0;
+
     name = "Server";
     root = "./";
     bodyMaxByte = 1e8;
@@ -17,6 +23,13 @@ Server::Server(){
 
 }
 location::location(){
+    this->outoIndex = -1;
+
+    this->bodyMaxByte = -1;
+    this->cgiStatus = -1;
+    this->upload = -1;
+    this->returnCode = 0;
+
     this->bodyMaxByte  = 0;
     this->outoIndex = false;
     this->ex = false;

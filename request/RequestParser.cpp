@@ -118,11 +118,6 @@ bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
     }
 }
 
-void RequestParser::clearBuffer(int fd) {
-    buffer.erase(fd);
-}
-
-
 std::string normalize(std::string &data) {
     std::string nor;
     nor.reserve(data.size() + data.size() / 10); // Reserve extra space
@@ -188,8 +183,8 @@ Request RequestParser::parse(int fd, std::string& data)
     req.path = normalizePath(req.path);
 
     while (std::getline(hs, line)) {
-        if (!line.empty() && line.back() == '\r')
-            line.pop_back();
+        if (!line.empty() && line[line.size() - 1] == '\r')
+            line.erase(line.size() - 1, 1);
 
         if (line.empty())
             break;
@@ -216,7 +211,6 @@ Request RequestParser::parse(int fd, std::string& data)
 
         req.headers[headerName] = headerValue;
     }
-
 
     std::string conn;
     if (req.headers.count("connection"))

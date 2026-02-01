@@ -7,7 +7,7 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/fromatVariableCheck.cpp \
 		server/parsing/parsing.cpp server/parsing/parsingTocknes.cpp \
 		server/Client.cpp \
-		request/RequestHandler.cpp request/RequestParser.cpp\
+		request/RequestHandler.cpp request/RequestParser.cpp request/MultiPart.cpp\
 		Response/Response.cpp Response/cgi.cpp
 
 	

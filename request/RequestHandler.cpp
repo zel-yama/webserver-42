@@ -91,6 +91,8 @@ bool isMethodAllowed(const std::string& method, const std::vector<std::string>& 
 
 void validateRequest(Request& req, Server* srv) {
 
+    if (req.status != 200)
+        return;
     req.loc = findLocation(srv, req.path);
     
     if (!req.loc) {

@@ -343,10 +343,28 @@ void Response::processRequest(Request &req, Server &ser)
     }
 }
 
+void Response::handleMultipartUpload(const Request &req, const Server &srv)
+{
+
+    if (req.multipartData.empty())
+    {
+        setStatus(400, "");
+        setBody("<h1>No multipart data received</h1>");
+        return;
+    }
+
+    
+
 void Response::handlePost(const std::string &path,
                           const Request &req,
                           const Server &srv)
 {
+    if (!req.multipartData.empty())
+    {
+        handleMultipartUpload(req, srv);
+        return;
+    }
+
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);

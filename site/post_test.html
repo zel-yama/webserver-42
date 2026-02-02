@@ -54,7 +54,7 @@
 
     <div class="test-section">
         <h2>1. Test CGI Script with POST</h2>
-        <form action="/test.py" method="POST">
+        <form action="test.py" method="POST">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" value="John Doe">
             
@@ -78,13 +78,6 @@
         </form>
     </div>
 
-    <div class="test-section">
-        <h2>3. Manual Testing with curl</h2>
-        <p>You can also test POST from terminal:</p>
-        <p><code>curl -X POST http://localhost:8080/test.py -d "name=Test&message=Hello"</code></p>
-        <p><code>curl -X POST http://localhost:8080/test.py -d "data=sample_data" -v</code></p>
-        <p><code>curl -X POST http://localhost:8080/upload -F "file=@/path/to/file.txt"</code></p>
-    </div>
 
     <div class="test-section">
         <h2>4. Test Regular POST Endpoint</h2>

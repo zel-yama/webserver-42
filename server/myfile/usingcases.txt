@@ -44,5 +44,8 @@ return -> check return code is should be valid value
 --------------------------------------------------
 turn vector to maps to find value fast 
 -------------------------
-
+first ->  i should check is methods is valid not GETS and else check format of values of all variable
+-----------------------------------------------------
+ senting more than body we should in resoponse 
+ 
 

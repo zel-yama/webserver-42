@@ -91,9 +91,10 @@ std::string RequestParser::normalizePath(const std::string& path) {
 size_t RequestParser::parseContentLength(const std::string& v) {
     size_t n = 0;
     for (size_t i = 0; i < v.size(); i++) {
-        if (!isdigit(v[i]))
-            throw std::runtime_error("bad content-length");
-        n = n * 10 + (v[i] - '0'); //overflow ?
+        if (!isdigit(v[i])) {
+            return (size_t)-1;
+        }
+        n = n * 10 + (v[i] - '0'); //kasni nhandli overflow ?
     }
     return n;
 }
@@ -146,7 +147,7 @@ Request RequestParser::parse(int fd, std::string& data)
     //     buffer.erase(fd);
     //     throw std::runtime_error("request too large");
     // }
-    buffer[fd] += normalize(data);
+    buffer[fd] += data;
     std::string& b = buffer[fd];
 
     size_t headerEnd = b.find("\r\n\r\n");
@@ -156,20 +157,29 @@ Request RequestParser::parse(int fd, std::string& data)
     std::istringstream hs(b.substr(0, headerEnd));
     std::string line;
 
-    if (!std::getline(hs, line))
-        throw std::runtime_error("empty request");
-
+    if (!std::getline(hs, line)) {
+        req.status = 400;
+        req.complete = true;
+        return req;
+    }
+    
     if (!line.empty() && line[line.size() - 1] == '\r')
         line.erase(line.size() - 1);
 
     std::istringstream rl(line);
     rl >> req.method >> req.path >> req.version;
 
-    if (req.method.empty() || req.path.empty() || req.version.empty())
-        throw std::runtime_error("incomplete request line");
+    if (req.method.empty() || req.path.empty() || req.version.empty()) {
+        req.status = 400;
+        req.complete = true;
+        return req;
+    }
 
-    if (!isValidMethod(req.method) || !isValidVersion(req.version))
-        throw std::runtime_error("bad request line");
+    if (!isValidMethod(req.method) || !isValidVersion(req.version)) {
+        req.status = 400;
+        req.complete = true;
+        return req;
+    }
 
     size_t q = req.path.find('?');
     if (q != std::string::npos) {
@@ -177,8 +187,11 @@ Request RequestParser::parse(int fd, std::string& data)
         req.path = req.path.substr(0, q);
     }
 
-    if (!isValidUri(req.path))
-        throw std::runtime_error("bad uri");
+    if (!isValidUri(req.path)) {
+        req.status = 400;
+        req.complete = true;
+        return req;
+    }
 
     req.path = normalizePath(req.path);
 
@@ -192,21 +205,27 @@ Request RequestParser::parse(int fd, std::string& data)
         size_t c = line.find(':');
 
         if (c == std::string::npos) {
-            throw std::runtime_error("400: malformed header (missing colon)");
+            req.status = 400;
+            req.complete = true;
+            return req;
         }
 
         std::string headerName = trim(line.substr(0, c));
         std::string headerValue = trim(line.substr(c + 1));
 
         if (headerName.empty()) {
-            throw std::runtime_error("400: empty header name");
+            req.status = 400;
+            req.complete = true;
+            return req;
         }
 
         headerName = toLower(headerName);
 
         if (headerName == "content-length" &&
             req.headers.count("content-length")) {
-            throw std::runtime_error("400: duplicate content-length");
+            req.status = 400;
+            req.complete = true;
+            return req;
         }
 
         req.headers[headerName] = headerValue;
@@ -233,6 +252,11 @@ Request RequestParser::parse(int fd, std::string& data)
     }
     else if (req.headers.count("content-length")) {
         size_t len = parseContentLength(req.headers["content-length"]);
+        if (len == (size_t)-1) {
+            req.status = 400;
+            req.complete = true;
+            return req;
+        }
         if (b.size() < len)
             return req;
         req.body = b.substr(0, len);
@@ -259,8 +283,6 @@ Request RequestParser::parse(int fd, std::string& data)
             }
         }
     }
-    // if (!req.keepalive)
-    //     buffer.erase(fd);
 
     return req;
 }

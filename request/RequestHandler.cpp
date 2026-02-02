@@ -58,7 +58,6 @@ std::string joinPathWithLocation(Server* srv, location *loc, const std::string& 
         root = loc->root;
     std::string suffix;
 
-    // kanms7 loction mn path 
     if (loc->locationPath != "/") {
         if (reqPath.compare(0, loc->locationPath.length(), loc->locationPath) == 0)
             suffix = reqPath.substr(loc->locationPath.length());
@@ -66,14 +65,12 @@ std::string joinPathWithLocation(Server* srv, location *loc, const std::string& 
         suffix = reqPath;
     }
 
-    // check ila kan badi / ola khawi
     if (!suffix.empty() && suffix[0] != '/')
         suffix = "/" + suffix;
 
-    // Join path m3a root
     std::string fullpath = root;
     if (!fullpath.empty() && fullpath[fullpath.size() - 1] == '/' && !suffix.empty() && suffix[0] == '/')
-        fullpath.erase(fullpath.size() - 1); // remove extra '/' ila kant
+        fullpath.erase(fullpath.size() - 1);
     fullpath += suffix;
 
     return fullpath;
@@ -90,6 +87,9 @@ bool isMethodAllowed(const std::string& method, const std::vector<std::string>& 
 }
 
 void validateRequest(Request& req, Server* srv) {
+
+    if (req.status != 200)
+        return;
 
     req.loc = findLocation(srv, req.path);
     

@@ -98,10 +98,7 @@ void printAllConfig(std::vector<Server> servs){
     printf(" size serves vetcor -> %lu\n", servs.size());
 
     std::vector<Server>::iterator it = servs.begin();
-
-    int i = 0;
-
-     while (it != servs.end()){
+    while (it != servs.end()){
 
 
         printAttr(*it);

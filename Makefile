@@ -8,8 +8,8 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/parsing.cpp server/parsing/parsingTocknes.cpp \
 		server/Client.cpp \
 		request/RequestHandler.cpp request/RequestParser.cpp request/MultiPart.cpp\
-		Response/Response.cpp Response/cgi.cpp
-
+		Response/Response.cpp Response/cgi.cpp server/parsing/bracketValidtion.cpp \
+		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
 CC = c++ -I./include #-fsanitize=address,undefined -g -std=c++98 

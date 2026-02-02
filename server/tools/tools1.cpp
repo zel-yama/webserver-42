@@ -12,7 +12,7 @@
 // u can control byte will send but just your buffer size should not be biger than string will send 
 size_t countBuffersize(std::string buffer, Client &connect){
     
-    if (buffer.size() >= connect.responseSize)
+    if (buffer.size() >= (size_t)connect.responseSize)
     {
         connect.sending = true;
         return connect.responseSize;

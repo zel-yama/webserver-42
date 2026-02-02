@@ -19,7 +19,7 @@ class Server : public Config {
     
     Server();
     
-    std::vector<std::string>                 indexFile;
+    std::vector<std::string>            indexFile;
     unsigned int                        port;
     std::string                         ipAdress;
     std::string                         returnP;
@@ -27,10 +27,10 @@ class Server : public Config {
     std::string                         root;
     // std::map<int,std::string>                error_pages;
     int upload;
-    std::string     uploadPath;
-    std::string     cgiPath;
-    std::string  cgiExten;
-    int cgiStatus;
+    std::string                          uploadPath;
+    std::string                               cgiPath;
+    std::string                          cgiExten;
+    int                                     cgiStatus;
         std::vector<std::string>            allowedMethods;
         int                              outoIndex;
         int                                 fd;

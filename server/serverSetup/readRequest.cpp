@@ -1,7 +1,18 @@
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
 #include "../../request/RequestParser.hpp"
-
+// you should read  request 
+/// now u have fd that contain data  
+// i should handle some case of reading body of request content length  
+// timeout of reading of reading 
+//  pass line by to parsing so 
+// first read until u get of endof request and wait for body if exsits  and 
+//   what happens when i read from socket and i came read next what will happns ? ofset 
+// read requst u can know if body exists if content-length > 0 or post or put methods yes in case 
+// diff between body exists  and no body 
+// body without length in http u wait untill EOF or time end 
+// body can so big so can't read in one time 
+// close is will depend on time or not 
 int myread(Client &connect) {
     char tmp[1024];
     
@@ -33,7 +44,7 @@ int myread(Client &connect) {
     return 1;
 }
 
-bool allowKeepAlive(const Request& req)
+bool allowKeepAlive(Request req)
 {
     if (req.status >= 400)
         return false;

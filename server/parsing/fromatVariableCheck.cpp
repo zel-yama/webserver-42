@@ -80,8 +80,8 @@ void bodySizeMax(size_t &val, std::string &str){
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    else 
-        throw std::runtime_error("invalid value in max body size ");
+    // else 
+    //     throw std::runtime_error("invalid value in max body size ");
     val = max;
 }
 
@@ -92,7 +92,7 @@ void variableSingleValue(std::string str, std::string &buff){
     ss >> buff;
     ss >> isEMpty;
     if (!isEMpty.empty())
-        throw std::runtime_error("invald  excrat value{" + str + "}");
+        throw std::runtime_error("invalid  extra value -> {" + str + "}");
 }
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
@@ -113,6 +113,18 @@ std::vector<std::string> splitV(std::string &str){
         v.push_back(store);     
     }
     return v;
+}
+void returnP(std::string token, std::string &path, int &exitCode){
+
+    std::stringstream ss(token);
+
+    std::string s;
+    ss >> s;
+    exitCode = convertString(s);
+    if (exitCode == -1)
+        costumThrow("invalid number of arguments", token);
+    if (!ss.eof())
+        ss >> path;
 }
 
 int convertString(std::string &str){

@@ -2,26 +2,43 @@
 
 
 #include "../include/Server.hpp"
+#include "../../request/RequestParser.hpp"
+#include "../../Response/Response.hpp"
 
 Server::Server(){
+    this->cgiStatus = 0;
+    this->upload = 0;
+    this->outoIndex = 0;
+    this->serverId = 0;
+    this->returnCode = 0;
+
     name = "Server";
     root = "./";
     bodyMaxByte = 1e8;
     ipAdress = "0.0.0.0";
     outoIndex = false;
     port = 8080;
-    
+    parser = new RequestParser();
+    respone = new Response();
 
 }
 location::location(){
+    this->outoIndex = -1;
+
+    this->bodyMaxByte = -1;
+    this->cgiStatus = -1;
+    this->upload = -1;
+    this->returnCode = 0;
+
     this->bodyMaxByte  = 0;
     this->outoIndex = false;
+    this->ex = false;
     
 }
 
 Client Server::acceptClient(){
     Client newOne;
-    newOne.serverId = this->serverId;
+    newOne.serverId = this->fd; // i change this to fd?
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
     newOne.fd = makeNonBlockingFD(newOne.fd);

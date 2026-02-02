@@ -1,4 +1,17 @@
 Test ----
-tezt 2 ----
+➜  sbin ./nginx 
+nginx: [emerg] directive "limit_except" has no opening "{" in /home/mohidbel/nginx/nginx.conf:47
+
+    limit_except GET {
+        deny all;
+    }
+
+test 2 ----
 
 do something
+
+
+Content-Length = 3
+→ server reads exactly 3 bytes
+→ NOT more
+→ NOT less

@@ -4,7 +4,6 @@
 #include "../include/tools.hpp"
 
 
-
 location locationHandling(tockenIt &it){
     location local;
     

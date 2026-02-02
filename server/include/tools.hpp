@@ -21,4 +21,5 @@ void    readRequest(int fd,  Client &connect);
 void    checkClientsTimeout(maptype& config, int fdEp);
 void     checkClientConnection(maptype &config, Client &connect);
 void    printAllConfig(std::vector<Server> servs);
+
 #endif

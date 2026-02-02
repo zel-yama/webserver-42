@@ -1,9 +1,8 @@
-
-
-
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
+#include "../../request/RequestParser.hpp"
 
+<<<<<<< HEAD
 // you should read  request 
 /// now u have fd that contain data  
 // i should handle some case of reading body of request content length  
@@ -80,56 +79,111 @@ void printDebug(Client Connect){
 
 }
 int myread(Client &connect){
+=======
+int myread(Client &connect) {
+>>>>>>> origin/master
     char tmp[1024];
-    int n  = 0;
- 
-    n = read(connect.fd, tmp, 1024);
-    printf("this n of read byte in while {%d}\n", n);
-    if (n < 0)
-        return -1;
-    if (n == 0)
-        return 0;
-  
-    tmp[n] = '\0';
-    connect.byteSent += n;
-    std::string t = std::string(tmp, sizeof(tmp)); 
-            printf("t- > {%s}\n", t.c_str());//new how to append is can be problem in missing byte 
-    connect.buffer += tmp;
+    
+    while (true) {
+        int n = 0;
+    
+        n = read(connect.fd, tmp, 1023);
+        if (n > 0) {
+            printf("this n of read byte in while {%d}\n", n);
+            connect.byteSent += n;
+            connect.buffer.append(tmp, n);
+            continue;
+        }
 
+        if (n == 0) {
+            return 0;
+        }
+
+/*
+EAGAIN	no data now, try later 
+ola khdm be :
+EWOULDBLOCK	same meaning
+*/
+
+        if (n < 0) {
+            if (errno == EAGAIN) {
+                break ;
+            } else {
+                perror("read");
+                return -1;
+            }
+        }
+    }
     
     return 1;
-
 }
 
+<<<<<<< HEAD
 void readRequest(int fd,  Client &connect)
+=======
+bool allowKeepAlive(const Request& req)
+>>>>>>> origin/master
 {
-    //char tmp[4096];// read or sent  then by exist is problem may segfualt
+    if (req.status >= 400)
+        return false;
 
-    // int n  = recv(fd, tmp, sizeof(tmp), 0);
-    if (myread(connect) == -1)
+    if (!req.keepalive)
+        return false;
+
+
+    if (!req.complete)
+        return false;
+
+    return true;
+}
+
+void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *parser)
+{
+    int readResult = myread(connect);
+    
+    if (readResult == -1) {
         return;
-    // if (n <= 0 ){
-    //     if (hasHeaderEnd(buffer)){
-    //         if (checkPost(buffer))
-    //         connect.requestFinish = true;
-    //     }
-    // }
-    // if (connect.byteSent <= 0){
-    //     return ; // client closed or error
-    // }
-    // tmp[n] = '\0';
-    // printf("this is tmp >>>> |%s| \n", tmp);
-    // connect.buffer += tmp;
-    // connect.byteSent += n;
-   
-    printDebug(connect);
-    if (hasHeaderEnd(connect.buffer)){
-        std::cout  << "i has  he has header complite so don't  " << std::endl;
-        if (hasHeaderBody(connect.buffer) && getContentLength(connect.buffer, connect)) {
-            readBody(fd, connect);
-        }
-        if (!checkPost(connect.buffer))
-            connect.requestFinish = true;
+    }
+    
+    if (readResult == 0) {
+        std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
+        connect.requestFinish = false; 
+        connect.keepAlive = false;
+        return;
     }
 
+    try {
+        Request req = parser->parse(connect.fd, connect.buffer);
+
+        if (req.complete) {
+            connect.parsedRequest = req;
+            connect.requestFinish = true;
+        
+            if (allowKeepAlive(req))
+                connect.keepAlive = true;
+            else
+                connect.keepAlive = false;
+
+            std::cout << "Request parsed successfully:" << std::endl;
+            std::cout << "  Method: " << req.method << std::endl;
+            std::cout << "  Path: " << req.path << std::endl;
+            std::cout << "  Version: " << req.version << std::endl;
+            std::cout << "  Status: " << req.status << std::endl;
+            std::cout << "  Status: " << req.headers["content-length"] << std::endl;
+            std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
+            std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
+
+            // khask tb3 multi part for debag
+        } else {
+            std::cout << "Request incomplete, waiting for more data..." << std::endl;
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "✗ Request parsing error: " << e.what() << std::endl;
+
+        connect.parsedRequest.status = 400;
+        connect.parsedRequest.complete = true;
+        connect.requestFinish = true;
+        connect.keepAlive = false;
+    }
 }

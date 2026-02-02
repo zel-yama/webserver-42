@@ -106,13 +106,11 @@ servers parsing(std::string FileName){
     }
     handleComments(store);
     store = stripSpaces(store);
-    //printvector(store);
     v = convertVector(store);
-    //printdoulStr(v);
+    
     tockV = tokeniezer(v);
-    ///i should create fucntion to count brackets and mark up end of servers 
     bracketValidtion(tockV);
-    printTocknes(tockV);
+   
     servs =  setUpServers(tockV);
     return servs;
 

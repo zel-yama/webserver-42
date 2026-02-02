@@ -353,7 +353,59 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
         return;
     }
 
-    
+    std::string uploadPath = srv.uploadPath;
+    if (req.loc && !req.loc->uploadPath.empty())
+        uploadPath = req.loc->uploadPath;
+
+    if (!isDirectory(uploadPath.c_str()))
+    {
+        if (mkdir(uploadPath.c_str(), 0755) != 0)
+        {
+            sendError(500, "");
+            return;
+        }
+    }
+
+    std::ostringstream response;
+    response << "<h1>File Upload Summary</h1>";
+    response << "<ul>";
+
+    for (size_t i = 0; i < req.multipartData.size(); ++i)
+    {
+        const MultipartPart &part = req.multipartData[i];
+
+        if (!part.filename.empty())
+        {
+            std::string filePath = uploadPath + "/" + part.filename;
+            std::ofstream file(filePath.c_str(), std::ios::binary);
+
+            if (!file.is_open())
+            {
+                response << "<li><strong>ERROR uploading " << part.filename << "</strong></li>";
+                continue;
+            }
+
+            file.write(part.content.c_str(), part.content.size());
+            file.close();
+
+            response << "<li>File uploaded: <strong>" << part.filename 
+                    << "</strong> (" << part.content.size() << " bytes, "
+                    << part.contentType << ")</li>";
+        }
+        else
+        {
+            response << "<li>Field '<strong>" << part.name << "</strong>': " 
+                    << part.content << "</li>";
+        }
+    }
+
+    response << "</ul>";
+    response << "<p>All files uploaded successfully!</p>";
+
+    setStatus(201, "");
+    headers["Content-Type"] = "text/html";
+    setBody(response.str());
+}
 
 void Response::handlePost(const std::string &path,
                           const Request &req,

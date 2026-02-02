@@ -3,8 +3,17 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 struct location;
+
+struct MultipartPart {
+    std::string name;
+    std::string filename;
+    std::string contentType;
+    std::string content;
+};
+
 
 struct Request {
     std::string method;
@@ -15,17 +24,20 @@ struct Request {
     int status;
     
     std::map<std::string, std::string> headers;
+    std::vector<MultipartPart> multipartData;
+
     bool complete;
-    bool should_close;
+    bool keepalive;
     std::string fullpath;
     location *loc;
 
     Request();
+    ~Request();
 };
 
 class RequestParser {
     public:
-        Request parse(int fd, const std::string& data);
+        Request parse(int fd, std::string& data);
 
     private:
         std::map<int, std::string> buffer;
@@ -42,6 +54,9 @@ class RequestParser {
 
         size_t parseContentLength(const std::string& v);
         bool decodeChunked(std::string& buf, std::string& out);
+        
+        std::string extractBoundary(std::string& contentType);
+        bool parseMultipart(std::string& body, std::string& boundary, Request& req);
 };
 
 #endif

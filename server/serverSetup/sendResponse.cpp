@@ -32,7 +32,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     }
     
     // Check if connection should close (from parsed request)
-    if (connect.parsedRequest.should_close || !connect.keepAlive) {
+    if (!connect.keepAlive) {
         deleteClient(config, connect.fd, connect.fdEp);
         return;
     }
@@ -46,7 +46,6 @@ void checkClientConnection(maptype &config, Client &connect) {
     connect.bodySizeStatus = false;
     connect.buffer = "";
     
-    // Reset parsed request
     connect.parsedRequest = Request();
     
     setClientRead(connect.fdEp, connect);
@@ -57,15 +56,8 @@ void sendResponse(maptype &config, Client &connect) {
     // Get the server configuration
     Server* srv = getServerForClient(config, connect.serverId);
     
-
-    
-
     srv->respone->processRequest(connect.parsedRequest, *srv);
     std::string response = srv->respone->build();
-
-    // std::cout << response << std::endl;
-
-    // Send the response
 
     std::cout << response << "\n";
     int n = send(connect.fd, response.c_str(), response.size(), 0);

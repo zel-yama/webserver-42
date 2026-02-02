@@ -50,11 +50,7 @@ void eventLoop(maptype config ){
                         std::cout << "  they say what happnes " << std::endl;
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                    
-<<<<<<< HEAD
-                        readRequest(events[i].data.fd, *Cli);
-=======
                         readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
->>>>>>> origin/master
 
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);

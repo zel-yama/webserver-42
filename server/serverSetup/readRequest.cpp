@@ -1,8 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
 #include "../../request/RequestParser.hpp"
-
-<<<<<<< HEAD
 // you should read  request 
 /// now u have fd that contain data  
 // i should handle some case of reading body of request content length  
@@ -15,73 +13,7 @@
 // body without length in http u wait untill EOF or time end 
 // body can so big so can't read in one time 
 // close is will depend on time or not 
-
-#include <cctype>
-#include <string>
-
-
-bool hasHeaderEnd(const std::string& buf)
-{
-    std::cout << "---------------------------"<< std::endl;
-
-    if (buf.find("\n\n") != std::string::npos || buf.find("\r\n\r\n") != std::string::npos)//new 
-        return true;
-    return false;
-}
-
-bool hasHeaderBody(const std::string &buf){
-    return buf.find("Content-length:") != std::string::npos;
-}
-size_t getBodySize(const char *content, int pos){
-    size_t size = 0;
-    char  c;
-    while(isdigit(content[pos])){
-        c  = content[pos];
-        size = size * 10 + (c - 48);
-    }
-    return size;
-}
-bool checkPost(const std::string &headers){
-    return (headers.find("POST") != std::string::npos);
-}
-bool getContentLength(const std::string& headers, Client &connect)
-{
-    std::string key = "Content-Length:";
-    size_t  pos = headers.find("Content-length:");
- 
-    connect.bodysize = getBodySize( key.c_str(), pos + key.size());
-    if (connect.bodysize > 0)
-        return true;
-    return false; 
-}
-
-
-void readBody(int fd, Client &connect ){
-    char *tmp = NULL;
-    int n  = recv(fd, tmp, connect.bodysize, MSG_DONTWAIT);
-    if (n <= 0)
-        return ;
-    connect.buffer.append(tmp, connect.byteSent );
-    n = recv(fd, tmp, 1, MSG_DONTWAIT);
-    if (n > 0)
-        connect.bodySizeStatus = true;
-    else 
-        connect.bodySizeStatus = false;
-}
-void printDebug(Client Connect){
- 
-    printf("this is buffer | %s |\n", Connect.buffer.c_str());
-    std::cout << "byte sent " << Connect.byteSent << std::endl;
-    std::cout << "bodysize " << Connect.bodysize << std::endl;
-    std::cout << "bodySizeStatus " << Connect.bodySizeStatus << std::endl;
-    std::cout << "byteRead  " << Connect.byteRead << std::endl;
-    std::cout << "fd  " << Connect.fd << std::endl;
-
-}
-int myread(Client &connect){
-=======
 int myread(Client &connect) {
->>>>>>> origin/master
     char tmp[1024];
     
     while (true) {
@@ -118,11 +50,7 @@ EWOULDBLOCK	same meaning
     return 1;
 }
 
-<<<<<<< HEAD
-void readRequest(int fd,  Client &connect)
-=======
-bool allowKeepAlive(const Request& req)
->>>>>>> origin/master
+bool allowKeepAlive(Request req)
 {
     if (req.status >= 400)
         return false;

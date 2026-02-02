@@ -162,10 +162,10 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
        throw std::runtime_error("invalid value [" + *its + "]in error page");
 }
 
-void outoIndexHandler(std::string val, bool &cond){
+void outoIndexHandler(std::string val, int &cond){
     
     if (val.compare("on"))
-        cond = true;
+        cond = 1;
     else 
-        cond = false;
+        cond = 0;
 }

@@ -49,6 +49,6 @@ first ->  i should check is methods is valid not GETS and else check format of v
  senting more than body we should in resoponse 
  --------------------------------------------------------
  if cgi body should send through pipe 
- body end read return 0 and has endof body 
- buffer should be more 1434 
-
+ body end read return 0 or reaquest  has endof body 
+ buffer should be more 1434
+ who take processing he should take length N byets when 

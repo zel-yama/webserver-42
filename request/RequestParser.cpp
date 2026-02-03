@@ -8,8 +8,8 @@
 #include <stdexcept>
 
 
-Request::Request() : complete(false), status(200), keepalive(false), loc(NULL) {
-    // loc = new location();
+Request::Request() : complete(false), status(200), keepalive(false), headersParsed(false) {
+    loc = new location();
 }
 
 Request::~Request() {
@@ -121,16 +121,14 @@ bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
 
 std::string normalize(std::string &data) {
     std::string nor;
-    nor.reserve(data.size() + data.size() / 10); // Reserve extra space
+    nor.reserve(data.size() + data.size() / 10);
     
     for (size_t i = 0; i < data.size(); i++) {
         if (data[i] == '\r') {
             nor += "\r\n";
-            // Skip the next character if it's \n (CRLF -> CRLF)
             if (i + 1 < data.size() && data[i + 1] == '\n')
                 i++;
         } else if (data[i] == '\n') {
-            // Bare LF -> CRLF
             nor += "\r\n";
         } else {
             nor += data[i];
@@ -139,20 +137,11 @@ std::string normalize(std::string &data) {
     return nor;
 }
 
-Request RequestParser::parse(int fd, std::string& data)
+bool RequestParser::parseHeaders(std::string& b, Request& req)
 {
-    Request req;
-    //     size_t MAX_BUFFER_SIZE = 10485760; // 10MB
-    // if (buffer[fd].size() + data.size() > MAX_BUFFER_SIZE) {
-    //     buffer.erase(fd);
-    //     throw std::runtime_error("request too large");
-    // }
-    buffer[fd] += data;
-    std::string& b = buffer[fd];
-
     size_t headerEnd = b.find("\r\n\r\n");
     if (headerEnd == std::string::npos)
-        return req;
+        return false;
 
     std::istringstream hs(b.substr(0, headerEnd));
     std::string line;
@@ -160,9 +149,9 @@ Request RequestParser::parse(int fd, std::string& data)
     if (!std::getline(hs, line)) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
-    
+
     if (!line.empty() && line[line.size() - 1] == '\r')
         line.erase(line.size() - 1);
 
@@ -172,13 +161,13 @@ Request RequestParser::parse(int fd, std::string& data)
     if (req.method.empty() || req.path.empty() || req.version.empty()) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
 
     if (!isValidMethod(req.method) || !isValidVersion(req.version)) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
 
     size_t q = req.path.find('?');
@@ -190,33 +179,32 @@ Request RequestParser::parse(int fd, std::string& data)
     if (!isValidUri(req.path)) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
 
     req.path = normalizePath(req.path);
 
     while (std::getline(hs, line)) {
         if (!line.empty() && line[line.size() - 1] == '\r')
-            line.erase(line.size() - 1, 1);
+            line.erase(line.size() - 1);
 
         if (line.empty())
             break;
 
         size_t c = line.find(':');
-
         if (c == std::string::npos) {
             req.status = 400;
             req.complete = true;
-            return req;
+            return false;
         }
 
-        std::string headerName = trim(line.substr(0, c));
+        std::string headerName  = trim(line.substr(0, c));
         std::string headerValue = trim(line.substr(c + 1));
 
         if (headerName.empty()) {
             req.status = 400;
             req.complete = true;
-            return req;
+            return false;
         }
 
         headerName = toLower(headerName);
@@ -225,7 +213,7 @@ Request RequestParser::parse(int fd, std::string& data)
             req.headers.count("content-length")) {
             req.status = 400;
             req.complete = true;
-            return req;
+            return false;
         }
 
         req.headers[headerName] = headerValue;
@@ -235,46 +223,49 @@ Request RequestParser::parse(int fd, std::string& data)
     if (req.headers.count("connection"))
         conn = toLower(req.headers["connection"]);
 
-    if (req.version == "HTTP/1.1") {
+    if (req.version == "HTTP/1.1")
         req.keepalive = (conn != "close");
-    }
-    else {
+    else
         req.keepalive = (conn == "keep-alive");
-    }
-
 
     b.erase(0, headerEnd + 4);
 
+    req.headersParsed = true;
 
-    if (req.headers["transfer-encoding"] == "chunked") {
+    return true;
+}
+
+bool RequestParser::parseBody(std::string& b, Request& req)
+{
+    if (req.headers.count("transfer-encoding") &&
+        toLower(req.headers["transfer-encoding"]) == "chunked")
+    {
         if (!decodeChunked(b, req.body))
-            return req;
+            return false;
     }
     else if (req.headers.count("content-length")) {
         size_t len = parseContentLength(req.headers["content-length"]);
         if (len == (size_t)-1) {
             req.status = 400;
             req.complete = true;
-            return req;
+            return false;
         }
+
         if (b.size() < len)
-            return req;
+            return false;
+
         req.body = b.substr(0, len);
         b.erase(0, len);
     }
 
-    req.complete = true;
-
     if (req.headers.count("content-type")) {
         std::string contentType = req.headers["content-type"];
         std::string lowerCT = toLower(contentType);
-        
+
         if (lowerCT.find("multipart/form-data") != std::string::npos) {
             std::string boundary = extractBoundary(contentType);
-            
+
             if (!boundary.empty()) {
-                std::cout << "Parsing multipart with boundary: " << boundary << std::endl;
-                
                 if (!parseMultipart(req.body, boundary, req)) {
                     std::cerr << "Warning: Failed to parse multipart data" << std::endl;
                 }
@@ -284,5 +275,31 @@ Request RequestParser::parse(int fd, std::string& data)
         }
     }
 
+    return true;
+}
+
+
+Request RequestParser::parse(int fd, std::string& data)
+{
+    puts("1");
+    Request& req = requests[fd];
+    std::string& b = buffer[fd];
+
+
+    b += data;
+    switch (req.headersParsed)
+    {
+        case false:
+            if (!parseHeaders(b, req))
+                return req;
+        case true:
+            puts("1000");
+            if (!parseBody(b, req))
+                return req;
+            break;
+    }
+
+    req.complete = true;
     return req;
 }
+

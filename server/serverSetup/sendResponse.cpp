@@ -54,8 +54,8 @@ void checkClientConnection(maptype &config, Client &connect) {
 void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
+
     Server* srv = getServerForClient(config, connect.serverId);
-    
     srv->respone->processRequest(connect.parsedRequest, *srv);
     std::string response = srv->respone->build();
 

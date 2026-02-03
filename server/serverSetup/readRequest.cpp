@@ -75,15 +75,21 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
     }
 
     Request req = parser->parse(connect.fd, connect.buffer);
+    cout << "here?\n";
 
     if (req.complete) {
         connect.parsedRequest = req;
         connect.requestFinish = true;
     
-        if (allowKeepAlive(req))
+        if (allowKeepAlive(req)) {
             connect.keepAlive = true;
-        else
+            parser->requests[fd] = Request();
+        }
+        else {
+            parser->requests.erase(fd);
+            parser->buffer.erase(fd);
             connect.keepAlive = false;
+        }
 
         std::cout << "Request parsed successfully:" << std::endl;
         std::cout << "  Method: " << req.method << std::endl;

@@ -59,7 +59,7 @@ void sendResponse(maptype &config, Client &connect) {
     srv->respone->processRequest(connect.parsedRequest, *srv);
     std::string response = srv->respone->build();
 
-    std::cout << response << "\n";
+   // std::cout << response << "\n";
     int n = send(connect.fd, response.c_str(), response.size(), 0);
     
     if (n <= 0) {

@@ -93,7 +93,7 @@ void Response::setBody(const std::string &body)
 {
     this->body = body;
     headers["Content-Length"] = toString(body.size());
-    std::cout << "=====> " << headers["Content-Length"] << " <===\n";
+//    std::cout << "=====> " << headers["Content-Length"] << " <===\n";
 }
 void Response::setVersion(const std::string &version)
 {
@@ -304,12 +304,12 @@ void Response::processRequest(Request &req, Server &ser)
         setHeader("Connection", "close");
     else
         setHeader("Connection", "keep-alive");
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
-    std::cout << req.method << std::endl;
-    std::cout << req.fullpath << std::endl;
-    std::cout << req.status << std::endl;
-    std::cout << req.version << std::endl;
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    // std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    // std::cout << req.method << std::endl;
+    // std::cout << req.fullpath << std::endl;
+    // std::cout << req.status << std::endl;
+    // std::cout << req.version << std::endl;
+    // std::cout << "+++++++++++++++++++++++++++++" << std::endl;
 
     validateRequest(req, &ser);
     if (req.status != 200)

@@ -46,9 +46,9 @@ turn vector to maps to find value fast
 -------------------------
 first ->  i should check is methods is valid not GETS and else check format of values of all variable
 -----------------------------------------------------
- senting more than body we should in resoponse 
- --------------------------------------------------------
- if cgi body should send through pipe 
- body end read return 0 or reaquest  has endof body 
- buffer should be more 1434
- who take processing he should take length N byets when 
+senting more than body we should in resoponse 
+--------------------------------------------------------
+if cgi body should send through pipe 
+body end read return 0 or reaquest  has endof body 
+buffer should be more 1434
+who take processing he should take length N byets when 

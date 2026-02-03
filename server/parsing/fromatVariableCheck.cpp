@@ -12,8 +12,7 @@ void resolveIpName(std::string &Str , Server &serv){
     struct  addrinfo data;
     data.ai_family = AF_INET;
     data.ai_socktype = SOCK_STREAM;
-    // memset(result, 0, sizeof(result));
-    // memset(&data, 0, sizeof(data));
+
     status = getaddrinfo(Str.c_str(), NULL, &data, &result);
     if (status)
         throw std::runtime_error("invalid host can't not be found [" + Str + "]");
@@ -55,7 +54,6 @@ void insertListenConfig(Server &serv, std::string &str){
         serv.port = convertString(por);
 
     }
-    // std::cout << "port -> " << serv.port << "  iddress -> " << serv.ipAdress << std::endl ;
 }
 int extractInt(std::string &s, std::string &c){
     int number = -1;
@@ -67,11 +65,10 @@ int extractInt(std::string &s, std::string &c){
 
 void bodySizeMax(size_t &val, std::string &str){
     
-    ///printf("body size -> %s\n", str.c_str());
     size_t max ;
     std::string c;
     max =  extractInt(str, c );
-    
+
     if (c.size() > 1 || max < 0)
         throw std::runtime_error("invalid value in max body size ");
     if (c[0] == 'M')
@@ -80,8 +77,8 @@ void bodySizeMax(size_t &val, std::string &str){
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    // else 
-    //     throw std::runtime_error("invalid value in max body size ");
+    else if (!c.empty()) 
+        throw std::runtime_error("invalid value in max body size ");
     val = max;
 }
 
@@ -130,10 +127,11 @@ void returnP(std::string token, std::string &path, int &exitCode){
 int convertString(std::string &str){
     std::stringstream ss(str);
     std::string s;
-    int value;
+    int value = -1;
     ss >> value;
     ss >> s;
-    if (!s.empty() && !ss.eof())
+
+    if (!s.empty() || !ss.eof())
         return -1;
     else 
         return value;
@@ -147,19 +145,21 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
     std::vector<std::string> vS;
     vS = splitV(str);
     strIter its = vS.begin();
-    if (convertString(vS.back()) == -1)
+    if (convertString(vS.back() ) == -1)
         value = vS.back();
-  
-    while(its != vS.end()){
-        
+    printf("-B%s\n",value.c_str() );
+    while((its  + 1)  != vS.end()){
+        printf("%s\n",its->c_str() );
         key = convertString(*its);
-        if (key == -1)
-            break;
+        if (key == -1 || (key <= 299 || key > 599 ))
+            throw std::runtime_error("Error: invalid exit code > " );
+        printf("value %d\n", key);
         its++;
         v.insert(make_pair(key, value));
     }
-    if (its != vS.end() && value.empty())
-       throw std::runtime_error("invalid value [" + *its + "]in error page");
+
+    if (value.empty())
+       throw std::runtime_error("invalid value [" + value + "] in error page");
 }
 
 void outoIndexHandler(std::string val, int &cond){

@@ -26,7 +26,7 @@ int main(int av, char *argc[]){
 			it++;
 		}
 		
-		eventLoop(config);
+		//eventLoop(config);
 	}
 	catch (exception &e)
 	{

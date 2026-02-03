@@ -96,6 +96,8 @@ void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
     std::stringstream ss(methods);
     // printf("methods handle %s\n", methods.c_str());
     while(ss >> methods){
+        if (!methods.compare("GET") && !methods.compare("POST") && !methods.compare("DELETE"))
+            throw std::runtime_error("Error: invalid a method -> " + methods);
         methdsV.push_back(methods);
     }
 }

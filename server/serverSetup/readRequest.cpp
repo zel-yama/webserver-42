@@ -14,33 +14,33 @@
 // body can so big so can't read in one time 
 // close is will depend on time or not 
 int myread(Client &connect) {
-    char tmp[1024];
     
-    while (true) {
-        int n = 0;
-    
-        n = read(connect.fd, tmp, 1023);
-        if (n > 0) {
-            printf("this n of read byte in while {%d}\n", n);
-            connect.byteSent += n;
-            connect.buffer.append(tmp, n);
-            continue;
-        }
+    char tmp[MAXSIZEBYTE];
+    int byte = 0;
+    if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
+        byte = connect.bodysize;
+    else 
+        byte = MAXSIZEBYTE;
+    int n = 0;
 
-        if (n == 0) {
-            return 0;
-        }
+    n = read(connect.fd, tmp, byte);
 
-        if (n < 0) {
-            if (errno == EAGAIN) {
-                break ;
-            } else {
-                perror("read");
-                return -1;
-            }
-        }
+    printf("this n of read byte in while {%d}\n", n);
+    if (n > 0) {
+       // printf("this n of read byte in while {%d}\n", n);
+        connect.byteSent += n;
+        connect.buffer.append(tmp, n);
+        
     }
-    
+  
+    if (n == 0) {
+        return 0;
+    }
+
+    if (n < 0) {
+        perror("read");
+        return -1;
+        }
     return 1;
 }
 

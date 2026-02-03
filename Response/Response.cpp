@@ -373,7 +373,12 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
     for (size_t i = 0; i < req.multipartData.size(); ++i)
     {
         const MultipartPart &part = req.multipartData[i];
-
+        // cout << "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]" << endl;
+        // cout << part.filename << endl;
+        // cout << part.name << endl;
+        // cout << part.contentType << endl;
+        // cout << part.content << endl;
+        // cout << "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]" << endl;
         if (!part.filename.empty())
         {
             std::string filePath = uploadPath + "/" + part.filename;
@@ -391,6 +396,23 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
             response << "<li>File uploaded: <strong>" << part.filename 
                     << "</strong> (" << part.content.size() << " bytes, "
                     << part.contentType << ")</li>";
+        }
+        else if (!part.content.empty() && !part.name.empty())
+        {
+            std::string filePath = uploadPath + "/" + part.name + ".txt";
+            std::ofstream file(filePath.c_str(), std::ios::binary);
+
+            if (!file.is_open())
+            {
+                response << "<li><strong>ERROR saving field " << part.name << "</strong></li>";
+                continue;
+            }
+
+            file.write(part.content.c_str(), part.content.size());
+            file.close();
+
+            response << "<li>Field saved: '<strong>" << part.name << ".txt" 
+                    << "</strong>' (" << part.content.size() << " bytes)</li>";
         }
         else
         {
@@ -411,6 +433,7 @@ void Response::handlePost(const std::string &path,
                           const Request &req,
                           const Server &srv)
 {
+
     if (!req.multipartData.empty())
     {
         handleMultipartUpload(req, srv);
@@ -491,8 +514,14 @@ void Response::handleDirectory(const std::string &path,
 
     if (path[path.size() - 1] != '/')
     {
+        std::string locationPath = req.path;
+        if (locationPath.empty())
+            locationPath = "/";
+        if (locationPath[locationPath.size() - 1] != '/')
+            locationPath += "/";
+
         setStatus(301, "");
-        headers["Location"] = path + "/";
+        headers["Location"] = locationPath;
         headers["Content-Length"] = "0";
         body.clear();
         return;
@@ -521,21 +550,21 @@ void Response::handleDirectory(const std::string &path,
     if (req.loc->ex)
     {
         if (req.loc->outoIndex)
-            generateautoindex(path);
+            generateautoindex(path, req.path);
         else
             sendError(403, "");
         return;
     }
     if (srv.outoIndex)
     {
-        generateautoindex(path);
+        generateautoindex(path, req.path);
         return;
     }
 
     else
         sendError(403, "");
 }
-void Response::generateautoindex(const std::string &path)
+void Response::generateautoindex(const std::string &path, const std::string &urlPath)
 {
     if (!hasDirPermission(path))
     {
@@ -563,8 +592,12 @@ void Response::generateautoindex(const std::string &path)
     }
 
     std::ostringstream html;
+    std::string base = urlPath;
+    if (base.empty() || base[base.size() - 1] != '/')
+        base += "/";
+
     html << "<html><body>";
-    html << "<h1>Index of " << path << "</h1>";
+    html << "<h1>Index of " << base << "</h1>";
     html << "<ul>";
 
     struct dirent *entry;
@@ -574,8 +607,17 @@ void Response::generateautoindex(const std::string &path)
         if (name == "." || name == "..")
             continue;
 
-        html << "<li><a href=\"" << name;
-        if (entry->d_type == DT_DIR)
+        std::string entryPath = path;
+        if (!entryPath.empty() && entryPath[entryPath.size() - 1] != '/')
+            entryPath += "/";
+        entryPath += name;
+
+        bool isDir = (entry->d_type == DT_DIR);
+        if (entry->d_type == DT_UNKNOWN)
+            isDir = isDirectory(entryPath.c_str());
+
+        html << "<li><a href=\"" << base << name;
+        if (isDir)
             html << "/";
         html << "\">" << name << "</a></li>";
     }
@@ -650,8 +692,8 @@ void Response::servFile(const std::string &path)
     setContentType(path);
 
     headers["Content-Length"] = toString(fileSize);
-    setHeader("Cache-Control", "no-cache");
-    setHeader("Accept-Ranges", "bytes");
+    // setHeader("Cache-Control", "no-cache");
+    // setHeader("Accept-Ranges", "bytes");
 
     if (fileSize <= CHUNK_SIZE)
     {

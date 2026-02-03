@@ -1,5 +1,14 @@
-print("Content-Type: text/plain")  # استخدم text/plain
-print("Content-Length: 200\r\n\r\n")  # استخدم text/plain
-print("Line 1")
-print("Line 2")
-print("Line 3")
+import os
+import sys
+from urllib.parse import parse_qs
+
+print("Content-Type: text/plain\r\n")
+
+content_length = int(os.environ.get("CONTENT_LENGTH", "0") or 0)
+body = sys.stdin.read(content_length) if content_length > 0 else ""
+params = parse_qs(body)
+
+print("Received POST data:")
+for key, values in params.items():
+	for value in values:
+		print(f"{key}={value}")

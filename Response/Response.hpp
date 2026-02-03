@@ -63,7 +63,7 @@ public:
     bool existFile(const char *path) const;
     bool isDirectory(const char *path) const;
     void handleDirectory(const std::string &path, const Request &req, const Server &srv);
-    void generateautoindex(const std::string &path);
+    void generateautoindex(const std::string &path, const std::string &urlPath);
     std::string build();
     bool isLargeFile() const;
     std::string getFilePath() const;

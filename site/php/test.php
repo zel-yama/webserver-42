@@ -1,3 +1,4 @@
 <?php
-echo "hello worl";
+echo "Content-Type: text/html\r\n\r\n";
+echo "hello world";
 ?>

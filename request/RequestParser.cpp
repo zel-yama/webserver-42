@@ -146,10 +146,16 @@ Request RequestParser::parse(int fd, std::string& data)
     //     buffer.erase(fd);
     //     throw std::runtime_error("request too large");
     // }
-    buffer[fd] += normalize(data);
+    buffer[fd] += data;
     std::string& b = buffer[fd];
 
     size_t headerEnd = b.find("\r\n\r\n");
+    size_t headerEndLen = 4;
+    if (headerEnd == std::string::npos)
+    {
+        headerEnd = b.find("\n\n");
+        headerEndLen = 2;
+    }
     if (headerEnd == std::string::npos)
         return req;
 
@@ -224,7 +230,7 @@ Request RequestParser::parse(int fd, std::string& data)
     }
 
 
-    b.erase(0, headerEnd + 4);
+    b.erase(0, headerEnd + headerEndLen);
 
 
     if (req.headers["transfer-encoding"] == "chunked") {

@@ -106,8 +106,7 @@ bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Req
                         filePos += 10;
                         size_t fileEnd = line.find('"', filePos);
                         if (fileEnd != std::string::npos)
-                            filename = line.substr(filePos, fileEnd - filePos);
-                    }
+                            filename = line.substr(filePos, fileEnd - filePos);                  }
                 } else if (lowerLine.find("content-type:") == 0) {
                     size_t typeStart = line.find(':') + 1;
                     contentType = trim(line.substr(typeStart));

@@ -12,7 +12,7 @@ void resolveIpName(std::string &Str , Server &serv){
     struct  addrinfo data;
     data.ai_family = AF_INET;
     data.ai_socktype = SOCK_STREAM;
-
+    memset(&data, 0, sizeof(data)); 
     status = getaddrinfo(Str.c_str(), NULL, &data, &result);
     if (status)
         throw std::runtime_error("invalid host can't not be found [" + Str + "]");
@@ -22,8 +22,15 @@ void resolveIpName(std::string &Str , Server &serv){
         while (tmp != NULL)
         {
             if (tmp->ai_family == AF_INET && tmp->ai_socktype == SOCK_STREAM){
-                // void *ptr = ((sockaddr_in *)tmp->ai_addr)->sin_addr);
-                serv.ipAdress =  tmp->ai_addr->sa_data;
+             
+                 
+                
+                serv.addressServer.sin_family = tmp->ai_family;
+                memcpy(&serv.addressServer.sin_addr, &tmp->ai_addr->sa_data[2], 4);
+                serv.addressServer.sin_port = htons(serv.port);
+            
+            
+                serv.infoFull = true;
             }
             tmp = tmp->ai_next;
         }
@@ -44,15 +51,18 @@ void insertListenConfig(Server &serv, std::string &str){
     {
         if ((port = convertString(str)) == -1)
             resolveIpName(str, serv);
-        else 
+        else {
+
             serv.port = port;
+            resolveIpName(serv.ipAdress, serv);
+        }
     }
     else{
         serv.ipAdress = str.substr(0, pos);
         pos++;
         por = str.substr(pos);
         serv.port = convertString(por);
-
+        resolveIpName(serv.ipAdress, serv);
     }
 }
 int extractInt(std::string &s, std::string &c){
@@ -149,13 +159,12 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
     strIter its = vS.begin();
     if (convertString(vS.back() ) == -1)
         value = vS.back();
-    printf("-B%s\n",value.c_str() );
+  
     while((its  + 1)  != vS.end()){
-        printf("%s\n",its->c_str() );
+
         key = convertString(*its);
         if (key == -1 || (key <= 299 || key > 599 ))
             throw std::runtime_error("Error: invalid exit code > " );
-        printf("value %d\n", key);
         its++;
         v.insert(make_pair(key, value));
     }

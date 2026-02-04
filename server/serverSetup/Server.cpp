@@ -11,7 +11,7 @@ Server::Server(){
     this->outoIndex = 0;
     this->serverId = 0;
     this->returnCode = 0;
-
+    infoFull = false;
     name = "Server";
     root = "./";
     bodyMaxByte = 1e8;
@@ -70,9 +70,12 @@ int Server::CreateServer(int port, string ipaddress){
     {
         throw runtime_error("error in in create socket socket function");
     }
-    addressServer.sin_family = AF_INET;
-    addressServer.sin_port = htons(port);
-    addressServer.sin_addr.s_addr = inet_addr(ipaddress.c_str());
+    if (!this->infoFull ){
+        addressServer.sin_family = AF_INET;
+        addressServer.sin_port = htons(port);
+        addressServer.sin_addr.s_addr = inet_addr(ipaddress.c_str());
+
+    }
     if (bind(fd, reinterpret_cast<sockaddr *>(&addressServer),sizeof(addressServer)) < 0){
         throw runtime_error("error in bind operatoin bind function ");
     }

@@ -1,6 +1,6 @@
 #include <cctype>
 #include <iostream>
-#include <webserv.hpp>
+#include "webserv.hpp"
 void resolveIpName(std::string Str ){
     
     if (Str.empty())
@@ -11,7 +11,7 @@ void resolveIpName(std::string Str ){
     data.ai_family = AF_INET;
     data.ai_socktype = SOCK_STREAM;
 
-    memset(&data, 0, sizeof(data));
+
     status = getaddrinfo(Str.c_str(), NULL, &data, &result);
     if (status)
         throw std::runtime_error("invalid host can't not be found [" + Str + "]");
@@ -21,8 +21,15 @@ void resolveIpName(std::string Str ){
         while (tmp != NULL)
         {
             if (tmp->ai_family == AF_INET && tmp->ai_socktype == SOCK_STREAM){
-                // void *ptr = ((sockaddr_in *)tmp->ai_addr)->sin_addr);
-                std::cout << "here -> " <<  tmp->ai_canonname << "|"<< std::endl;
+            
+                int fd = socket(AF_INET, SOCK_STREAM, 0);
+                if (fd  != -1 ){
+                    if (bind(fd, (struct sockaddr *)tmp->ai_addr, sizeof(addrinfo)) == -1)
+                        printf("yes error in bind\n");
+                    // listen()
+
+                }
+
             }
             tmp = tmp->ai_next;
         }

@@ -26,7 +26,7 @@ void eventLoop(maptype config ){
 
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
-        checkClientsTimeout(config, fdEp);
+       // checkClientsTimeout(config, fdEp);
         for(int i = 0; i < n; i++){
         
                 if (config.at(events[i].data.fd)->name == "Server"){
@@ -40,12 +40,8 @@ void eventLoop(maptype config ){
                 }
                 else         
                 {
-
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
-                
                     Server *clientServer = getServerFromClient(config, *Cli);
- 
-
                     if (events[i].events & (EPOLLIN | EPOLLET)){
                         std::cout << "  they say what happnes " << std::endl;
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));

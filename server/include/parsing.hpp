@@ -13,27 +13,29 @@
 #include "Server.hpp"
 
 
-void                    printvector(std::vector<std::string> &config);
-servers                 parsing(std::string FileName);
-std::string             removeSpaces(std::string &str);
-std::vector<tockens>    tokeniezer(doubleStr &v);
-void                    pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s);
-void                    methodsIntKey(std::map<int, std::string> &v, std::string str);
-void                    methodesHandler(std::vector<std::string> &methdsV, std::string methods);
-void                    variableSingleValue(std::string str, std::string &buff);
-void                    bodySizeMax(size_t &val, std::string &str);
-int                     extractInt(std::string &s, std::string &c);
-void                    insertListenConfig(Server &serv, std::string &str);
-void                    outoIndexHandler(std::string val, int &cond);
-servers                 setUpServers(std::vector<tockens> &v);
-void                    validatoinVarFormat( tockens &mytockens);
-int                     convertString(std::string &str);
-void                    checkTockens(tockens &tockn);
-void                    locationCases(tockenIt &it, location &local);
-void                    serverCases(tockenIt &it, Server &serv);
-void                    tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value);
-void                    bracketValidtion(std::vector<tockens> &tockens);
-void            returnP(std::string token, std::string &path, int &exitCode);
+void                        printvector(std::vector<std::string> &config);
+servers                     parsing(std::string FileName);
+std::string                 removeSpaces(std::string &str);
+std::vector<tockens>        tokeniezer(doubleStr &v);
+void                        pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s);
+void                        methodsIntKey(std::map<int, std::string> &v, std::string str);
+void                        methodesHandler(std::vector<std::string> &methdsV, std::string methods);
+void                        variableSingleValue(std::string str, std::string &buff);
+void                        bodySizeMax(size_t &val, std::string &str);
+int                         extractInt(std::string &s, std::string &c);
+void                        insertListenConfig(Server &serv, std::string &str);
+void                        outoIndexHandler(std::string val, int &cond);
+servers                     setUpServers(std::vector<tockens> &v);
+void                        validatoinVarFormat( tockens &mytockens);
+int                         convertString(std::string &str);
+void                        checkTockens(tockens &tockn);
+void                        locationCases(tockenIt &it, location &local);
+void                        serverCases(tockenIt &it, Server &serv);
+void                        tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value);
+void                        bracketValidtion(std::vector<tockens> &tockens);
+void                        returnP(std::string token, std::string &path, int &exitCode);
+void                        HandleMapstrings(std::string &str, map<std::string, std::string> &MapStrings);
+std::vector<std::string>    splitV(std::string &str);
 //--------------------------------------------------
     void printKeyInt(IntKey v);
     void printlocation(location obj);
@@ -41,4 +43,5 @@ void            returnP(std::string token, std::string &path, int &exitCode);
     void printTocknes(std::vector<tockens> &TV);
     void printvector(std::vector<std::string> &config);
     void printMapIntKey(std::map<int, std::string>  ma);
+    void printdoulStr(doubleStr v);
 #endif

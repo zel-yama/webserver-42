@@ -1,8 +1,5 @@
 
-
-
 #include "../include/parsing.hpp"
-
 
 std::string removeSpaces(std::string &str){
 
@@ -15,8 +12,6 @@ std::string removeSpaces(std::string &str){
 		end--;
 	return str.substr(start, (end - start));
 }
-
-
 
 std::vector<tockens> tokeniezer(doubleStr &v){
 	std::vector<tockens> tockenV;
@@ -36,11 +31,9 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 			val = var;
 		tockenValue(val, tockenV, enumValue);
 		it++;
-	}
-  
+	}  
 	return tockenV;
 }
-
 
 // validtion of tocknes format 
 void validatoinVarFormat( tockens &mytockens){

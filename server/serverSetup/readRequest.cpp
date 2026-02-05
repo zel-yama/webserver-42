@@ -1,45 +1,50 @@
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
 #include "../../request/RequestParser.hpp"
-
+// you should read  request 
+/// now u have fd that contain data  
+// i should handle some case of reading body of request content length  
+// timeout of reading of reading 
+//  pass line by to parsing so 
+// first read until u get of endof request and wait for body if exsits  and 
+//   what happens when i read from socket and i came read next what will happns ? ofset 
+// read requst u can know if body exists if content-length > 0 or post or put methods yes in case 
+// diff between body exists  and no body 
+// body without length in http u wait untill EOF or time end 
+// body can so big so can't read in one time 
+// close is will depend on time or not 
 int myread(Client &connect) {
-    char tmp[1024];
     
-    while (true) {
-        int n = 0;
-    
-        n = read(connect.fd, tmp, 1023);
-        if (n > 0) {
-            printf("this n of read byte in while {%d}\n", n);
-            connect.byteSent += n;
-            connect.buffer.append(tmp, n);
-            continue;
-        }
+    char tmp[MAXSIZEBYTE];
+    int byte = 0;
+    if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
+        byte = connect.bodysize;
+    else 
+        byte = MAXSIZEBYTE;
+    int n = 0;
 
-        if (n == 0) {
-            return 0;
-        }
+    n = read(connect.fd, tmp, byte);
 
-/*
-EAGAIN	no data now, try later 
-ola khdm be :
-EWOULDBLOCK	same meaning
-*/
-
-        if (n < 0) {
-            if (errno == EAGAIN) {
-                break ;
-            } else {
-                perror("read");
-                return -1;
-            }
-        }
+    printf("this n of read byte in while {%d}\n", n);
+    if (n > 0) {
+       // printf("this n of read byte in while {%d}\n", n);
+        connect.byteSent += n;
+        connect.buffer.append(tmp, n);
+        
     }
-    
+  
+    if (n == 0) {
+        return 0;
+    }
+
+    if (n < 0) {
+        perror("read");
+        return -1;
+        }
     return 1;
 }
 
-bool allowKeepAlive(const Request& req)
+bool allowKeepAlive(Request req)
 {
     if (req.status >= 400)
         return false;
@@ -69,38 +74,34 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
         return;
     }
 
-    try {
-        Request req = parser->parse(connect.fd, connect.buffer);
+    Request req = parser->parse(connect.fd, connect.buffer);
+    cout << "here?\n";
 
-        if (req.complete) {
-            connect.parsedRequest = req;
-            connect.requestFinish = true;
-        
-            if (allowKeepAlive(req))
-                connect.keepAlive = true;
-            else
-                connect.keepAlive = false;
-
-            std::cout << "Request parsed successfully:" << std::endl;
-            std::cout << "  Method: " << req.method << std::endl;
-            std::cout << "  Path: " << req.path << std::endl;
-            std::cout << "  Version: " << req.version << std::endl;
-            std::cout << "  Status: " << req.status << std::endl;
-            std::cout << "  Status: " << req.headers["content-length"] << std::endl;
-            std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
-            std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
-
-            // khask tb3 multi part for debag
-        } else {
-            std::cout << "Request incomplete, waiting for more data..." << std::endl;
-        }
-        
-    } catch (const std::exception& e) {
-        std::cerr << "✗ Request parsing error: " << e.what() << std::endl;
-
-        connect.parsedRequest.status = 400;
-        connect.parsedRequest.complete = true;
+    if (req.complete) {
+        connect.parsedRequest = req;
         connect.requestFinish = true;
-        connect.keepAlive = false;
+    
+        if (allowKeepAlive(req)) {
+            connect.keepAlive = true;
+            parser->requests[fd] = Request();
+        }
+        else {
+            parser->requests.erase(fd);
+            parser->buffer.erase(fd);
+            connect.keepAlive = false;
+        }
+
+        std::cout << "Request parsed successfully:" << std::endl;
+        std::cout << "  Method: " << req.method << std::endl;
+        std::cout << "  Path: " << req.path << std::endl;
+        std::cout << "  Version: " << req.version << std::endl;
+        std::cout << "  Status: " << req.status << std::endl;
+        std::cout << "  content-type: " << req.headers["content-type"]  << std::endl;
+        std::cout << "  content-length: " << req.headers["content-length"] << std::endl;
+        std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
+        std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
+
+    } else {
+        std::cout << "Request incomplete, waiting for more data..." << std::endl;
     }
 }

@@ -1,4 +1,1 @@
-<?php
-echo "Content-Type: text/html\r\n\r\n";
-echo "hello world";
-?>
+name=John+Doe&message=Hello+from+POST+request%21

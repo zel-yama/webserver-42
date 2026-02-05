@@ -1,6 +1,7 @@
 
 #include "../webserv.hpp"
 #include "include/Client.hpp"
+
 Client::Client(){
     name = "client";
     keepAlive = false;
@@ -11,12 +12,7 @@ Client::Client(){
     byteSent = 0;
     headersOnly = false;
     buffer = "";
-    response  =  "HTTP/1.1 200 OK\r\n"
-    "Content-Type: text/html\r\n"
-    "Content-Length: 86\r\n"
-    "Connection: close\r\n"
-    "\r\n"
-    "<html><body><h1>Hello!</h1><p>This is a random response.</p></body></html>";
+    response  = "";
     sending = false;
     responseSize = 8000;
 

@@ -71,7 +71,7 @@ bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Req
         if (headersEnd != std::string::npos) {
             std::string headersSection = part.substr(0, headersEnd);
 
-            size_t contentStart = headersEnd + 4; // For \r\n\r\n
+            size_t contentStart = headersEnd + 4;
             if (part.substr(headersEnd, 2) == "\n\n")
                 contentStart = headersEnd + 2;
 

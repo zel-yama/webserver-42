@@ -1,0 +1,11 @@
+.html" is not found (2: No such file or directory), client: 127.0.0.1, server: zakaria, request: "GET / HTTP/1.1", host: "localhost:8080"
+
+2026/02/03 16:14:07 [error] 581891#0: *1 open() "/home/zel-yama/nginx/html/50x.html" failed (2: No such file or directory), client: 127.0.0.1, server: zakaria, request: "GET / HTTP/1.1", 
+host: "localhost:8080"
+127.0.0.1 - - [03/Feb/2026:16:14:07 +0100] "GET / HTTP/1.1" 404 153 "-" "curl/7.81.0"
+127.0.0.1 - - [03/Feb/2026:16:14:07 +0100] "ewnewiefnwewweqiqwi" 400 157 "-" "-"
+
+
+2026/02/03 16:16:02 [error] 581891#0: *2 client intended to send too large body: 44 bytes, client: 127.0.0.1, server: zakaria, request: "GET / HTTP/1.1", host: "localhost:8080"
+127.0.0.1 - - [03/Feb/2026:16:16:02 +0100] "GET / HTTP/1.1" 413 183 "-" "curl/7.81.0"
+

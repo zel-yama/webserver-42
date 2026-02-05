@@ -1,8 +1,5 @@
 
-
-
 #include "../include/parsing.hpp"
-
 
 std::string removeSpaces(std::string &str){
 
@@ -15,8 +12,6 @@ std::string removeSpaces(std::string &str){
 		end--;
 	return str.substr(start, (end - start));
 }
-
-
 
 std::vector<tockens> tokeniezer(doubleStr &v){
 	std::vector<tockens> tockenV;
@@ -36,50 +31,10 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 			val = var;
 		tockenValue(val, tockenV, enumValue);
 		it++;
-	}
-  
+	}  
 	return tockenV;
 }
 
-// 	if (tockn.val.empty() || tockn.val.size() == 0)
-// 		return;
-	
-// 	if (!tockn.val.compare("server_name"))
-// 		tockn.mytocken = SERVERNAME;
-// 	else if (!tockn.val.compare("root"))
-// 		tockn.mytocken = ROOT;	
-// 	else if(!tockn.val.compare("return"))
-// 		tockn.mytocken = RETURN;
-// 	else if (!tockn.val.compare("autoindex"))
-// 		tockn.mytocken = AUTOINDEX;
-// 	else if (!tockn.val.compare("client_max_body_size"))
-// 		tockn.mytocken = BODYMAX;
-// 	else if (!tockn.val.compare("limit_except"))
-// 		tockn.mytocken = METHODS;
-// 	else if (!tockn.val.compare("index"))
-// 		tockn.mytocken = INDEX;
-// 	else if (!tockn.val.compare("server"))
-// 		tockn.mytocken = SERVER;
-// 	else if (!tockn.val.compare("listen"))
-// 		tockn.mytocken = LISTEN;
-// 	else if (!tockn.val.compare("error_page"))
-// 		tockn.mytocken = ERRORPAGE;
-// 	else if (!tockn.val.compare("location"))
-// 		tockn.mytocken = LOCATION;
-// 	else if (!tockn.val.compare("cgiExten"))
-// 		tockn.mytocken = CGIEXTEN;
-// 	else if (!tockn.val.compare("CGI"))
-// 		tockn.mytocken = CGI;
-// 	else if (!tockn.val.compare("uploadPath"))
-// 		tockn.mytocken = UPLOADPATH;
-// 	else if (!tockn.val.compare("upload"))
-// 		tockn.mytocken = UPLOAD;
-// 	else if (!tockn.val.compare("cgiPath"))
-// 		tockn.mytocken = CGIPATH;
-// 	else 
-// 		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
-
-// }
 // validtion of tocknes format 
 void validatoinVarFormat( tockens &mytockens){
 	mytockens.val =  removeSpaces(mytockens.val);

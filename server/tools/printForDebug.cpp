@@ -22,7 +22,13 @@ void printvector(std::vector<std::string> &config){
         it++;
     }
 }
-
+void printMap(map<string, string> str){
+    map<string, string>::iterator it = str.begin();
+    while(it != str.end()){
+        printf("exten %s  path -> %s\n  ", it->first.c_str(),  it->second.c_str());
+        it++;
+    }
+}
 void printTocknes(std::vector<tockens> &TV){
     std::vector<tockens>::iterator it = TV.begin();
     while(it != TV.end()){
@@ -46,6 +52,8 @@ void printAttr(Server &Serv){
         printvector(Serv.allowedMethods);
         printf("this index file \n");
         printf("this cgi status -> %d\n", Serv.cgiStatus);
+        printf("multi cgi \n");
+        printMap(Serv.cgiConfig);
         printf("this cgi path string -> %s\n", Serv.cgiPath.c_str());
         printf("this upload -> %d\n", Serv.upload);
         printf("this upload path  -> %s\n", Serv.uploadPath.c_str());
@@ -70,6 +78,7 @@ void printlocation(location obj){
     printf("root  -> %s\n", obj.root.c_str());
     printf("this is allowed methods -> \n");
     printvector(obj.allowedMethods);
+    printMap(obj.CgiCofing);
     printf("this cgi status -> %d\n", obj.cgiStatus);
     printf("this cgi path string -> %s\n", obj.cgiPath.c_str());
     printf("this upload -> %d\n", obj.upload);

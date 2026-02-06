@@ -33,9 +33,10 @@ void deleteClient(maptype& config, int fd, int fdEP){
     cerr << "error in remove from fd Epoll " << errno << endl;
    }
    __displayTime();
-   cout << " delete fd -> " << fd << " from epoll \n ";
+   cout << "remove client {" << fd << "} from epoll \n ";
     close(fd);
-    config.erase(fd);
+    if (config.find(fd) != config.end())
+        config.erase(fd);
 }
 
 int creatEpoll( maptype config){

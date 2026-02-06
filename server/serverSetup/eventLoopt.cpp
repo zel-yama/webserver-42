@@ -13,7 +13,7 @@ void eventLoop(maptype config ){
     
     int fdEp;
     Client *Cli;
-    Client  newClient;
+    Client  *newClient;
     Server *serv;
     int n;
     
@@ -26,23 +26,23 @@ void eventLoop(maptype config ){
 
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
-       // checkClientsTimeout(config, fdEp);
+        checkClientsTimeout(config, fdEp);
         for(int i = 0; i < n; i++){
         
                 if (config.at(events[i].data.fd)->name == "Server"){
 
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
-                    newClient =  serv->acceptClient();
-                    config.insert(pair<int,Config *>(newClient.fd, &newClient));
-                    cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
-                    addSockettoEpoll(fdEp, newClient.data);               
+                    newClient =  new Client(serv->acceptClient());
+                    config.insert(pair<int,Config *>(newClient->fd, newClient));
+                    cout << "accept " << newClient->fd << " from server " << serv->fd << endl; 
+                    addSockettoEpoll(fdEp, newClient->data);               
                     continue; 
                 }
                 else         
                 {
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                     Server *clientServer = getServerFromClient(config, *Cli);
-                    if (events[i].events & (EPOLLIN | EPOLLET)){
+                    if (events[i].events & EPOLLIN){
                         std::cout << "  they say what happnes " << std::endl;
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         
@@ -52,7 +52,7 @@ void eventLoop(maptype config ){
                         else 
                             continue;
                     }
-                    if (events[i].events & (EPOLLOUT | EPOLLET) ) {
+                    if (events[i].events & EPOLLOUT  ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         sendResponse(config, *Cli);
                     }

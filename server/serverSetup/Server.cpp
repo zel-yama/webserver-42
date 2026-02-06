@@ -18,6 +18,8 @@ Server::Server(){
     ipAdress = "0.0.0.0";
     outoIndex = false;
     port = 8080;
+    this->allowedMethods.push_back("GET");
+    this->indexFile.push_back("index.html");
     parser = new RequestParser();
     respone = new Response();
 
@@ -29,7 +31,8 @@ location::location(){
     this->cgiStatus = -1;
     this->upload = -1;
     this->returnCode = 0;
-
+    this->allowedMethods.push_back("GET");
+    this->indexFile.push_back("index.hmtl");
     this->bodyMaxByte  = 0;
     this->outoIndex = false;
     this->ex = false;

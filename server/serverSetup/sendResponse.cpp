@@ -83,7 +83,7 @@ void sendResponse(maptype &config, Client &connect) {
             return;
         }
         if (n > 0)
-            connect.response = connect.response.substr(0, n);
+            connect.response = connect.response.substr(n);
 
     }
    

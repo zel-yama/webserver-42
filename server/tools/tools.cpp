@@ -19,24 +19,24 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 }
 void setClientSend(int fdEp,  Client &Clien){
 
-    Clien.data.events =  EPOLLIN | EPOLLOUT;
+    Clien.data.events = EPOLLOUT | EPOLLET;
     epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, &Clien.data);
 }
 void setClientRead(int fdEp, Client& clien ){
 
-    clien.data.events = EPOLLIN; 
+    clien.data.events = EPOLLIN | EPOLLET; 
     epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, &clien.data);
 }
 void deleteClient(maptype& config, int fd, int fdEP){
     
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
-    cerr << "Error in remove from fd Epoll " << errno << endl;
+        return ;
    }
    __displayTime();
-   cout << "remove client {" << fd << "} from epoll \n ";
-   cout << " delete fd  [" << fd << "] from epoll \n ";
+   cout << " --------------- remove client {" << fd << "} from epoll --------------- \n " << endl;
     close(fd);
-    if (config.find(fd) != config.end())
+    maptype::iterator it = config.find(fd);
+    if (it != config.end())
         config.erase(fd);
 }
 

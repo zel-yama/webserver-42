@@ -68,5 +68,4 @@ turn local host to networking localhost:8080      |
 i should create funciont open file and read       |  
 send from file that he requested                  |
 ---------------------------------------------------
-
-
+header should be make file to 

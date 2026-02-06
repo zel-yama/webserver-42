@@ -12,7 +12,7 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ -I./include #-fsanitize=address,undefined -g -std=c++98 
+CC = c++ -I./include -fsanitize=address,undefined -g -std=c++98 
 FLAGS = #-Werror -Wextra -Wall  -std=c++98
 
 %.o:%.cpp webserv.hpp

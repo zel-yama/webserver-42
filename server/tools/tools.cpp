@@ -27,19 +27,19 @@ void setClientRead(int fdEp, Client& clien ){
     clien.data.events = EPOLLIN | EPOLLET; 
     epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, &clien.data);
 }
-void deleteClient(maptype& config, int fd, int fdEP){
+void  deleteClient(maptype& config, int fd, int fdEP){
     
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
         return ;
    }
    __displayTime();
-   cout << " --------------- remove client {" << fd << "} from epoll --------------- \n " << endl;
+   std::cout << " --------------- remove client {" << fd << "} from epoll --------------- \n " << std::endl;
     close(fd);
     maptype::iterator it = config.find(fd);
     if (it != config.end())
-        config.erase(fd);
+        ;//config.erase(fd);
+   
 }
-
 int creatEpoll( maptype config){
 
     int fdEp;
@@ -52,7 +52,7 @@ int creatEpoll( maptype config){
    { 
     
        
-        Server *serv = dynamic_cast<Server*>(it->second);
+        Server *serv =   dynamic_cast<Server*>(it->second);
         if (!serv)
             throw std::runtime_error("Error in caseting servers");
         addSockettoEpoll(fdEp, serv->data);

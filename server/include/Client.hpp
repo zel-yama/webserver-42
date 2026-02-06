@@ -32,7 +32,8 @@ class Client: public Config{
         long byteSent;
         long responseSize;
         long bodysizeRequest;
-
+        bool buildDone;
+        int fdFile;
         // i add this
         Request parsedRequest;
         // Response respons;

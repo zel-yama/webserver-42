@@ -17,30 +17,30 @@ int myread(Client &connect) {
     
     char tmp[MAXSIZEBYTE];
     int byte = 0;
-    if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
-        byte = connect.bodysize;
-    else 
-        byte = MAXSIZEBYTE;
-    int n = 0;
+    int n = 1;
+    while (n > 0)
+    {
+        if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
+            byte = connect.bodysize;
+        else 
+            byte = MAXSIZEBYTE;
 
-    n = read(connect.fd, tmp, byte);
+        n = read(connect.fd, tmp, byte);
 
-    printf("this n of read byte in while {%d}\n", n);
-    if (n > 0) {
-       // printf("this n of read byte in while {%d}\n", n);
-        connect.byteSent += n;
-        connect.buffer.append(tmp, n);
-        
-    }
-  
-    if (n == 0) {
-        return 0;
-    }
-
-    if (n < 0) {
-        perror("read");
-        return -1;
+        printf("this n of read byte in while {%d}\n", n);
+        if (n > 0) {
+            connect.byteSent += n;
+            connect.buffer.append(tmp, n);    
         }
+        if (n == 0) {
+            return 0;
+        }
+        if (n < 0) {
+            continue;
+        }
+     
+    }
+    
     return 1;
 }
 
@@ -63,10 +63,7 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
 {
     int readResult = myread(connect);
     
-    if (readResult == -1) {
-        return;
-    }
-    
+    printf("buffer %s\n", connect.buffer.c_str());
     if (readResult == 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         connect.requestFinish = false; 
@@ -86,22 +83,14 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             parser->requests[fd] = Request();
         }
         else {
-            parser->requests.erase(fd);
-            parser->buffer.erase(fd);
+            // parser->requests.erase(fd);
+            // parser->buffer.erase(fd);
             connect.keepAlive = false;
         }
-
-        std::cout << "Request parsed successfully:" << std::endl;
-        std::cout << "  Method: " << req.method << std::endl;
-        std::cout << "  Path: " << req.path << std::endl;
-        std::cout << "  Version: " << req.version << std::endl;
-        std::cout << "  Status: " << req.status << std::endl;
-        std::cout << "  content-type: " << req.headers["content-type"]  << std::endl;
-        std::cout << "  content-length: " << req.headers["content-length"] << std::endl;
-        std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
-        std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
+        cout << req.body.size() << endl;;
 
     } else {
         std::cout << "Request incomplete, waiting for more data..." << std::endl;
+        return ;
     }
 }

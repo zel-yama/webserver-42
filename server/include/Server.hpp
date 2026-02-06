@@ -4,7 +4,8 @@
 
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
-#define MAXSIZEBYTE 16500
+#define MAXSIZEBYTE 165000
+
 #include "Client.hpp"
 #include "include.hpp"
 

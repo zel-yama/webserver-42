@@ -243,13 +243,7 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
 
 bool RequestParser::parseBody(std::string& b, Request& req)
 {
-    if (req.headers.count("transfer-encoding") &&
-        toLower(req.headers["transfer-encoding"]) == "chunked")
-    {
-        if (!decodeChunked(b, req.body))
-            return false;
-    }
-    else if (req.headers.count("content-length")) {
+    if (req.headers.count("content-length")) {
         size_t len = parseContentLength(req.headers["content-length"]);
         if (len == (size_t)-1) {
             req.status = 400;

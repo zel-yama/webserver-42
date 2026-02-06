@@ -27,6 +27,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
 void checkClientConnection(maptype &config, Client &connect) {
     if (connect.sending) {
         connect.buffer = "";
+        connect.prevTime = time(NULL);
         setClientSend(connect.fdEp, connect);
         return;
     }
@@ -54,23 +55,43 @@ void checkClientConnection(maptype &config, Client &connect) {
 void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
-    Server* srv = getServerForClient(config, connect.serverId);
-    srv->respone->processRequest(connect.parsedRequest, *srv);
-    std::string response = srv->respone->build();
-    
+    int n = 1 ;
+    int readB = 0;
+    char buff[2200000];
+    if (!connect.buildDone){
+        Server* srv = getServerForClient(config, connect.serverId);
+        srv->respone->processRequest(connect.parsedRequest, *srv);
+        connect.response = srv->respone->build();
+        connect.buildDone = true;
+        if (srv->respone->isLargeFile()){
+            connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
+            connect.fdFile = makeNonBlockingFD(connect.fdFile);
+        }
 
-
-   // std::cout << response << "\n";
-    int n = send(connect.fd, response.c_str(), response.size(), 0);
-    
-    if (n <= 0) {
-        deleteClient(config, connect.fd, connect.fdEp);
-        return;
     }
+    int byte = 0;
+    while(n > 0){
+        if (connect.fdFile != -1){
+            byte =  read(connect.fdFile, buff, 2200000);
+            
+            if (byte > 0)
+                connect.response.append(buff, byte);
+        }
+        n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
+        if (n == 0) {
+            deleteClient(config, connect.fd, connect.fdEp);
+            return;
+        }
+        if (n > 0)
+            connect.response = connect.response.substr(0, n);
+
+    }
+   
     
     std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;
     
-    connect.sending = (n < (int)response.length());
+    if (connect.response.size() > 0 || byte > 0 )
+        connect.sending = true;
     
     checkClientConnection(config, connect);
 }

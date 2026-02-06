@@ -29,8 +29,6 @@ void checkTockens(tockens &tockn){
 		tockn.mytocken = ERRORPAGE;
 	else if (!tockn.val.compare("location"))
 		tockn.mytocken = LOCATION;
-	else if (!tockn.val.compare("cgiExten"))
-		tockn.mytocken = CGIEXTEN;
 	else if (!tockn.val.compare("CGI"))
 		tockn.mytocken = CGI;
 	else if (!tockn.val.compare("uploadPath"))
@@ -43,12 +41,7 @@ void checkTockens(tockens &tockn){
 		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
 
 }
-// CGI on;
-// 		upload on;
-// 		uploadPath ./; 
-// 		cgiPath /usr/bin/python3;
-// 		cgiExten .py;
-// 	}
+
 
 void serverCases(tockenIt &it, Server &serv){
     
@@ -97,13 +90,9 @@ void serverCases(tockenIt &it, Server &serv){
             it++;
             outoIndexHandler(it->val, serv.cgiStatus);
             break;
-        case CGIEXTEN:
-            it++;
-            variableSingleValue(it->val, serv.cgiExten);
-            break;
         case CGIPATH:
             it++;
-            variableSingleValue(it->val, serv.cgiPath);
+            HandleMapstrings(it->val, serv.cgiConfig);
             break;
         case UPLOAD:
             it++;
@@ -162,13 +151,9 @@ void locationCases(tockenIt &it, location &local){
             it++;
             outoIndexHandler(it->val, local.cgiStatus);
             break;
-        case CGIEXTEN:
-            it++;
-            variableSingleValue(it->val, local.cgiExten);
-            break;
         case CGIPATH:
             it++;
-            variableSingleValue(it->val, local.cgiPath);
+            HandleMapstrings(it->val, local.CgiCofing);
             break;
         case UPLOAD:
             it++;

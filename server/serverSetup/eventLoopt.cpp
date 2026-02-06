@@ -24,7 +24,7 @@ void eventLoop(maptype config ){
     
     int fdEp;
     Client *Cli;
-    Client  *newClient;
+    Client  newClient;
     Server *serv;
     int n;
     
@@ -33,8 +33,8 @@ void eventLoop(maptype config ){
     while(1){
     
 
-	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
-
+	    n = epoll_wait(fdEp, events, MAXEVENT,0);
+        printf("  and this epoll FD %d the size of config %lu \n", fdEp, config.size());
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
         checkClientsTimeout(config, fdEp);
@@ -46,10 +46,11 @@ void eventLoop(maptype config ){
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
                     if (!serv)
                         break;
-                    newClient =  new Client(serv->acceptClient());
-                    config.insert(pair<int,Config *>(newClient->fd, newClient));
-                    cout << "accept " << newClient->fd << " from server " << serv->fd << endl; 
-                    addSockettoEpoll(fdEp, newClient->data);               
+                    printf("server FD %d\n", serv->fd);
+                    newClient =  serv->acceptClient();
+                    config.insert(pair<int,Config *>(newClient.fd, &newClient));
+                    cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
+                    addSockettoEpoll(fdEp, newClient.data);               
                     continue; 
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         

@@ -17,7 +17,9 @@ void checkClientsTimeout(maptype& config, int fdEp)
                 printf("Client [%d] close to timeout about 10s\n", connect->fd);
             }
             if ((time(NULL) - connect->prevTime) > (connect->timeout + 2)) {
+                cerr << "this is  size of config before  " << config.size() << endl;
                 deleteClient(config, connect->fd, fdEp);
+                cerr << "this is  size of config " << config.size() << endl;
                 return;
             }
         }

@@ -69,13 +69,19 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
     
     if (readResult == 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
-        connect.requestFinish = false; 
+        Request& req = parser->requests[fd];
+        if (req.version == "HTTP/1.0" && !req.complete) {
+            req.body = parser->buffer[fd];
+            req.complete = true;
+            connect.parsedRequest = req;
+            connect.requestFinish = true;
+        }
+
         connect.keepAlive = false;
         return;
     }
-
+    
     Request req = parser->parse(connect.fd, connect.buffer);
-    cout << "here?\n";
 
     if (req.complete) {
         connect.parsedRequest = req;

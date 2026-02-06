@@ -12,7 +12,7 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
     {
-        cerr << "error to add socket to epoll" << endl;
+        cerr << "Error to add socket to epoll" << endl;
         return -1;
     }
     return 0;
@@ -30,10 +30,11 @@ void setClientRead(int fdEp, Client& clien ){
 void deleteClient(maptype& config, int fd, int fdEP){
     
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
-    cerr << "error in remove from fd Epoll " << errno << endl;
+    cerr << "Error in remove from fd Epoll " << errno << endl;
    }
    __displayTime();
    cout << "remove client {" << fd << "} from epoll \n ";
+   cout << " delete fd  [" << fd << "] from epoll \n ";
     close(fd);
     if (config.find(fd) != config.end())
         config.erase(fd);

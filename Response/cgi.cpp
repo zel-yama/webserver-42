@@ -109,7 +109,7 @@ std::string Cgi::execute(const std::string &cgiPath,
             return "Status: 504 Gateway Timeout\r\n\r\nCGI Timeout";
         }
 
-        // usleep(10000); // 10ms
+        usleep(10000); // 10ms
     }
 
     close(outPipe[0]);

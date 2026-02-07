@@ -103,7 +103,7 @@ void serverCases(tockenIt &it, Server &serv){
             break;
         case CGIPATH:
             it++;
-            variableSingleValue(it->val, serv.cgiPath);
+            HandleMapstrings(it->val, serv.cgiConfig);
             break;
         case UPLOAD:
             it++;
@@ -168,7 +168,7 @@ void locationCases(tockenIt &it, location &local){
             break;
         case CGIPATH:
             it++;
-            variableSingleValue(it->val, local.cgiPath);
+            HandleMapstrings(it->val, local.CgiCofing);
             break;
         case UPLOAD:
             it++;

@@ -22,13 +22,7 @@ void printvector(std::vector<std::string> &config){
         it++;
     }
 }
-void printMap(map<string, string> str){
-    map<string, string>::iterator it = str.begin();
-    while(it != str.end()){
-        printf("exten %s  path -> %s\n  ", it->first.c_str(),  it->second.c_str());
-        it++;
-    }
-}
+
 void printTocknes(std::vector<tockens> &TV){
     std::vector<tockens>::iterator it = TV.begin();
     while(it != TV.end()){
@@ -40,8 +34,6 @@ void printTocknes(std::vector<tockens> &TV){
 void printAttr(Server &Serv){
         printf("size locatin -> %lu\n", Serv.objLocation.size());
         printf("printf Atter \n");
-        printf("this return code %d\n", Serv.returnCode);
-        printf("this is return path %s\n", Serv.returnP.c_str());
         std::cout << "serv name -- > " <<  Serv.ServerName << std::endl;
         std::cout << "port -> "<< Serv.port << std::endl;
         std::cout << "ipaddress -> "<< Serv.ipAdress << std::endl;
@@ -51,14 +43,6 @@ void printAttr(Server &Serv){
         printf("this is allowd methods \n");
         printvector(Serv.allowedMethods);
         printf("this index file \n");
-        printf("this cgi status -> %d\n", Serv.cgiStatus);
-        printf("multi cgi \n");
-        printMap(Serv.cgiConfig);
-        printf("this cgi path string -> %s\n", Serv.cgiPath.c_str());
-        printf("this upload -> %d\n", Serv.upload);
-        printf("this upload path  -> %s\n", Serv.uploadPath.c_str());
-        printf("this cgiExten -> %s\n", Serv.cgiExten.c_str());
-        printf("this is cgi exten %s\n", Serv.cgiExten.c_str());
         printvector(Serv.indexFile);
         printf("this is error page \n");
         printMapIntKey(Serv.D_ErrorPages);
@@ -78,15 +62,6 @@ void printlocation(location obj){
     printf("root  -> %s\n", obj.root.c_str());
     printf("this is allowed methods -> \n");
     printvector(obj.allowedMethods);
-    printMap(obj.CgiCofing);
-    printf("this cgi status -> %d\n", obj.cgiStatus);
-    printf("this cgi path string -> %s\n", obj.cgiPath.c_str());
-    printf("this upload -> %d\n", obj.upload);
-    printf("this upload path  -> %s\n", obj.uploadPath.c_str());
-    printf("this cgiExten -> %s\n", obj.cgiExten.c_str());
-    printf("this is cgi exten %s\n", obj.cgiExten.c_str());
-    printf("this return code %d\n", obj.returnCode);
-    printf("this is return path %s\n", obj.returnP.c_str());
     printf("this error page \n");
     printMapIntKey(obj.D_ErrorPages);
     printf("end --------------------------------\n");
@@ -107,7 +82,10 @@ void printAllConfig(std::vector<Server> servs){
     printf(" size serves vetcor -> %lu\n", servs.size());
 
     std::vector<Server>::iterator it = servs.begin();
-    while (it != servs.end()){
+
+    int i = 0;
+
+     while (it != servs.end()){
 
 
         printAttr(*it);

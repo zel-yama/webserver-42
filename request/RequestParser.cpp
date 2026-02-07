@@ -64,6 +64,8 @@ bool RequestParser::isValidUri(const std::string& uri) {
 }
 
 std::string RequestParser::normalizePath(const std::string& path) {
+    bool hadSlash = (!path.empty() && path[path.size() - 1] == '/');
+    
     std::vector<std::string> parts;
     std::stringstream ss(path);
     std::string item;
@@ -85,6 +87,10 @@ std::string RequestParser::normalizePath(const std::string& path) {
         if (i + 1 < parts.size())
             r += "/";
     }
+    
+    if (hadSlash && r != "/" && r[r.size() - 1] != '/')
+        r += "/";
+    
     return r;
 }
 
@@ -130,6 +136,12 @@ std::string normalize(std::string &data) {
 bool RequestParser::parseHeaders(std::string& b, Request& req)
 {
     size_t headerEnd = b.find("\r\n\r\n");
+    size_t headerEndLen = 4;
+    if (headerEnd == std::string::npos)
+    {
+        headerEnd = b.find("\n\n");
+        headerEndLen = 2;
+    }
     if (headerEnd == std::string::npos)
         return false;
 
@@ -221,7 +233,7 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
             req.keepalive = true;
     }
 
-    b.erase(0, headerEnd + 4);
+    b.erase(0, headerEnd + headerEndLen);
 
     req.headersParsed = true;
 
@@ -236,7 +248,6 @@ bool RequestParser::parseBody(std::string& b, Request& req)
         if (!decodeChunked(b, req.body))
             return false;
     }
-
     else if (req.headers.count("content-length"))
     {
         size_t len = 0;
@@ -253,10 +264,6 @@ bool RequestParser::parseBody(std::string& b, Request& req)
 
         req.body.assign(b, 0, len);
         b.erase(0, len);
-    }
-    else if (req.version == "HTTP/1.0")
-    {
-        return false;
     }
     else {
         req.body.clear();

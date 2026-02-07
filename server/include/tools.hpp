@@ -11,8 +11,7 @@ void    setClientSend(int fdEp,  Client &Clien);
 void    setClientRead(int fdEp, Client& clien );
 void    deleteClient(maptype& config, int fd, int fdEP);
 int     creatEpoll( maptype config);
-bool    checkTimeout(long prevTime, long timeSec);
-
+void printdoulStr(doubleStr v);
 void         __displayTime();
 void        sendResponse(maptype &config, Client &connect);
 

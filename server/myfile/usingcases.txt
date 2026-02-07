@@ -52,3 +52,10 @@ first ->  i should check is methods is valid not GETS and else check format of v
  body end read return 0 or reaquest  has endof body 
  buffer should be more 1434
  who take processing he should take length N byets when 
+ in vlaid file error happnes webserver check sanitize
+----------------
+IO handling 
+sending utill socket blocked  -1 
+save fd cuz should check else to send other cuz event came one time in adge triggering requering u to save fd and complet sending and readin late 
+reading file reading file body size max should
+ handle  parsing after -1 return in while  so or just and handle socket size cuz 

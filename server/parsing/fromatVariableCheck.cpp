@@ -3,6 +3,21 @@
 
 
 #include "../include/parsing.hpp"
+
+void HandleMapstrings(std::string &str, map<std::string, std::string> &MapStrings){
+    std::vector<string> v = splitV(str);
+    std::vector<std::string>::iterator it = v.begin();
+    if (v.size() == 1 || v.size() > 2)
+        throw std::runtime_error("Error in CGI path arguments " + str);
+    while ((it + 1) != v.end())
+    {
+        MapStrings[*it]= *(it + 1);
+        it++;
+    }
+
+
+}
+
 void resolveIpName(std::string &Str , Server &serv){
     
     if (Str.empty())
@@ -12,8 +27,7 @@ void resolveIpName(std::string &Str , Server &serv){
     struct  addrinfo data;
     data.ai_family = AF_INET;
     data.ai_socktype = SOCK_STREAM;
-    // memset(result, 0, sizeof(result));
-    // memset(&data, 0, sizeof(data));
+
     status = getaddrinfo(Str.c_str(), NULL, &data, &result);
     if (status)
         throw std::runtime_error("invalid host can't not be found [" + Str + "]");
@@ -28,8 +42,6 @@ void resolveIpName(std::string &Str , Server &serv){
             }
             tmp = tmp->ai_next;
         }
-        
-
     }
 
     
@@ -97,7 +109,6 @@ void variableSingleValue(std::string str, std::string &buff){
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
     std::stringstream ss(methods);
-    // printf("methods handle %s\n", methods.c_str());
     while(ss >> methods){
         methdsV.push_back(methods);
     }
@@ -133,7 +144,7 @@ int convertString(std::string &str){
     int value;
     ss >> value;
     ss >> s;
-    if (!s.empty() && !ss.eof())
+    if (!s.empty() || !ss.eof())
         return -1;
     else 
         return value;
@@ -155,6 +166,7 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
         key = convertString(*its);
         if (key == -1)
             break;
+        printf(" %s %d\n", value.c_str(), key);
         its++;
         v.insert(make_pair(key, value));
     }
@@ -164,7 +176,7 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
 
 void outoIndexHandler(std::string val, int &cond){
     
-    if (val.compare("on"))
+    if (!val.compare("on"))
         cond = 1;
     else 
         cond = 0;

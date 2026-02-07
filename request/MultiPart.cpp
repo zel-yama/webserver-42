@@ -31,107 +31,83 @@ std::string RequestParser::extractBoundary(std::string& contentType) {
 }
 
 bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Request& req) {
-    if (boundary.empty()) {
-        std::cerr << "Error: Empty boundary in multipart" << std::endl;
-        return false;
-    }
-    
+
     std::string delimiter = "--" + boundary;
-    std::string endDelimiter = "--" + boundary + "--";
-    
+    std::string endDelimiter = delimiter + "--";
+
     size_t pos = 0;
 
-    pos = body.find(delimiter);
-    if (pos == std::string::npos) {
-        std::cerr << "Error: No boundary found in multipart body" << std::endl;
-        return false;
-    }
-    
-    pos += delimiter.length();
-    
-    while (pos < body.size()) {
-        if (pos + 1 < body.size() && body[pos] == '\r' && body[pos + 1] == '\n')
-            pos += 2;
-        else if (pos < body.size() && body[pos] == '\n')
-            pos++;
+    while (true) {
+        size_t start = body.find(delimiter, pos);
+        if (start == std::string::npos) break;
 
-        if (body.compare(pos - delimiter.length(), endDelimiter.length(), endDelimiter) == 0)
-            break;
-        
-        size_t nextBoundary = body.find(delimiter, pos);
-        if (nextBoundary == std::string::npos)
+        start += delimiter.size();
+
+        // End boundary
+        if (body.compare(start, 2, "--") == 0)
             break;
 
-        std::string part = body.substr(pos, nextBoundary - pos);
+        // skip CRLF
+        if (body.compare(start, 2, "\r\n") == 0) start += 2;
+        else if (body[start] == '\n') start += 1;
+
+        size_t next = body.find(delimiter, start);
+        if (next == std::string::npos) break;
+
+        std::string part = body.substr(start, next - start);
 
         size_t headersEnd = part.find("\r\n\r\n");
-        if (headersEnd == std::string::npos)
+        size_t sepLen = 4;
+        if (headersEnd == std::string::npos) {
             headersEnd = part.find("\n\n");
-        
-        if (headersEnd != std::string::npos) {
-            std::string headersSection = part.substr(0, headersEnd);
+            sepLen = 2;
+        }
 
-            size_t contentStart = headersEnd + 4;
-            if (part.substr(headersEnd, 2) == "\n\n")
-                contentStart = headersEnd + 2;
+        if (headersEnd == std::string::npos) {
+            pos = next;
+            continue;
+        }
 
-            std::string content = part.substr(contentStart);
+        std::string headersSection = part.substr(0, headersEnd);
+        std::string content = part.substr(headersEnd + sepLen);
 
-            while (!content.empty() && (content[content.size() - 1] == '\n' || content[content.size() - 1] == '\r'))
-                content.erase(content.size() - 1);
+        // trim end CRLF
+        while (!content.empty() && (content.back() == '\n' || content.back() == '\r'))
+            content.pop_back();
 
-            std::istringstream hs(headersSection);
-            std::string line;
-            std::string name, filename, contentType;
-            
-            while (std::getline(hs, line)) {
-                if (!line.empty() && line[line.size() - 1] == '\r')
-                    line.erase(line.size() - 1);
-                
-                if (line.empty())
-                    break;
+        MultipartPart mp;
+        std::istringstream hs(headersSection);
+        std::string line;
 
-                std::string lowerLine = toLower(line);
-                if (lowerLine.find("content-disposition:") == 0) {
-                    size_t namePos = line.find("name=\"");
-                    if (namePos != std::string::npos) {
-                        namePos += 6;
-                        size_t nameEnd = line.find('"', namePos);
-                        if (nameEnd != std::string::npos)
-                            name = line.substr(namePos, nameEnd - namePos);
-                    }
+        while (std::getline(hs, line)) {
+            if (!line.empty() && line.back() == '\r') line.pop_back();
+            std::string lower = toLower(line);
 
-                    size_t filePos = line.find("filename=\"");
-                    if (filePos != std::string::npos) {
-                        filePos += 10;
-                        size_t fileEnd = line.find('"', filePos);
-                        if (fileEnd != std::string::npos)
-                            filename = line.substr(filePos, fileEnd - filePos);
-                    }
-                } else if (lowerLine.find("content-type:") == 0) {
-                    size_t typeStart = line.find(':') + 1;
-                    contentType = trim(line.substr(typeStart));
+            if (lower.find("content-disposition:") == 0) {
+                size_t n = line.find("name=\"");
+                if (n != std::string::npos) {
+                    n += 6;
+                    size_t e = line.find('"', n);
+                    mp.name = line.substr(n, e - n);
+                }
+
+                size_t f = line.find("filename=\"");
+                if (f != std::string::npos) {
+                    f += 10;
+                    size_t e = line.find('"', f);
+                    mp.filename = line.substr(f, e - f);
                 }
             }
-
-            MultipartPart mpPart;
-            mpPart.name = name;
-            mpPart.filename = filename;
-            mpPart.contentType = contentType;
-            mpPart.content = content;
-            
-            req.multipartData.push_back(mpPart);
-            
-            std::cout << "  Multipart field: " << name;
-            if (!filename.empty())
-                std::cout << " (file: " << filename << ", " << content.size() << " bytes)";
-            else
-                std::cout << " (" << content.size() << " bytes)";
-            std::cout << std::endl;
+            else if (lower.find("content-type:") == 0) {
+                mp.contentType = trim(line.substr(line.find(':')+1));
+            }
         }
-        
-        pos = nextBoundary + delimiter.length();
+
+        mp.content = content;
+        req.multipartData.push_back(mp);
+
+        pos = next;
     }
-    
+
     return true;
 }

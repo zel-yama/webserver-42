@@ -11,7 +11,7 @@ void resolveIpName(std::string Str ){
     data.ai_family = AF_INET;
     data.ai_socktype = SOCK_STREAM;
 
-
+    memset(&data, 0, sizeof(data));
     status = getaddrinfo(Str.c_str(), NULL, &data, &result);
     if (status)
         throw std::runtime_error("invalid host can't not be found [" + Str + "]");

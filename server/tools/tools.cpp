@@ -12,32 +12,34 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
     {
-        cerr << "error to add socket to epoll" << endl;
+        cerr << "Error to add socket to epoll" << endl;
         return -1;
     }
     return 0;
 }
 void setClientSend(int fdEp,  Client &Clien){
 
-    Clien.data.events =  EPOLLIN | EPOLLOUT;
+    Clien.data.events = EPOLLOUT | EPOLLET;
     epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, &Clien.data);
 }
 void setClientRead(int fdEp, Client& clien ){
 
-    clien.data.events = EPOLLIN; 
+    clien.data.events = EPOLLIN | EPOLLET; 
     epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, &clien.data);
 }
-void deleteClient(maptype& config, int fd, int fdEP){
+void  deleteClient(maptype& config, int fd, int fdEP){
     
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
-    cerr << "error in remove from fd Epoll " << errno << endl;
+        return ;
    }
    __displayTime();
-   cout << " delete fd -> " << fd << " from epoll \n ";
+   std::cout << " --------------- remove client {" << fd << "} from epoll --------------- \n " << std::endl;
     close(fd);
-    config.erase(fd);
+    maptype::iterator it = config.find(fd);
+    if (it != config.end())
+        ;//config.erase(fd);
+   
 }
-
 int creatEpoll( maptype config){
 
     int fdEp;
@@ -50,7 +52,7 @@ int creatEpoll( maptype config){
    { 
     
        
-        Server *serv = dynamic_cast<Server*>(it->second);
+        Server *serv =   dynamic_cast<Server*>(it->second);
         if (!serv)
             throw std::runtime_error("Error in caseting servers");
         addSockettoEpoll(fdEp, serv->data);

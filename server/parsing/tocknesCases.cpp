@@ -103,7 +103,7 @@ void serverCases(tockenIt &it, Server &serv){
             break;
         case CGIPATH:
             it++;
-            HandleMapstrings(it->val, serv.cgiConfig);//HandleMapstrings(it->val, serv.cgiConfig);
+            HandleMapstrings(it->val, serv.cgiConfig);
             break;
         case UPLOAD:
             it++;
@@ -168,7 +168,7 @@ void locationCases(tockenIt &it, location &local){
             break;
         case CGIPATH:
             it++;
-            HandleMapstrings(it->val, local.CgiCofing);//HandleMapstrings(it->val, local.CgiCofing);
+            HandleMapstrings(it->val, local.CgiCofing);
             break;
         case UPLOAD:
             it++;

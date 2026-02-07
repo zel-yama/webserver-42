@@ -7,7 +7,7 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/fromatVariableCheck.cpp \
 		server/parsing/parsing.cpp server/parsing/parsingTocknes.cpp \
 		server/Client.cpp \
-		request/RequestHandler.cpp request/RequestParser.cpp request/MultiPart.cpp\
+		request/RequestHandler.cpp request/RequestParser.cpp request/MultiPart.cpp request/cookies.cpp\
 		Response/Response.cpp Response/cgi.cpp server/parsing/bracketValidtion.cpp \
 		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	

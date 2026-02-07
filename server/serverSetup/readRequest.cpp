@@ -13,7 +13,7 @@
 // body without length in http u wait untill EOF or time end 
 // body can so big so can't read in one time 
 // close is will depend on time or not 
-int myread(Client &connect) {
+int myread(Client &connect, std::string& buffer) {
     
     char tmp[MAXSIZEBYTE];
     int byte = 0;
@@ -30,13 +30,13 @@ int myread(Client &connect) {
         printf("this n of read byte in while {%d}\n", n);
         if (n > 0) {
             connect.byteSent += n;
-            connect.buffer.append(tmp, n);    
+            buffer.append(tmp, n);    
         }
         if (n == 0) {
             return 0;
         }
         if (n < 0) {
-            continue;
+            break;
         }
      
     }
@@ -61,7 +61,7 @@ bool allowKeepAlive(Request req)
 
 void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *parser)
 {
-    int readResult = myread(connect);
+    int readResult = myread(connect, parser->buffer[fd]);
     
     printf("buffer %s\n", connect.buffer.c_str());
     if (readResult == 0) {
@@ -70,9 +70,8 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
         //connect.keepAlive = false;
         return;
     }
-
+    
     Request req = parser->parse(connect.fd, connect.buffer);
-    cout << "here?\n";
 
     if (req.complete) {
         connect.parsedRequest = req;
@@ -83,11 +82,17 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             parser->requests[fd] = Request();
         }
         else {
-            // parser->requests.erase(fd);
-            // parser->buffer.erase(fd);
+            parser->requests.erase(fd);
+            parser->buffer.erase(fd);
             connect.keepAlive = false;
         }
-        cout << req.body.size() << endl;;
+        cout << req.body.size() << endl;
+        std::cout << "  Method: " << req.method << std::endl;
+        std::cout << "  Path: " << req.path << std::endl;
+        std::cout << "Content-type" << req.headers["Content-Type"] << std::endl;
+        std::cout << "  Version: " << req.version << std::endl;
+        std::cout << "  Status: " << req.status << std::endl;
+        std::cout << "  Status: " << req.headers["content-length"] << std::endl;
 
     } else {
         std::cout << "Request incomplete, waiting for more data..." << std::endl;

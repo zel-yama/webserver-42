@@ -64,6 +64,8 @@ bool RequestParser::isValidUri(const std::string& uri) {
 }
 
 std::string RequestParser::normalizePath(const std::string& path) {
+    bool hadSlash = (!path.empty() && path[path.size() - 1] == '/');
+    
     std::vector<std::string> parts;
     std::stringstream ss(path);
     std::string item;
@@ -85,8 +87,37 @@ std::string RequestParser::normalizePath(const std::string& path) {
         if (i + 1 < parts.size())
             r += "/";
     }
+    
+    if (hadSlash && r != "/" && r[r.size() - 1] != '/')
+        r += "/";
+    
     return r;
 }
+
+// std::string RequestParser::normalizePath(const std::string& path) {
+//     std::vector<std::string> parts;
+//     std::stringstream ss(path);
+//     std::string item;
+
+//     while (std::getline(ss, item, '/')) {
+//         if (item.empty() || item == ".")
+//             continue;
+//         if (item == "..") {
+//             if (!parts.empty())
+//                 parts.pop_back();
+//         } else {
+//             parts.push_back(item);
+//         }
+//     }
+
+//     std::string r = "/";
+//     for (size_t i = 0; i < parts.size(); i++) {
+//         r += parts[i];
+//         if (i + 1 < parts.size())
+//             r += "/";
+//     }
+//     return r;
+// }
 
 size_t RequestParser::parseContentLength(const std::string& v) {
     size_t n = 0;

@@ -63,12 +63,11 @@ public:
     bool existFile(const char *path) const;
     bool isDirectory(const char *path) const;
     void handleDirectory(const std::string &path, const Request &req, const Server &srv);
-    void generateautoindex(const std::string &path, const std::string &urlPath);
+    void generateautoindex(const std::string &path);
     std::string build();
     bool isLargeFile() const;
     std::string getFilePath() const;
     size_t getFileSize() const;
-    // void setServer(Server *srv);
     void setContext(Request *r, Server *s);
     bool hasReadPermission(const std::string &path) const;
     bool hasDirPermission(const std::string &path) const;

@@ -131,7 +131,7 @@ std::string Response::getFileExtention(const std::string &path) const
 {
     std::size_t pos = path.find_last_of('.');
     if (pos != std::string::npos)
-        return path.substr(pos + 1);
+        return path.substr(pos + 1); 
     return "";
 }
 
@@ -443,19 +443,18 @@ void Response::handlePost(const std::string &path,
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
+        if (!ext.empty() && ext[0] != '.')
+            ext = "." + ext;
 
         int cgiEnabled = srv.cgiStatus;
-        std::string cgiPath = srv.cgiPath;
-        std::string cgiExten = srv.cgiExten;
+        map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
         if (req.loc && req.loc->cgiStatus != -1)
             cgiEnabled = req.loc->cgiStatus;
-        if (req.loc && !req.loc->cgiPath.empty())
-            cgiPath = req.loc->cgiPath;
-        if (req.loc && !req.loc->cgiExten.empty())
-            cgiExten = req.loc->cgiExten;
+        if (req.loc && !req.loc->CgiCofing.empty())
+            cgiConfig = req.loc->CgiCofing;
 
-        if (cgiEnabled == 1 && (ext == cgiExten || (cgiExten[0] == '.' && ext == cgiExten.substr(1))))
+        if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
 
@@ -463,6 +462,7 @@ void Response::handlePost(const std::string &path,
             if (req.loc && !req.loc->uploadPath.empty())
                 uploadPath = req.loc->uploadPath;
 
+            std::string cgiPath = cgiConfig[ext];
             std::string output = cgi.execute(cgiPath, path);
             setStatus(200, "");
             applyCgiResponse(output);
@@ -514,14 +514,8 @@ void Response::handleDirectory(const std::string &path,
 
     if (path[path.size() - 1] != '/')
     {
-        std::string locationPath = req.path;
-        if (locationPath.empty())
-            locationPath = "/";
-        if (locationPath[locationPath.size() - 1] != '/')
-            locationPath += "/";
-
         setStatus(301, "");
-        headers["Location"] = locationPath;
+        headers["Location"] = path + "/";
         headers["Content-Length"] = "0";
         body.clear();
         return;
@@ -550,21 +544,21 @@ void Response::handleDirectory(const std::string &path,
     if (req.loc->ex)
     {
         if (req.loc->outoIndex)
-            generateautoindex(path, req.path);
+            generateautoindex(path);
         else
             sendError(403, "");
         return;
     }
     if (srv.outoIndex)
     {
-        generateautoindex(path, req.path);
+        generateautoindex(path);
         return;
     }
 
     else
         sendError(403, "");
 }
-void Response::generateautoindex(const std::string &path, const std::string &urlPath)
+void Response::generateautoindex(const std::string &path)
 {
     if (!hasDirPermission(path))
     {
@@ -592,12 +586,8 @@ void Response::generateautoindex(const std::string &path, const std::string &url
     }
 
     std::ostringstream html;
-    std::string base = urlPath;
-    if (base.empty() || base[base.size() - 1] != '/')
-        base += "/";
-
     html << "<html><body>";
-    html << "<h1>Index of " << base << "</h1>";
+    html << "<h1>Index of " << path << "</h1>";
     html << "<ul>";
 
     struct dirent *entry;
@@ -607,17 +597,8 @@ void Response::generateautoindex(const std::string &path, const std::string &url
         if (name == "." || name == "..")
             continue;
 
-        std::string entryPath = path;
-        if (!entryPath.empty() && entryPath[entryPath.size() - 1] != '/')
-            entryPath += "/";
-        entryPath += name;
-
-        bool isDir = (entry->d_type == DT_DIR);
-        if (entry->d_type == DT_UNKNOWN)
-            isDir = isDirectory(entryPath.c_str());
-
-        html << "<li><a href=\"" << base << name;
-        if (isDir)
+        html << "<li><a href=\"" << name;
+        if (entry->d_type == DT_DIR)
             html << "/";
         html << "\">" << name << "</a></li>";
     }
@@ -630,24 +611,24 @@ void Response::generateautoindex(const std::string &path, const std::string &url
     setBody(html.str());
 }
 
+
 void Response::handleGet(const std::string &path, const Request &req, const Server &srv)
 {
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
+        if (!ext.empty() && ext[0] != '.')
+            ext = "." + ext;
 
         int cgiEnabled = srv.cgiStatus;
-        std::string cgiPath = srv.cgiPath;
-        std::string cgiExten = srv.cgiExten;
+        map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
         if (req.loc && req.loc->cgiStatus != -1)
             cgiEnabled = req.loc->cgiStatus;
-        if (req.loc && !req.loc->cgiPath.empty())
-            cgiPath = req.loc->cgiPath;
-        if (req.loc && !req.loc->cgiExten.empty())
-            cgiExten = req.loc->cgiExten;
+        if (req.loc && !req.loc->CgiCofing.empty())
+            cgiConfig = req.loc->CgiCofing;
 
-        if (cgiEnabled == 1 && (ext == cgiExten || (cgiExten[0] == '.' && ext == cgiExten.substr(1))))
+        if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
 
@@ -655,6 +636,7 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
             if (req.loc && !req.loc->uploadPath.empty())
                 uploadPath = req.loc->uploadPath;
 
+            std::string cgiPath = cgiConfig[ext];
             std::string output = cgi.execute(cgiPath, path);
             setStatus(200, "");
             applyCgiResponse(output);

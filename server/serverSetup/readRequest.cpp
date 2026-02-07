@@ -63,7 +63,7 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
 {
     int readResult = myread(connect);
     
-    printf("buffer %s\n", connect.buffer.c_str());
+    // printf("buffer %s\n", connect.buffer.c_str());
     if (readResult == 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         connect.requestFinish = false; 
@@ -88,15 +88,15 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
             connect.keepAlive = false;
         }
 
-        std::cout << "Request parsed successfully:" << std::endl;
-        std::cout << "  Method: " << req.method << std::endl;
-        std::cout << "  Path: " << req.path << std::endl;
-        std::cout << "  Version: " << req.version << std::endl;
-        std::cout << "  Status: " << req.status << std::endl;
-        std::cout << "  content-type: " << req.headers["content-type"]  << std::endl;
-        std::cout << "  content-length: " << req.headers["content-length"] << std::endl;
-        std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
-        std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
+        // std::cout << "Request parsed successfully:" << std::endl;
+        // std::cout << "  Method: " << req.method << std::endl;
+        // std::cout << "  Path: " << req.path << std::endl;
+        // std::cout << "  Version: " << req.version << std::endl;
+        // std::cout << "  Status: " << req.status << std::endl;
+        // std::cout << "  content-type: " << req.headers["content-type"]  << std::endl;
+        // std::cout << "  content-length: " << req.headers["content-length"] << std::endl;
+        // std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
+        // std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
 
     } else {
         std::cout << "Request incomplete, waiting for more data..." << std::endl;

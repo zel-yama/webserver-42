@@ -18,7 +18,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
             }
             if ((time(NULL) - connect->prevTime) > (connect->timeout + 2)) {
                 deleteClient(config, connect->fd, fdEp);
-                return;
+                
             }
         }
     }
@@ -86,7 +86,7 @@ void sendResponse(maptype &config, Client &connect) {
             if (byte > 0)
                 connect.response.append(buff, byte);
         }
-        printf("response | %s |\n", connect.response.c_str());
+        // printf("response | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         if (n < 0  || connect.response.empty())
             break;

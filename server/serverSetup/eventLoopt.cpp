@@ -37,8 +37,7 @@ void eventLoop(maptype config ){
 
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
-        checkClientsTimeout(config, fdEp);
-       
+       printf("C> %ld\n", config.size());
         for(int i = 0; i < n; i++){
         
                 if (findElement(config, events[i].data.fd) == "Server"){
@@ -75,6 +74,7 @@ void eventLoop(maptype config ){
                     }
         }
         }
+        checkClientsTimeout(config, fdEp);
     }
 
 }

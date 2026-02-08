@@ -36,7 +36,7 @@ int myread(Client &connect, std::string& buffer) {
             return 0;
         }
         if (n < 0) {
-            break;
+            return n;
         }
      
     }
@@ -63,14 +63,17 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
 {
     int readResult = myread(connect, parser->buffer[fd]);
     
-    printf("buffer %s\n", connect.buffer.c_str());
+    // printf("buffer %s\n", connect.buffer.c_str());
     if (readResult == 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         connect.requestFinish = false; 
         close(fd);
         return;
     }
-    
+    if (readResult < 0 && connect.requestFinish) {
+
+        return ;
+    }
     Request req = parser->parse(connect.fd, connect.buffer);
 
     if (req.complete) {

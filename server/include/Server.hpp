@@ -26,11 +26,11 @@ class Server : public Config {
     std::string                         returnP;
     size_t                              bodyMaxByte;
     std::string                         root;
-    // std::map<int,std::string>                error_pages;
     int upload;
     std::string                          uploadPath;
     std::string                               cgiPath;
     std::string                          cgiExten;
+    bool                                   infoFull;
     int                                     cgiStatus;
         std::vector<std::string>            allowedMethods;
         int                              outoIndex;

@@ -17,7 +17,9 @@ void checkClientsTimeout(maptype& config, int fdEp)
                 printf("Client [%d] close to timeout about 10s\n", connect->fd);
             }
             if ((time(NULL) - connect->prevTime) > (connect->timeout + 2)) {
+                cerr << "this is  size of config before  " << config.size() << endl;
                 deleteClient(config, connect->fd, fdEp);
+                cerr << "this is  size of config " << config.size() << endl;
                 return;
             }
         }
@@ -25,6 +27,12 @@ void checkClientsTimeout(maptype& config, int fdEp)
 }
 
 void checkClientConnection(maptype &config, Client &connect) {
+    if (connect.response.empty() && connect.fdFile == 0)
+        connect.sending = false;
+    if (connect.response.empty() && connect.fdFile == -1)
+        connect.sending = false;
+
+        
     if (connect.sending) {
         connect.buffer = "";
         connect.prevTime = time(NULL);
@@ -32,6 +40,7 @@ void checkClientConnection(maptype &config, Client &connect) {
         return;
     }
     
+
     // Check if connection should close (from parsed request)
     if (!connect.keepAlive) {
         deleteClient(config, connect.fd, connect.fdEp);
@@ -39,6 +48,8 @@ void checkClientConnection(maptype &config, Client &connect) {
     }
     
     // Keep-alive: reset for next request
+    connect.buildDone = false;
+    
     connect.prevTime = time(NULL);
     connect.requestFinish = false;
     connect.headersOnly = false;
@@ -57,7 +68,8 @@ void sendResponse(maptype &config, Client &connect) {
     // Get the server configuration
     int n = 1 ;
     int readB = 0;
-    char buff[2200000];
+    char buff[MAXSIZEBYTE];
+   
     if (!connect.buildDone){
         Server* srv = getServerForClient(config, connect.serverId);
         srv->respone->processRequest(connect.parsedRequest, *srv);
@@ -70,28 +82,30 @@ void sendResponse(maptype &config, Client &connect) {
 
     }
     int byte = 0;
-    while(n > 0){
+    while(true){
         if (connect.fdFile != -1){
-            byte =  read(connect.fdFile, buff, 2200000);
+            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
             
             if (byte > 0)
                 connect.response.append(buff, byte);
         }
+        printf("response | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
+        if (n < 0  || connect.response.empty())
+            break;
         if (n == 0) {
             deleteClient(config, connect.fd, connect.fdEp);
-            return;
+            break;
         }
         if (n > 0)
-            connect.response = connect.response.substr(0, n);
+            connect.response.erase(0, n);
 
     }
-   
     
-    std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;
     
     if (connect.response.size() > 0 || byte > 0 )
         connect.sending = true;
+    std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;
     
     checkClientConnection(config, connect);
 }

@@ -67,7 +67,7 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
     if (readResult == 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         connect.requestFinish = false; 
-        //connect.keepAlive = false;
+        close(fd);
         return;
     }
     

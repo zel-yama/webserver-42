@@ -58,3 +58,14 @@ sending utill socket blocked  -1
 save fd cuz should check else to send other cuz event came one time in adge triggering requering u to save fd and complet sending and readin late 
 reading file reading file body size max should
  handle  parsing after -1 return in while  so or just and handle socket size cuz 
+-----------------------------------------------------
+return -> check return code is should be valid value|
+----------------------------------------------------
+turn vector to maps to find value fast            | 
+---------------------------------------------------
+turn local host to networking localhost:8080      |
+---------------------------------------------------
+i should create funciont open file and read       |  
+send from file that he requested                  |
+---------------------------------------------------
+header should be make file to 

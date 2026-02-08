@@ -758,21 +758,25 @@ void Response::handleDelete(const std::string &path,
         sendError(404, "");
         return;
     }
+
     if (isDirectory(path.c_str()))
     {
         sendError(409, "");
         return;
     }
+
     if (access(path.c_str(), W_OK) != 0)
     {
         sendError(403, "");
         return;
     }
+
     if (std::remove(path.c_str()) != 0)
     {
         sendError(500, "");
         return;
     }
+    
     setStatus(204, "");
     body.clear();
 }

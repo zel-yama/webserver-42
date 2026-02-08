@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 
 struct location;
 
@@ -25,7 +26,10 @@ struct Request {
     
     std::map<std::string, std::string> headers;
     std::vector<MultipartPart> multipartData;
+    std::map<std::string, std::string> cookies;
 
+    bool headersParsed;
+    
     bool complete;
     bool keepalive;
     std::string fullpath;
@@ -38,9 +42,9 @@ struct Request {
 class RequestParser {
     public:
         Request parse(int fd, std::string& data);
-
-    private:
         std::map<int, std::string> buffer;
+        std::map<int, Request> requests;
+    private:
 
         std::string trim(const std::string& s);
         std::string toLower(const std::string& s);
@@ -54,9 +58,14 @@ class RequestParser {
 
         size_t parseContentLength(const std::string& v);
         bool decodeChunked(std::string& buf, std::string& out);
+        bool parseBody(std::string& b, Request& req);
+        bool parseHeaders(std::string& b, Request& req);
         
         std::string extractBoundary(std::string& contentType);
         bool parseMultipart(std::string& body, std::string& boundary, Request& req);
-};
+        void parseCookies(Request& req);
+    };
+    std::string setCookie(std::string key, std::string value);
+    
 
 #endif

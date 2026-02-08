@@ -12,7 +12,7 @@
 // u can control byte will send but just your buffer size should not be biger than string will send 
 size_t countBuffersize(std::string buffer, Client &connect){
     
-    if (buffer.size() >= (size_t)connect.responseSize)
+    if (buffer.size() >= connect.responseSize)
     {
         connect.sending = true;
         return connect.responseSize;
@@ -35,9 +35,3 @@ int mysend(Client &connect){
     connect.response = connect.response.substr(len);
     return 1;
 }
-
-void    costumThrow(std::string des, std::string invalid){
-
-    throw std::runtime_error(des + " -> [" + invalid + "]");
-}
-

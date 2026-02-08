@@ -4,6 +4,7 @@
 
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
+#define MAXSIZEBYTE 165000
 
 #include "Client.hpp"
 #include "include.hpp"
@@ -19,7 +20,7 @@ class Server : public Config {
     
     Server();
     
-    std::vector<std::string>                 indexFile;
+    std::vector<std::string>            indexFile;
     unsigned int                        port;
     std::string                         ipAdress;
     std::string                         returnP;
@@ -27,10 +28,10 @@ class Server : public Config {
     std::string                         root;
     // std::map<int,std::string>                error_pages;
     int upload;
-    std::string     uploadPath;
-    std::string     cgiPath;
-    std::string  cgiExten;
-    int cgiStatus;
+    std::string                          uploadPath;
+    std::string                               cgiPath;
+    std::string                          cgiExten;
+    int                                     cgiStatus;
         std::vector<std::string>            allowedMethods;
         int                              outoIndex;
         int                                 fd;
@@ -44,7 +45,7 @@ class Server : public Config {
         // for me  (mohamed)
         RequestParser               *parser;
         Response                    *respone;
-        
+        map<std::string, std::string>       cgiConfig;
         int                                 CreateServer(int port, std::string ipaddress );
         void                                listenFunction();
         Client                              acceptClient();
@@ -55,20 +56,21 @@ struct location {
  
     location();
     int                                  upload;
+    map<std::string, std::string>        CgiCofing;
     std::string                          uploadPath;
     std::string                          cgiPath;
     std::string                          cgiExten;
     int                                  cgiStatus;
-    std::vector<std::string>            allowedMethods;
-    std::string                         root;
-    std::string                         returnP;
-    int                                 returnCode;
-    std::string                         locationPath;
-    std::vector<std::string>            indexFile;
-    size_t                              bodyMaxByte;
-    int                                outoIndex;
-    int                                 ex;
-    std::map<int, std::string >         D_ErrorPages;
+    std::vector<std::string>             allowedMethods;
+    std::string                          root;
+    std::string                          returnP;
+    int                                  returnCode;
+    std::string                          locationPath;
+    std::vector<std::string>             indexFile;
+    size_t                               bodyMaxByte;
+    int                                  outoIndex;
+    int                                  ex;
+    std::map<int, std::string >          D_ErrorPages;
 };
 
 

@@ -1,1 +1,1 @@
-text=and
+text=hello

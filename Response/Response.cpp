@@ -131,7 +131,7 @@ std::string Response::getFileExtention(const std::string &path) const
 {
     std::size_t pos = path.find_last_of('.');
     if (pos != std::string::npos)
-        return path.substr(pos + 1);
+        return path.substr(pos + 1); 
     return "";
 }
 
@@ -304,12 +304,6 @@ void Response::processRequest(Request &req, Server &ser)
         setHeader("Connection", "close");
     else
         setHeader("Connection", "keep-alive");
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
-    std::cout << req.method << std::endl;
-    std::cout << req.fullpath << std::endl;
-    std::cout << req.status << std::endl;
-    std::cout << req.version << std::endl;
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
 
     validateRequest(req, &ser);
     if (req.status != 200)
@@ -318,6 +312,18 @@ void Response::processRequest(Request &req, Server &ser)
         return;
     }
     setVersion(req.version);
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    std::cout << req.method << std::endl;
+    std::cout << req.loc->root << std::endl;
+    std::cout << req.loc->outoIndex << std::endl;
+    std::cout << ser.outoIndex << std::endl;
+    std::cout << req.loc->locationPath << std::endl;
+    std::cout << ser.D_ErrorPages[404] << std::endl;
+    std::cout << req.loc->D_ErrorPages[404] << std::endl;
+    std::cout << req.fullpath << std::endl;
+    std::cout << req.status << std::endl;
+    std::cout << req.version << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
 
     if (req.method == "GET")
     {
@@ -337,26 +343,118 @@ void Response::processRequest(Request &req, Server &ser)
     }
 }
 
+void Response::handleMultipartUpload(const Request &req, const Server &srv)
+{
+
+    if (req.multipartData.empty())
+    {
+        setStatus(400, "");
+        setBody("<h1>No multipart data received</h1>");
+        return;
+    }
+
+    std::string uploadPath = srv.uploadPath;
+    if (req.loc && !req.loc->uploadPath.empty())
+        uploadPath = req.loc->uploadPath;
+
+    if (!isDirectory(uploadPath.c_str()))
+    {
+        if (mkdir(uploadPath.c_str(), 0755) != 0)
+        {
+            sendError(500, "");
+            return;
+        }
+    }
+
+    std::ostringstream response;
+    response << "<h1>File Upload Summary</h1>";
+    response << "<ul>";
+
+    for (size_t i = 0; i < req.multipartData.size(); ++i)
+    {
+        const MultipartPart &part = req.multipartData[i];
+        // cout << "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]" << endl;
+        // cout << part.filename << endl;
+        // cout << part.name << endl;
+        // cout << part.contentType << endl;
+        // cout << part.content << endl;
+        // cout << "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]" << endl;
+        if (!part.filename.empty())
+        {
+            std::string filePath = uploadPath + "/" + part.filename;
+            std::ofstream file(filePath.c_str(), std::ios::binary);
+
+            if (!file.is_open())
+            {
+                response << "<li><strong>ERROR uploading " << part.filename << "</strong></li>";
+                continue;
+            }
+
+            file.write(part.content.c_str(), part.content.size());
+            file.close();
+
+            response << "<li>File uploaded: <strong>" << part.filename 
+                    << "</strong> (" << part.content.size() << " bytes, "
+                    << part.contentType << ")</li>";
+        }
+        else if (!part.content.empty() && !part.name.empty())
+        {
+            std::string filePath = uploadPath + "/" + part.name + ".txt";
+            std::ofstream file(filePath.c_str(), std::ios::binary);
+
+            if (!file.is_open())
+            {
+                response << "<li><strong>ERROR saving field " << part.name << "</strong></li>";
+                continue;
+            }
+
+            file.write(part.content.c_str(), part.content.size());
+            file.close();
+
+            response << "<li>Field saved: '<strong>" << part.name << ".txt" 
+                    << "</strong>' (" << part.content.size() << " bytes)</li>";
+        }
+        else
+        {
+            response << "<li>Field '<strong>" << part.name << "</strong>': " 
+                    << part.content << "</li>";
+        }
+    }
+
+    response << "</ul>";
+    response << "<p>All files uploaded successfully!</p>";
+
+    setStatus(201, "");
+    headers["Content-Type"] = "text/html";
+    setBody(response.str());
+}
+
 void Response::handlePost(const std::string &path,
                           const Request &req,
                           const Server &srv)
 {
+
+    if (!req.multipartData.empty())
+    {
+        handleMultipartUpload(req, srv);
+        return;
+    }
+
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
+        if (!ext.empty() && ext[0] != '.')
+            ext = "." + ext;
 
         int cgiEnabled = srv.cgiStatus;
-        std::string cgiPath = srv.cgiPath;
-        std::string cgiExten = srv.cgiExten;
+        map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
         if (req.loc && req.loc->cgiStatus != -1)
             cgiEnabled = req.loc->cgiStatus;
-        if (req.loc && !req.loc->cgiPath.empty())
-            cgiPath = req.loc->cgiPath;
-        if (req.loc && !req.loc->cgiExten.empty())
-            cgiExten = req.loc->cgiExten;
+        if (req.loc && !req.loc->CgiCofing.empty())
+            cgiConfig = req.loc->CgiCofing;
 
-        if (cgiEnabled == 1 && (ext == cgiExten || (cgiExten[0] == '.' && ext == cgiExten.substr(1))))
+        if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
 
@@ -364,6 +462,7 @@ void Response::handlePost(const std::string &path,
             if (req.loc && !req.loc->uploadPath.empty())
                 uploadPath = req.loc->uploadPath;
 
+            std::string cgiPath = cgiConfig[ext];
             std::string output = cgi.execute(cgiPath, path);
             setStatus(200, "");
             applyCgiResponse(output);
@@ -512,24 +611,24 @@ void Response::generateautoindex(const std::string &path)
     setBody(html.str());
 }
 
+
 void Response::handleGet(const std::string &path, const Request &req, const Server &srv)
 {
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
+        if (!ext.empty() && ext[0] != '.')
+            ext = "." + ext;
 
         int cgiEnabled = srv.cgiStatus;
-        std::string cgiPath = srv.cgiPath;
-        std::string cgiExten = srv.cgiExten;
+        map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
         if (req.loc && req.loc->cgiStatus != -1)
             cgiEnabled = req.loc->cgiStatus;
-        if (req.loc && !req.loc->cgiPath.empty())
-            cgiPath = req.loc->cgiPath;
-        if (req.loc && !req.loc->cgiExten.empty())
-            cgiExten = req.loc->cgiExten;
+        if (req.loc && !req.loc->CgiCofing.empty())
+            cgiConfig = req.loc->CgiCofing;
 
-        if (cgiEnabled == 1 && (ext == cgiExten || (cgiExten[0] == '.' && ext == cgiExten.substr(1))))
+        if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
 
@@ -537,6 +636,7 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
             if (req.loc && !req.loc->uploadPath.empty())
                 uploadPath = req.loc->uploadPath;
 
+            std::string cgiPath = cgiConfig[ext];
             std::string output = cgi.execute(cgiPath, path);
             setStatus(200, "");
             applyCgiResponse(output);
@@ -574,8 +674,8 @@ void Response::servFile(const std::string &path)
     setContentType(path);
 
     headers["Content-Length"] = toString(fileSize);
-    setHeader("Cache-Control", "no-cache");
-    setHeader("Accept-Ranges", "bytes");
+    // setHeader("Cache-Control", "no-cache");
+    // setHeader("Accept-Ranges", "bytes");
 
     if (fileSize <= CHUNK_SIZE)
     {

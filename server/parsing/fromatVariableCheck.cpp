@@ -4,16 +4,69 @@
 
 #include "../include/parsing.hpp"
 
+void HandleMapstrings(std::string &str, map<std::string, std::string> &MapStrings){
+    std::vector<string> v = splitV(str);
+    std::vector<std::string>::iterator it = v.begin();
+    if (v.size() == 1 || v.size() > 2)
+        throw std::runtime_error("Error in CGI path arguments " + str);
+    while ((it + 1) != v.end())
+    {
+        MapStrings[*it]= *(it + 1);
+        it++;
+    }
+
+
+}
+
+void resolveIpName(std::string &Str , Server &serv){
+    
+    if (Str.empty())
+        return ;
+    int status;
+    struct addrinfo *result;
+    struct  addrinfo data;
+    data.ai_family = AF_INET;
+    data.ai_socktype = SOCK_STREAM;
+
+    status = getaddrinfo(Str.c_str(), NULL, &data, &result);
+    if (status)
+        throw std::runtime_error("invalid host can't not be found [" + Str + "]");
+    else
+    {   
+        struct addrinfo *tmp = result;
+        while (tmp != NULL)
+        {
+            if (tmp->ai_family == AF_INET && tmp->ai_socktype == SOCK_STREAM){
+                // void *ptr = ((sockaddr_in *)tmp->ai_addr)->sin_addr);
+                serv.ipAdress =  tmp->ai_addr->sa_data;
+            }
+            tmp = tmp->ai_next;
+        }
+    }
+
+    
+    freeaddrinfo(result);
+}
+// no : means if str string ip address if number port check max 1 → 65535
 void insertListenConfig(Server &serv, std::string &str){
 
     std::string por;
+    int port;
     size_t pos = str.find(":");
-    // if (pos != std::string::npos)
-    //     throw std::runtime_error("Error format of config address and port ");
-    serv.ipAdress = str.substr(0, pos);
-    pos++;
-    por = str.substr(pos);
-    serv.port = convertString(por);
+    if (pos == std::string::npos)
+    {
+        if ((port = convertString(str)) == -1)
+            resolveIpName(str, serv);
+        else 
+            serv.port = port;
+    }
+    else{
+        serv.ipAdress = str.substr(0, pos);
+        pos++;
+        por = str.substr(pos);
+        serv.port = convertString(por);
+
+    }
     // std::cout << "port -> " << serv.port << "  iddress -> " << serv.ipAdress << std::endl ;
 }
 int extractInt(std::string &s, std::string &c){
@@ -56,7 +109,6 @@ void variableSingleValue(std::string str, std::string &buff){
 /// now i handle limit methods like this methods get put after i handle {deny all}
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
     std::stringstream ss(methods);
-    // printf("methods handle %s\n", methods.c_str());
     while(ss >> methods){
         methdsV.push_back(methods);
     }
@@ -88,9 +140,11 @@ void returnP(std::string token, std::string &path, int &exitCode){
 
 int convertString(std::string &str){
     std::stringstream ss(str);
+    std::string s;
     int value;
     ss >> value;
-    if (!ss.eof())
+    ss >> s;
+    if (!s.empty() || !ss.eof())
         return -1;
     else 
         return value;
@@ -112,21 +166,18 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
         key = convertString(*its);
         if (key == -1)
             break;
+        printf(" %s %d\n", value.c_str(), key);
         its++;
         v.insert(make_pair(key, value));
     }
     if (its != vS.end() && value.empty())
        throw std::runtime_error("invalid value [" + *its + "]in error page");
-
 }
 
 void outoIndexHandler(std::string val, int &cond){
-    ///printf("auto index handle %s\n", val.c_str());
-
+    
     if (!val.compare("on"))
         cond = 1;
     else 
         cond = 0;
-
 }
-

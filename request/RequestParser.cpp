@@ -8,8 +8,8 @@
 #include <stdexcept>
 
 
-Request::Request() : complete(false), status(200), keepalive(false), loc(NULL) {
-    // loc = new location();
+Request::Request() : complete(false), status(200), keepalive(false), headersParsed(false) {
+    loc = new location();
 }
 
 Request::~Request() {
@@ -64,6 +64,8 @@ bool RequestParser::isValidUri(const std::string& uri) {
 }
 
 std::string RequestParser::normalizePath(const std::string& path) {
+    bool hadSlash = (!path.empty() && path[path.size() - 1] == '/');
+    
     std::vector<std::string> parts;
     std::stringstream ss(path);
     std::string item;
@@ -85,19 +87,13 @@ std::string RequestParser::normalizePath(const std::string& path) {
         if (i + 1 < parts.size())
             r += "/";
     }
+    
+    if (hadSlash && r != "/" && r[r.size() - 1] != '/')
+        r += "/";
+    
     return r;
 }
 
-size_t RequestParser::parseContentLength(const std::string& v) {
-    size_t n = 0;
-    for (size_t i = 0; i < v.size(); i++) {
-        if (!isdigit(v[i])) {
-            return (size_t)-1;
-        }
-        n = n * 10 + (v[i] - '0'); //kasni nhandli overflow ?
-    }
-    return n;
-}
 
 bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
     while (true) {
@@ -121,16 +117,14 @@ bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
 
 std::string normalize(std::string &data) {
     std::string nor;
-    nor.reserve(data.size() + data.size() / 10); // Reserve extra space
+    nor.reserve(data.size() + data.size() / 10);
     
     for (size_t i = 0; i < data.size(); i++) {
         if (data[i] == '\r') {
             nor += "\r\n";
-            // Skip the next character if it's \n (CRLF -> CRLF)
             if (i + 1 < data.size() && data[i + 1] == '\n')
                 i++;
         } else if (data[i] == '\n') {
-            // Bare LF -> CRLF
             nor += "\r\n";
         } else {
             nor += data[i];
@@ -139,20 +133,17 @@ std::string normalize(std::string &data) {
     return nor;
 }
 
-Request RequestParser::parse(int fd, std::string& data)
+bool RequestParser::parseHeaders(std::string& b, Request& req)
 {
-    Request req;
-    //     size_t MAX_BUFFER_SIZE = 10485760; // 10MB
-    // if (buffer[fd].size() + data.size() > MAX_BUFFER_SIZE) {
-    //     buffer.erase(fd);
-    //     throw std::runtime_error("request too large");
-    // }
-    buffer[fd] += data;
-    std::string& b = buffer[fd];
-
     size_t headerEnd = b.find("\r\n\r\n");
+    size_t headerEndLen = 4;
     if (headerEnd == std::string::npos)
-        return req;
+    {
+        headerEnd = b.find("\n\n");
+        headerEndLen = 2;
+    }
+    if (headerEnd == std::string::npos)
+        return false;
 
     std::istringstream hs(b.substr(0, headerEnd));
     std::string line;
@@ -160,9 +151,9 @@ Request RequestParser::parse(int fd, std::string& data)
     if (!std::getline(hs, line)) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
-    
+
     if (!line.empty() && line[line.size() - 1] == '\r')
         line.erase(line.size() - 1);
 
@@ -172,13 +163,13 @@ Request RequestParser::parse(int fd, std::string& data)
     if (req.method.empty() || req.path.empty() || req.version.empty()) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
 
     if (!isValidMethod(req.method) || !isValidVersion(req.version)) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
 
     size_t q = req.path.find('?');
@@ -190,33 +181,32 @@ Request RequestParser::parse(int fd, std::string& data)
     if (!isValidUri(req.path)) {
         req.status = 400;
         req.complete = true;
-        return req;
+        return false;
     }
 
     req.path = normalizePath(req.path);
 
     while (std::getline(hs, line)) {
         if (!line.empty() && line[line.size() - 1] == '\r')
-            line.erase(line.size() - 1, 1);
+            line.erase(line.size() - 1);
 
         if (line.empty())
             break;
 
         size_t c = line.find(':');
-
         if (c == std::string::npos) {
             req.status = 400;
             req.complete = true;
-            return req;
+            return false;
         }
 
-        std::string headerName = trim(line.substr(0, c));
+        std::string headerName  = trim(line.substr(0, c));
         std::string headerValue = trim(line.substr(c + 1));
 
         if (headerName.empty()) {
             req.status = 400;
             req.complete = true;
-            return req;
+            return false;
         }
 
         headerName = toLower(headerName);
@@ -225,7 +215,7 @@ Request RequestParser::parse(int fd, std::string& data)
             req.headers.count("content-length")) {
             req.status = 400;
             req.complete = true;
-            return req;
+            return false;
         }
 
         req.headers[headerName] = headerValue;
@@ -237,52 +227,96 @@ Request RequestParser::parse(int fd, std::string& data)
 
     if (req.version == "HTTP/1.1") {
         req.keepalive = (conn != "close");
+    } else {
+        req.keepalive = false;
+        if (conn == "keep-alive")
+            req.keepalive = true;
     }
-    else {
-        req.keepalive = (conn == "keep-alive");
-    }
 
+    b.erase(0, headerEnd + headerEndLen);
 
-    b.erase(0, headerEnd + 4);
+    req.headersParsed = true;
 
+    return true;
+}
 
-    if (req.headers["transfer-encoding"] == "chunked") {
+bool RequestParser::parseBody(std::string& b, Request& req)
+{
+    if (req.headers.count("transfer-encoding") &&
+        toLower(req.headers["transfer-encoding"]) == "chunked")
+    {
         if (!decodeChunked(b, req.body))
-            return req;
+            return false;
     }
-    else if (req.headers.count("content-length")) {
-        size_t len = parseContentLength(req.headers["content-length"]);
-        if (len == (size_t)-1) {
-            req.status = 400;
-            req.complete = true;
-            return req;
+    else if (req.headers.count("content-length"))
+    {
+        size_t len = 0;
+        for (size_t i = 0; i < req.headers["content-length"].size(); i++) {
+            if (!isdigit(req.headers["content-length"][i])) {
+                req.status = 400;
+                req.complete = true;
+                return false;
+            }
+            len = len * 10 + (req.headers["content-length"][i] - '0');
         }
         if (b.size() < len)
-            return req;
-        req.body = b.substr(0, len);
+            return false;
+
+        req.body.assign(b, 0, len);
         b.erase(0, len);
+    }
+    else {
+        req.body.clear();
+    }
+
+    if (req.headers.count("content-type"))
+    {
+        std::string contentType = req.headers["content-type"];
+        std::string lowerCT = toLower(contentType);
+
+        if (lowerCT.find("multipart/form-data") != std::string::npos)
+        {
+            std::string boundary = extractBoundary(contentType);
+
+            if (boundary.empty()) {
+                req.status = 400;
+                req.complete = true;
+                return false;
+            }
+
+            if (!parseMultipart(req.body, boundary, req)) {
+                req.status = 400;
+                req.complete = true;
+                return false;
+            }
+
+            req.body.clear();
+        }
+    }
+
+    return true;
+}
+
+
+Request RequestParser::parse(int fd, std::string& data)
+{
+    Request& req = requests[fd];
+    std::string& b = buffer[fd];
+
+
+    b += data;
+    if (!req.headersParsed) {
+        if (!parseHeaders(b, req))
+            return req;
+    }
+
+    if (req.headersParsed) {
+        if (!parseBody(b, req))
+            return req;
     }
 
     req.complete = true;
-
-    if (req.headers.count("content-type")) {
-        std::string contentType = req.headers["content-type"];
-        std::string lowerCT = toLower(contentType);
-        
-        if (lowerCT.find("multipart/form-data") != std::string::npos) {
-            std::string boundary = extractBoundary(contentType);
-            
-            if (!boundary.empty()) {
-                std::cout << "Parsing multipart with boundary: " << boundary << std::endl;
-                
-                if (!parseMultipart(req.body, boundary, req)) {
-                    std::cerr << "Warning: Failed to parse multipart data" << std::endl;
-                }
-            } else {
-                std::cerr << "Warning: multipart/form-data without boundary" << std::endl;
-            }
-        }
-    }
-
+    parseCookies(req);
     return req;
 }
+

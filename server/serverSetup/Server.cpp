@@ -42,7 +42,6 @@ Client Server::acceptClient(){
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
     newOne.fd = makeNonBlockingFD(newOne.fd);
-        char * b[3];
  
     if (newOne.fd < 0){
         ostringstream ss;

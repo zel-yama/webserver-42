@@ -29,9 +29,9 @@ void setClientRead(int fdEp, Client& clien ){
 }
 void  deleteClient(maptype& config, int fd, int fdEP){
     
-//    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
-//         return ;
-//    }
+   if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
+        return ;
+   }
    __displayTime();
    std::cout << " --------------- remove client {" << fd << "} from epoll --------------- \n " << std::endl;
     close(fd);

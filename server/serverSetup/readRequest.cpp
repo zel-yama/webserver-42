@@ -59,7 +59,7 @@ bool allowKeepAlive(Request req)
     return true;
 }
 
-void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *parser)
+void readRequest(int fd,  Client &connect, RequestParser *parser)
 {
     int readResult = myread(connect, parser->buffer[fd]);
     

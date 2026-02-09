@@ -66,7 +66,7 @@ void eventLoop(maptype config ){
                         if (!Cli)
                             continue;
                         if (!Cli->requestFinish)
-                            readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
+                            readRequest(events[i].data.fd, *Cli, clientServer->parser);
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
                         else 

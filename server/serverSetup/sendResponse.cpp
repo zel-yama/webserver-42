@@ -14,7 +14,6 @@ bool checkTimeout(Client &connect){
 
 void checkClientsTimeout(maptype& config, int fdEp) 
 {
-    Config *data =  NULL;
     Client *connect = NULL;
     
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
@@ -71,7 +70,7 @@ void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
     int n = 1 ;
-    int readB = 0;
+ 
     char buff[MAXSIZEBYTE];
    
     if (!connect.buildDone){
@@ -91,9 +90,9 @@ void sendResponse(maptype &config, Client &connect) {
     printf("response %d | %s |\n", connect.fd, connect.response.c_str());
     while(true){
         if (connect.fdFile != -1){
-            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
-            if (byte > 0)
-                connect.response.append(buff, byte);
+            connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
+            if (connect.byteRead > 0)
+                connect.response.append(buff, connect.byteRead);
         }
         // printf("response | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);

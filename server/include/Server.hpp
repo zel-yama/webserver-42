@@ -80,7 +80,7 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data);
 size_t countBuffersize(std::string buffer, Client &connect);
 
 // Helper to get server from client (me again)
-Server* getServerFromClient(maptype& config, Client& client);
-void    costumThrow(std::string des, std::string invalid);
-
+Server*     getServerFromClient(maptype& config, Client& client);
+void        costumThrow(std::string des, std::string invalid);
+bool        checkTimeout(Client &connect);
 #endif

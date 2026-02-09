@@ -23,9 +23,9 @@ std::string findElement(maptype &config, int fd){
 void eventLoop(maptype config ){
     
     int fdEp;
-    Client *Cli;
+    Client *Cli = NULL;
     Client  newClient;
-    Server *serv;
+    Server *serv = NULL;
     int n;
     
     fdEp = creatEpoll(config);
@@ -34,10 +34,10 @@ void eventLoop(maptype config ){
     
 
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
-        printf("  and this epoll FD %d the size of config %lu \n", fdEp, config.size());
+        printf("  and this epoll FD %d the size of config %lu and this event lengh %d \n", fdEp, config.size(), n);
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
-            
+        
             for(int i = 0; i < n; i++){
                 
                 if (findElement(config, events[i].data.fd) == "Server"){
@@ -57,22 +57,25 @@ void eventLoop(maptype config ){
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                     Server *clientServer = getServerFromClient(config, *Cli);
                     if (!Cli || !clientServer)
-                    continue;
-                    if (events[i].events & EPOLLIN){
-                        std::cout << " EPOLLIN " << std::endl;
-                        Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
-                        if (!Cli)
                         continue;
-                        readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
+                    if (checkTimeout(*Cli))
+                        continue;
+                    if (events[i].events & EPOLLIN || events[i].events & EPOLLOUT){
+                        Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                        std::cout << " fd cleint  "<< Cli->fd << std::endl;
+                        if (!Cli)
+                            continue;
+                        if (!Cli->requestFinish)
+                            readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
                         
                     }
-                    if (events[i].events & EPOLLOUT  ) {
-                        std::cout << "EPOLLOUT" << std::endl;
-                        Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
-                        sendResponse(config, *Cli);
-                    }
+                    // if (events[i].events & EPOLLOUT  ) {
+                    //     std::cout << "EPOLLOUT" << std::endl;
+                    //     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                    //     sendResponse(config, *Cli);
+                    // }
                 }
             }
             checkClientsTimeout(config, fdEp);

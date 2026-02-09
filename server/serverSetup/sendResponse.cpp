@@ -4,22 +4,27 @@
 
 Server* getServerForClient(maptype& config, int serverId);
 
+
+bool checkTimeout(Client &connect){
+    time_t currentT =  time(NULL);
+    if ((currentT - connect.prevTime) >= connect.timeout )
+        return true;
+    return false;
+}
+
 void checkClientsTimeout(maptype& config, int fdEp) 
 {
-    Config *data;
-    Client *connect;
+    Config *data =  NULL;
+    Client *connect = NULL;
     
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
         if (i->second->name == "client") {
             connect = dynamic_cast<Client*>(i->second);
-            
-            if ((time(NULL) - connect->prevTime) > (connect->timeout - 10)) {
-                printf("Client [%d] close to timeout about 10s\n", connect->fd);
-            }
-            if ((time(NULL) - connect->prevTime) > (connect->timeout + 2)) {
-                cerr << "this is  size of config before  " << config.size() << endl;
+        
+            if (checkTimeout(*connect)) {
+                
                 deleteClient(config, connect->fd, fdEp);
-                cerr << "this is  size of config " << config.size() << endl;
+                
                 return;
             }
         }
@@ -27,7 +32,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
 }
 
 void checkClientConnection(maptype &config, Client &connect) {
-    if (connect.response.empty() && connect.fdFile == 0)
+    if (connect.response.empty() && connect.byteRead == 0)
         connect.sending = false;
     if (connect.response.empty() && connect.fdFile == -1)
         connect.sending = false;
@@ -49,7 +54,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     
     // Keep-alive: reset for next request
     connect.buildDone = false;
-    
+
     connect.prevTime = time(NULL);
     connect.requestFinish = false;
     connect.headersOnly = false;
@@ -76,21 +81,24 @@ void sendResponse(maptype &config, Client &connect) {
         connect.response = srv->respone->build();
         connect.buildDone = true;
         if (srv->respone->isLargeFile()){
+            printf("file name %s  fd %d \n", srv->respone->getFilePath().c_str(), connect.fd );
             connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
         }
 
     }
-    int byte = 0;
+
+    size_t num = 0;
+    printf("response %d | %s |\n", connect.fd, connect.response.c_str());
     while(true){
-        if (connect.fdFile != -1){
-            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
-            
-            if (byte > 0)
-                connect.response.append(buff, byte);
+        if (connect.fdFile != -1 ){
+            connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
+            printf("read file %d\n", connect.fd);
+            if (connect.byteRead > 0)
+                connect.response.append(buff, connect.byteRead);
         }
-        printf("response | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
+        num+= n;
         if (n < 0  || connect.response.empty())
             break;
         if (n == 0) {
@@ -101,9 +109,10 @@ void sendResponse(maptype &config, Client &connect) {
             connect.response.erase(0, n);
 
     }
-    
-    
-    if (connect.response.size() > 0 || byte > 0 )
+
+    printf("size -> %d %zu \n",connect.fd, num);
+    printf("68756745 | 4303502 660313 ");
+    if (connect.response.size() > 0 || connect.byteRead > 0 )
         connect.sending = true;
     std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;
     

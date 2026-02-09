@@ -20,7 +20,7 @@ int main(int av, char *argc[]){
 		it = serv.begin();
 		while(it != serv.end()){
 			Serv = *it;
-			fd = Serv.CreateServer(Serv.port, Serv.ipAdress);
+			fd = Serv.CreateServer(Serv.port, Serv.ipAdress);//check if server should heap alocated 
 			Serv.serverId = fd;
 			config.insert(pair<int, Config *>(fd, &Serv));
 			it++;

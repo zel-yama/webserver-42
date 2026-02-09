@@ -139,11 +139,12 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
     size_t headerEndLen = 4;
     if (headerEnd == std::string::npos)
     {
-        headerEnd = b.find("\n\n");
-        headerEndLen = 2;
-    }
-    if (headerEnd == std::string::npos)
+        // headerEnd = b.find("\n\n");
+        // headerEndLen = 2;
         return false;
+    }
+    // if (headerEnd == std::string::npos)
+        
 
     std::istringstream hs(b.substr(0, headerEnd));
     std::string line;

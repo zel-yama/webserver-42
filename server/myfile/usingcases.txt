@@ -1,8 +1,3 @@
-	root {/home/zel-yama}; -- >> 
-    
-    nginx: [emerg] directive "root" is not terminated by ";" in /home/zel-yama/nginx/conf/nginx.conf:58
-    ➜      conf git:(master) ✗ echo $?
-        1
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 test :    root /home/zel-yama; root /home/zel-yama;  
     nginx: [emerg] "root" directive is duplicate in /home/zel-yama/nginx/conf/nginx.conf:39
@@ -20,11 +15,7 @@ and request is dir
 outoindex is on
 ->>>>> output listing all file and return that as Respond
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-case body request exceed the max size body variable 
 
-    413 Request Entity Too Large
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 test:  error_page   500 502 502w 503  /50x.html;
 
     output ->nginx: [emerg] invalid value "502e" in /home/zel-yama/nginx/conf/nginx.conf:58
@@ -43,7 +34,7 @@ return -> check return code is should be valid value
 --------------------------------------------------
 turn vector to maps to find value fast 
 -------------------------
-first ->  i should check is methods is valid not GETS and else check format of values of all variable
+first ->  i should check is methods is valid not GETS and else check format of values of all variable | ->  done without tests 
 -----------------------------------------------------
  senting more than body we should in resoponse 
  --------------------------------------------------------
@@ -59,13 +50,20 @@ save fd cuz should check else to send other cuz event came one time in adge trig
 reading file reading file body size max should
  handle  parsing after -1 return in while  so or just and handle socket size cuz 
 -----------------------------------------------------
-return -> check return code is should be valid value|
+return -> check return code is should be valid value| done without test 
 ----------------------------------------------------
-turn vector to maps to find value fast            | 
+turn vector to maps to find value fast  still          | still later 
 ---------------------------------------------------
-turn local host to networking localhost:8080      |
+turn local host to networking localhost:8080      | done without test 
 ---------------------------------------------------
-i should create funciont open file and read       |  
+i should create funciont open file and read       |   done with erro 
 send from file that he requested                  |
 ---------------------------------------------------
-header should be make file to 
+header should be make file to  | done without test 
+------------------------------------------------
+the termination of the webserver without in big data transerom |
+---------------------------------------------------
+signale contrlr + c to help user can use my webserver|
+-----------------------------------------------------------
+over flow in body request max check |
+----------------------------------------

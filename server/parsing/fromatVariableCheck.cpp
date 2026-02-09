@@ -142,7 +142,7 @@ void returnP(std::string token, std::string &path, int &exitCode){
     std::string s;
     ss >> s;
     exitCode = convertString(s);
-    if (exitCode == -1)
+    if (exitCode == -1 || (exitCode < 300 || exitCode > 599))
         costumThrow("invalid number of arguments", token);
     if (!ss.eof())
         ss >> path;

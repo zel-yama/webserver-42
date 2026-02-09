@@ -43,12 +43,7 @@ void checkTockens(tockens &tockn){
 		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
 
 }
-// CGI on;
-// 		upload on;
-// 		uploadPath ./; 
-// 		cgiPath /usr/bin/python3;
-// 		cgiExten .py;
-// 	}
+
 
 void serverCases(tockenIt &it, Server &serv){
     

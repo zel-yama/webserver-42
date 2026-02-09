@@ -58,6 +58,7 @@ void eventLoop(maptype config ){
                     Server *clientServer = getServerFromClient(config, *Cli);
                     if (!Cli || !clientServer)
                         continue;
+                    if (event[i].events & (EPOLLERR || EPOLLHUB))
                     if (checkTimeout(*Cli))
                         continue;
                     if (events[i].events & EPOLLIN || events[i].events & EPOLLOUT){

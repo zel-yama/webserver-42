@@ -88,36 +88,6 @@
 //}
 
     
-+------------------+
-|  servers (vector)|
-+------------------+
-        |
-        |  contains multiple Server objects
-        v
-   +------------------------+
-   |       Server           |
-   +------------------------+
-   | listen_ip              |
-   | listen_port            |
-   | max_body_size          |
-   | locations (vector)     |  --> multiple Location objects
-   +------------------------+
-               |
-               v
-        +------------------+
-        |     Location     |
-        +------------------+
-        | path             |
-        | directives (vector) | --> multiple Directive objects
-        +------------------+
-                  |
-                  v
-           +----------------+
-           |   Directive    |
-           +----------------+
-           | name           |  (e.g., "root", "index")
-           | args (vector)  |  (e.g., ["index.html"], ["GET","POST"])
-           +----------------+
 
 toknizer is good to parsing like {} and path location 
 port var should be like IP:PORT 
@@ -140,4 +110,22 @@ run nginx in varbose mod to see his realy behave
 ideas -> 
 
 
+steps to IO handling 
+so -> ok 
+       EVENT ERRORs 
+              check this EPOLLHUP & EPOLLER close connectoin after got this event so try 
+       EPOLLIN 
+              reading first header limit \n\n\n so or body  max size headers complety 
+              [if body and header done  go to build request ] if ziro remove this client if -1 wait data if still needed 
+              you can  know how much data in socket without reading 
+
+              go to body reading 
+                     small body reading once use IOCTL know 
+                     big body file posting -> i should read file and put in it if delete repon that and put data 
+                     if not file i should put in such file u randome it name 
+                     the body limit content lenght no content lenght is bad request i thinks 
+                     and by config max body 
+                     read 
+       EPOLLOUT
+              
 

@@ -126,6 +126,9 @@ so -> ok
                      the body limit content lenght no content lenght is bad request i thinks 
                      and by config max body 
                      read 
+                     can i check body by ioctl give how data in socket 
        EPOLLOUT
+              is just case of data monotoring of socket to complety send of response not 
+              in case when can send big data in chanckes so 
               
 

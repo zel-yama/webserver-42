@@ -25,7 +25,6 @@ void checkClientsTimeout(maptype& config, int fdEp)
                 
                 deleteClient(config, connect->fd, fdEp);
                 
-                return;
             }
         }
     }
@@ -91,12 +90,12 @@ void sendResponse(maptype &config, Client &connect) {
     size_t num = 0;
     printf("response %d | %s |\n", connect.fd, connect.response.c_str());
     while(true){
-        if (connect.fdFile != -1 ){
-            connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
-            printf("read file %d\n", connect.fd);
-            if (connect.byteRead > 0)
-                connect.response.append(buff, connect.byteRead);
+        if (connect.fdFile != -1){
+            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
+            if (byte > 0)
+                connect.response.append(buff, byte);
         }
+        // printf("response | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         num+= n;
         if (n < 0  || connect.response.empty())

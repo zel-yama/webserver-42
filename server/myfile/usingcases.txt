@@ -43,6 +43,9 @@ first ->  i should check is methods is valid not GETS and else check format of v
  buffer should be more 1434
  who take processing he should take length N byets when 
  in vlaid file error happnes webserver check sanitize
+ this not c++ 98 
+ inet_ntoa 
+ inet_ntoa
 ----------------
 IO handling 
 sending utill socket blocked  -1 

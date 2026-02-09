@@ -37,9 +37,9 @@ void eventLoop(maptype config ){
         printf("  and this epoll FD %d the size of config %lu and this event lengh %d \n", fdEp, config.size(), n);
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
+       
+        for(int i = 0; i < n; i++){
         
-            for(int i = 0; i < n; i++){
-                
                 if (findElement(config, events[i].data.fd) == "Server"){
                     
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
@@ -69,17 +69,17 @@ void eventLoop(maptype config ){
                             readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
                         if (Cli->requestFinish)
                             sendResponse(config, *Cli);
-                        
+                        else 
+                            continue;
                     }
-                    // if (events[i].events & EPOLLOUT  ) {
-                    //     std::cout << "EPOLLOUT" << std::endl;
-                    //     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
-                    //     sendResponse(config, *Cli);
-                    // }
-                }
-            }
-            checkClientsTimeout(config, fdEp);
+                    if (events[i].events & EPOLLOUT  ) {
+                        Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                        sendResponse(config, *Cli);
+                    }
         }
-        
+        }
+        checkClientsTimeout(config, fdEp);
+    }
+
 }
 

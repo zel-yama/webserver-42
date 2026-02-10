@@ -52,7 +52,7 @@ Client Server::acceptClient(){
         cerr << ss.str() << endl;
         exit(1);
     }
-    newOne.data.events = EPOLLIN | EPOLLET;
+    newOne.data.events = EPOLLIN | EPOLLHUP  | EPOLLERR;
     newOne.data.data.fd = newOne.fd;
     return newOne;
 }

@@ -82,6 +82,7 @@ void sendResponse(maptype &config, Client &connect) {
             printf("file name %s  fd %d \n", srv->respone->getFilePath().c_str(), connect.fd );
             connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
+            srv->respone->getFilePath() = "";
         }
 
     }
@@ -109,7 +110,7 @@ void sendResponse(maptype &config, Client &connect) {
     }
 
     printf("size -> %d %zu \n",connect.fd, num);
-    printf("68756745 | 4303502 660313 ");
+   
     if (connect.response.size() > 0 || connect.byteRead > 0 )
         connect.sending = true;
     std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;

@@ -239,7 +239,7 @@ bool Response::isLargeFile() const
     return LargeFile;
 }
 
-std::string Response::getFilePath() const
+std::string& Response::getFilePath() 
 {
     return filePath;
 }

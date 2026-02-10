@@ -31,8 +31,9 @@ void eventLoop(maptype config ){
     fdEp = creatEpoll(config);
     struct epoll_event events[MAXEVENT];
     while(1){
-    
-
+        
+        
+        printf("-----epoll wait -\n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
         printf("  and this epoll FD %d the size of config %lu and this event lengh %d \n", fdEp, config.size(), n);
         if (n == -1){
@@ -58,7 +59,12 @@ void eventLoop(maptype config ){
                     Server *clientServer = getServerFromClient(config, *Cli);
                     if (!Cli || !clientServer)
                         continue;
-                    if (event[i].events & (EPOLLERR || EPOLLHUB))
+                    if (events[i].events & (EPOLLERR | EPOLLHUP)){
+                        printf("close connection due to Error happens in client side ");
+                        deleteClient(config, events[i].data.fd, fdEp);
+                        continue;
+                    }
+
                     if (checkTimeout(*Cli))
                         continue;
                     if (events[i].events & EPOLLIN || events[i].events & EPOLLOUT){

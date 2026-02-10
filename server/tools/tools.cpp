@@ -8,6 +8,7 @@ int makeNonBlockingFD(int socket){
     fcntl(socket, F_SETFL,flag  | O_NONBLOCK );
     return (socket);
     }
+
 int addSockettoEpoll(int fdEp, struct epoll_event  data){
 
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
@@ -17,23 +18,26 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
     }
     return 0;
 }
+
 void setClientSend(int fdEp,  Client &Clien){
 
-    Clien.data.events = EPOLLOUT ;
+    Clien.data.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
     epoll_ctl(fdEp, EPOLL_CTL_MOD, Clien.fd, &Clien.data);
 }
+
 void setClientRead(int fdEp, Client& clien ){
 
-    clien.data.events = EPOLLIN | EPOLLET; 
+    clien.data.events = EPOLLIN | EPOLLERR | EPOLLHUP ; 
     epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, &clien.data);
 }
+
 void  deleteClient(maptype& config, int fd, int fdEP){
     
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
         return ;
    }
    __displayTime();
-   std::cout << "close connection this  [" << fd << "]  \n " << std::endl;
+   std::cout << " close connection this  [" << fd << "]  \n " << std::endl;
     close(fd);
     maptype::iterator it = config.find(fd);
     if (it != config.end())

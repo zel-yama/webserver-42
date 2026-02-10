@@ -2,6 +2,7 @@
 #include "../server/include/Server.hpp"
 #include "Response.hpp"
 #include "cgi.hpp"
+#include <cctype>
 #define CHUNK_SIZE 4096
 
 void validateRequest(Request &req, Server *srv);
@@ -30,6 +31,7 @@ Response::Response()
     statusMap[500] = "Internal Server Error";
     statusMap[501] = "Not Implemented";
     statusMap[503] = "Service Unavailable";
+    statusMap[504] = "Gateway Timeout";
 }
 
 Response::~Response() {}
@@ -52,6 +54,14 @@ static std::string toString(size_t n)
     std::ostringstream oss;
     oss << n;
     return oss.str();
+}
+
+static std::string toLower(const std::string &value)
+{
+    std::string out = value;
+    for (size_t i = 0; i < out.size(); ++i)
+        out[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(out[i])));
+    return out;
 }
 
 void Response::setContext(Request *r, Server *s)
@@ -93,8 +103,9 @@ void Response::setBody(const std::string &body)
 {
     this->body = body;
     headers["Content-Length"] = toString(body.size());
-    std::cout << "=====> " << headers["Content-Length"] << " <===\n";
+    // std::cout << "=====> " << headers["Content-Length"] << " <===\n";
 }
+
 void Response::setVersion(const std::string &version)
 {
     this->version = version;
@@ -263,6 +274,7 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     std::string headersPart = cgiOutput.substr(0, pos);
     size_t offset;
+    int parsedStatus = -1;
 
     if (cgiOutput[pos + 1] == '\r')
         offset = 4;
@@ -288,9 +300,26 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
             while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
                 value = value.substr(0, value.size() - 1);
 
+            if (toLower(key) == "status")
+            {
+                std::istringstream statusStream(value);
+                int code;
+                if (statusStream >> code)
+                    parsedStatus = code;
+                continue;
+            }
+
             setHeader(key, value);
         }
     }
+
+    if (parsedStatus >= 400)
+    {
+        sendError(parsedStatus, "");
+        return;
+    }
+    if (parsedStatus >= 100)
+        setStatus(parsedStatus, "");
 
     setBody(bodyPart);
 }
@@ -308,6 +337,14 @@ void Response::processRequest(Request &req, Server &ser)
     validateRequest(req, &ser);
     if (req.status != 200)
     {
+        if (req.status >= 300 && req.status < 400 && req.headers.find("Location") != req.headers.end())
+        {
+            setStatus(req.status, "");
+            setHeader("Location", req.headers["Location"]);
+            setHeader("Content-Length", "0");
+            body.clear();
+            return;
+        }
         sendError(req.status, "");
         return;
     }

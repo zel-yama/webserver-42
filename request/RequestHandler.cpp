@@ -99,9 +99,17 @@ void validateRequest(Request& req, Server* srv) {
     }
     req.fullpath = joinPathWithLocation(srv, req.loc, req.path);
 
-    if (!req.loc->returnP.empty()) {
-        req.status = 301;
-        req.headers["location"] = req.loc->returnP;
+    if (req.loc && !req.loc->returnP.empty()) {
+        int code = (req.loc->returnCode > 0) ? req.loc->returnCode : 301;
+        req.status = code;
+        req.headers["Location"] = req.loc->returnP;
+        return;
+    }
+
+    if (!srv->returnP.empty()) {
+        int code = (srv->returnCode > 0) ? srv->returnCode : 301;
+        req.status = code;
+        req.headers["Location"] = srv->returnP;
         return;
     }
     

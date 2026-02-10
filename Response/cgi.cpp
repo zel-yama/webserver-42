@@ -53,12 +53,12 @@ std::string Cgi::execute(const std::string &cgiPath,
     int outPipe[2];
 
     if (pipe(inPipe) == -1 || pipe(outPipe) == -1)
-        return "Pipe error";
+        return "Status: 500 Internal Server Error\r\n\r\nCGI Pipe error";
 
     char **envp = envto2Darray();
     pid_t pid = fork();
     if (pid == -1)
-        return "Fork error";
+        return "Status: 500 Internal Server Error\r\n\r\nCGI Fork error";
 
     if (pid == 0)
     {
@@ -117,6 +117,9 @@ std::string Cgi::execute(const std::string &cgiPath,
     for (size_t i = 0; envp[i]; i++)
         delete[] envp[i];
     delete[] envp;
+
+    if (WIFEXITED(status) && WEXITSTATUS(status) != 0 && output.empty())
+        return "Status: 500 Internal Server Error\r\n\r\nCGI Execution Failed";
 
     return output;
 }

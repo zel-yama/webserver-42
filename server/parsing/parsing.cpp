@@ -104,8 +104,11 @@ servers parsing(std::string FileName){
         if (!line.empty())
             store.push_back(line);
     }
+    if (store.empty())
+        throw std::runtime_error("Error:  < empty file or invalid > ");
     handleComments(store);
     store = stripSpaces(store);
+    
     v = convertVector(store);
     
     tockV = tokeniezer(v);

@@ -18,4 +18,20 @@ class Config{
         virtual ~Config(){}
 };
 
+class File : public Config{
+    
+    public:
+
+        std::string buffer;
+        int bytsent;
+        int fd;
+    
+};
+
+class Cgi : public Config{
+
+    
+};
+
 #endif
+

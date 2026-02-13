@@ -73,7 +73,7 @@ bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Req
 
         // trim end CRLF
         while (!content.empty() && (content.back() == '\n' || content.back() == '\r'))
-            content.pop_back();
+            content.pop_back(); // std c++ 98
 
         MultipartPart mp;
         std::istringstream hs(headersSection);

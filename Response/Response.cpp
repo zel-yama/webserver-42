@@ -2,6 +2,7 @@
 #include "../server/include/Server.hpp"
 #include "Response.hpp"
 #include "cgi.hpp"
+#include <cctype>
 #define CHUNK_SIZE 4096
 
 void validateRequest(Request &req, Server *srv);
@@ -14,7 +15,7 @@ Response::Response()
       body("<h1>Hello World</h1>"),
       srv(NULL),
       req(NULL),
-      LargeFile(false)
+      LargeFile(false)      
 {
     statusMap[200] = "OK";
     statusMap[201] = "Created";
@@ -30,6 +31,7 @@ Response::Response()
     statusMap[500] = "Internal Server Error";
     statusMap[501] = "Not Implemented";
     statusMap[503] = "Service Unavailable";
+    statusMap[504] = "Gateway Timeout";
 }
 
 Response::~Response() {}
@@ -52,6 +54,22 @@ static std::string toString(size_t n)
     std::ostringstream oss;
     oss << n;
     return oss.str();
+}
+
+void Response::resetCgiFlag()
+{
+    cgiPending = false;
+    cgiReadFd = -1;
+    cgiWriteFd = -1;
+    cgiPid = -1;
+}
+
+static std::string toLower(const std::string &value)
+{
+    std::string out = value;
+    for (size_t i = 0; i < out.size(); ++i)
+        out[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(out[i])));
+    return out;
 }
 
 void Response::setContext(Request *r, Server *s)
@@ -93,8 +111,9 @@ void Response::setBody(const std::string &body)
 {
     this->body = body;
     headers["Content-Length"] = toString(body.size());
-    std::cout << "=====> " << headers["Content-Length"] << " <===\n";
+    // std::cout << "=====> " << headers["Content-Length"] << " <===\n";
 }
+
 void Response::setVersion(const std::string &version)
 {
     this->version = version;
@@ -263,6 +282,7 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     std::string headersPart = cgiOutput.substr(0, pos);
     size_t offset;
+    int parsedStatus = -1;
 
     if (cgiOutput[pos + 1] == '\r')
         offset = 4;
@@ -288,15 +308,33 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
             while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
                 value = value.substr(0, value.size() - 1);
 
+            if (toLower(key) == "status")
+            {
+                std::istringstream statusStream(value);
+                int code;
+                if (statusStream >> code)
+                    parsedStatus = code;
+                continue;
+            }
+
             setHeader(key, value);
         }
     }
+
+    if (parsedStatus >= 400)
+    {
+        sendError(parsedStatus, "");
+        return;
+    }
+    if (parsedStatus >= 100)
+        setStatus(parsedStatus, "");
 
     setBody(bodyPart);
 }
 
 void Response::processRequest(Request &req, Server &ser)
 {
+    resetCgiFlag();
     setContext(&req, &ser);
     setHeader("Server", req.version);
 
@@ -308,6 +346,14 @@ void Response::processRequest(Request &req, Server &ser)
     validateRequest(req, &ser);
     if (req.status != 200)
     {
+        if (req.status >= 300 && req.status < 400 && req.headers.find("Location") != req.headers.end())
+        {
+            setStatus(req.status, "");
+            setHeader("Location", req.headers["Location"]);
+            setHeader("Content-Length", "0");
+            body.clear();
+            return;
+        }
         sendError(req.status, "");
         return;
     }
@@ -463,10 +509,17 @@ void Response::handlePost(const std::string &path,
                 uploadPath = req.loc->uploadPath;
 
             std::string cgiPath = cgiConfig[ext];
-            std::string output = cgi.execute(cgiPath, path);
-            setStatus(200, "");
-            applyCgiResponse(output);
-            return;
+            Cgihandle  handle = cgi.execute(cgiPath, path);
+            if (handle.readFd == -1 || handle.pid == -1)
+            {
+                sendError(500, "");
+                return ;
+            }
+            cgiPending = true;
+            cgiReadFd = handle.readFd;
+            cgiWriteFd = handle.writeFd;
+            cgiPid = handle.pid;
+            return ;
         }
 
         std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc);
@@ -637,10 +690,17 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
                 uploadPath = req.loc->uploadPath;
 
             std::string cgiPath = cgiConfig[ext];
-            std::string output = cgi.execute(cgiPath, path);
-            setStatus(200, "");
-            applyCgiResponse(output);
-            return;
+            Cgihandle  handle = cgi.execute(cgiPath, path);
+            if (handle.readFd == -1 || handle.pid == -1)
+            {
+                sendError(500, "");
+                return ;
+            }
+            cgiPending = true;
+            cgiReadFd = handle.readFd;
+            cgiWriteFd = handle.writeFd;
+            cgiPid = handle.pid;
+            return ;
         }
         servFile(path);
         return;
@@ -654,6 +714,8 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
     else
         sendError(404, "");
 }
+
+
 void Response::servFile(const std::string &path)
 {
     struct stat st;
@@ -798,8 +860,7 @@ std::string Response::build()
 
     response << "\r\n";
 
-    if (statusCode != 204 && statusCode != 304 &&
-        !(statusCode >= 100 && statusCode < 200))
+    if (statusCode != 204 && statusCode != 304)
     {
         response << body;
     }

@@ -17,7 +17,7 @@ Client::Client(){
     responseSize = 8000;
     buildDone = false;
     fdFile = -1;
-    
+    is_cgi = false;
     // mine ..... mohamed
     parsedRequest = Request();
     // respons = Response();

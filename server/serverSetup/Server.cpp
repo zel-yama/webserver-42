@@ -52,7 +52,8 @@ Client Server::acceptClient(){
         cerr << ss.str() << endl;
         exit(1);
     }
-    newOne.data.events = EPOLLIN | EPOLLET;
+    /// socket buffer input output 
+    newOne.data.events = EPOLLIN | EPOLLET;//EPOLOUT 
     newOne.data.data.fd = newOne.fd;
     return newOne;
 }

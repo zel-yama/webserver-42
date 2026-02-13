@@ -19,8 +19,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
             if ((time(NULL) - connect->prevTime) > (connect->timeout + 2)) {
                 cerr << "this is  size of config before  " << config.size() << endl;
                 deleteClient(config, connect->fd, fdEp);
-                cerr << "this is  size of config " << config.size() << endl;
-                return;
+                
             }
         }
     }
@@ -37,6 +36,7 @@ void checkClientConnection(maptype &config, Client &connect) {
         connect.buffer = "";
         connect.prevTime = time(NULL);
         setClientSend(connect.fdEp, connect);
+        cout << "test test ====> " << connect.sending << endl;
         return;
     }
     
@@ -62,13 +62,16 @@ void checkClientConnection(maptype &config, Client &connect) {
     
     setClientRead(connect.fdEp, connect);
 }
+void addCgi(){
+
+}
 
 void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
     int n = 1 ;
     int readB = 0;
-    char buff[MAXSIZEBYTE];
+    char buff[100000];
    
     if (!connect.buildDone){
         Server* srv = getServerForClient(config, connect.serverId);
@@ -82,15 +85,17 @@ void sendResponse(maptype &config, Client &connect) {
 
     }
     int byte = 0;
+    printf("|reponse %s|", connect.response.c_str());
     while(true){
-        if (connect.fdFile != -1){
-            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
+        if (connect.fdFile != -1 && connect.response.empty()){
+            byte =  read(connect.fdFile, buff, 100000);
             
             if (byte > 0)
                 connect.response.append(buff, byte);
         }
-        printf("response | %s |\n", connect.response.c_str());
-        n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
+        printf("response | %zu |\n", connect.response.size());
+        n = write(connect.fd, connect.response.c_str(), connect.response.size());
+        std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;
         if (n < 0  || connect.response.empty())
             break;
         if (n == 0) {
@@ -105,7 +110,6 @@ void sendResponse(maptype &config, Client &connect) {
     
     if (connect.response.size() > 0 || byte > 0 )
         connect.sending = true;
-    std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;
     
     checkClientConnection(config, connect);
 }

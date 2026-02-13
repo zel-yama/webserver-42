@@ -35,11 +35,17 @@ private:
     Server *srv;
     Request *req;
 
+    // for detect fd of cgi by epool;
+    bool cgiPending;
+    int  cgiReadFd;
+    int  cgiWriteFd;
+    pid_t cgiPid;
+
 public:
     Response();
     ~Response();
     // location *loc;
-
+    
     void setStatus(int code, const std::string &message);
     void setHeader(const std::string &key, const std::string &value);
     void setBody(const std::string &body);
@@ -77,6 +83,14 @@ public:
         const Server &srv);
     void applyCgiResponse(const std::string &cgiOutput);
     void handleMultipartUpload(const Request &req, const Server &srv);
+
+    // for cgi fds
+    bool isCgipending() const;
+    int getcgiReadFd() const;
+    int getcgiWriteFd() const;
+    pid_t getcgiPid() const;
+
+    void resetCgiFlag();
 };
 
 #endif

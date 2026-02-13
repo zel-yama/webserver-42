@@ -32,7 +32,7 @@ void eventLoop(maptype config ){
     struct epoll_event events[MAXEVENT];
     while(1){
     
-
+        printf("before EPOLL WAIT \n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
         printf("  and this epoll FD %d the size of config %lu \n", fdEp, config.size());
         if (n == -1){
@@ -63,8 +63,9 @@ void eventLoop(maptype config ){
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         if (!Cli)
                         continue;
-                        readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
-                        if (Cli->requestFinish)
+                        if (!Cli->requestFinish)
+                            readRequest(events[i].data.fd, Cli->buffer, *Cli, clientServer->parser);
+                         if  (Cli->requestFinish)
                             sendResponse(config, *Cli);
                         
                     }
@@ -75,8 +76,9 @@ void eventLoop(maptype config ){
                     }
                 }
             }
-            checkClientsTimeout(config, fdEp);
-        }
         
-}
+        }
+        checkClientsTimeout(config, fdEp);
+    }
+
 

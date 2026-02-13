@@ -34,6 +34,7 @@ class Client: public Config{
         long bodysizeRequest;
         bool buildDone;
         int fdFile;
+        bool is_cgi;
         // i add this
         Request parsedRequest;
         // Response respons;

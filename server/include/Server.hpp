@@ -55,6 +55,7 @@ typedef std::vector<Server> servers;
 struct location {
  
     location();
+    int                                 fdEp;
     int                                  upload;
     map<std::string, std::string>        CgiCofing;
     std::string                          uploadPath;

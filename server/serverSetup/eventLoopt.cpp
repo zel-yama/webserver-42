@@ -19,6 +19,19 @@ std::string findElement(maptype &config, int fd){
     else
         return str;
 }
+void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
+    
+    const int  va = 15020;
+    char buffer[va];
+    int i = read(cg->fd_in, buffer, va );
+    if (i <= 0)
+        return ;
+    connect->response.append(buffer, i);
+    srv->respone->applyCgiResponse(connect->response);
+    connect->response =   srv->respone->build();
+    deleteClient(data, cg->fd_in, connect->fdEp );
+
+}
 
 void eventLoop(maptype config ){
     
@@ -26,6 +39,7 @@ void eventLoop(maptype config ){
     Client *Cli = NULL;
     Client  newClient;
     Server *serv = NULL;
+    _Cgi    *cgI = NULL;
     int n;
     
     fdEp = creatEpoll(config);
@@ -34,24 +48,41 @@ void eventLoop(maptype config ){
         
         
         printf("-----epoll wait -\n");
+    
+        printf("before EPOLL WAIT \n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
         printf("  and this epoll FD %d the size of config %lu and this event lengh %d \n", fdEp, config.size(), n);
         if (n == -1){
             throw runtime_error("error in epoll wait function ");}
        
-        for(int i = 0; i < n; i++){
-        
+            
+            for(int i = 0; i < n; i++){
+                
                 if (findElement(config, events[i].data.fd) == "Server"){
                     
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
                     if (!serv)
                     continue;
-                
+                    
                     newClient =  serv->acceptClient();
-                    config.insert(pair<int,Config *>(newClient.fd, &newClient));
+                    config[newClient.fd] = &newClient;
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
                     addSockettoEpoll(fdEp, newClient.data);               
                     continue; 
+                }
+                else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
+                    printf("close connection due to Error happens in client side ");
+                    deleteClient(config, events[i].data.fd, fdEp);
+                    continue;
+                }
+                else if (findElement(config, events[i].data.fd) == "cgi"){
+        
+                    cgI = dynamic_cast<_Cgi *>(config.at(events[i].data.fd));
+                    Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));
+                    Server *serv = getServerFromClient(config, *Cli);
+                    handlingOFCGi(config, serv, cgI, Cli);
+                    continue;
+
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {
@@ -59,22 +90,18 @@ void eventLoop(maptype config ){
                     Server *clientServer = getServerFromClient(config, *Cli);
                     if (!Cli || !clientServer)
                         continue;
-                    if (events[i].events & (EPOLLERR | EPOLLHUP)){
-                        printf("close connection due to Error happens in client side ");
-                        deleteClient(config, events[i].data.fd, fdEp);
-                        continue;
-                    }
 
                     if (checkTimeout(*Cli))
                         continue;
-                    if (events[i].events & EPOLLIN || events[i].events & EPOLLOUT){
+                    if (events[i].events & EPOLLIN ){
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         std::cout << " fd cleint  "<< Cli->fd << std::endl;
                         if (!Cli)
                             continue;
                         if (!Cli->requestFinish)
                             readRequest(events[i].data.fd, *Cli, clientServer->parser);
-                        if (Cli->requestFinish)
+                        
+                        if  (Cli->requestFinish)
                             sendResponse(config, *Cli);
                         else 
                             continue;
@@ -83,10 +110,15 @@ void eventLoop(maptype config ){
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         sendResponse(config, *Cli);
                     }
+                }
         }
-        }
+
         checkClientsTimeout(config, fdEp);
+               
+            }
+        
+        
+    
     }
 
-}
 

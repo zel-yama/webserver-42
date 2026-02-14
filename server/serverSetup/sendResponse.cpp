@@ -40,6 +40,7 @@ void checkClientConnection(maptype &config, Client &connect) {
         connect.buffer = "";
         connect.prevTime = time(NULL);
         setClientSend(connect.fdEp, connect);
+        cout << "test test ====> " << connect.sending << endl;
         return;
     }
     
@@ -65,18 +66,36 @@ void checkClientConnection(maptype &config, Client &connect) {
     
     setClientRead(connect.fdEp, connect);
 }
+void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
+    _Cgi *obj;
+
+    obj = new _Cgi();
+    close(pip);
+    obj->name = "cgi";
+    obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
+    obj->data.data.fd = makeNonBlockingFD(fdIN);
+    close (fdOUT);
+    obj->fd_client = connect.fd;
+    addSockettoEpoll(connect.fdEp, obj->data);
+    data[fdIN] = obj;
+}
 
 void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
     int n = 1 ;
- 
+    int readB = 0;
     char buff[MAXSIZEBYTE];
    
     if (!connect.buildDone){
         Server* srv = getServerForClient(config, connect.serverId);
         srv->respone->processRequest(connect.parsedRequest, *srv);
         connect.response = srv->respone->build();
+        if (srv->respone->isCgipending()){
+         
+            addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
+            return ;
+        }
         connect.buildDone = true;
         if (srv->respone->isLargeFile()){
             printf("file name %s  fd %d \n", srv->respone->getFilePath().c_str(), connect.fd );
@@ -86,18 +105,16 @@ void sendResponse(maptype &config, Client &connect) {
         }
 
     }
-
-    size_t num = 0;
-    printf("response %d | %s |\n", connect.fd, connect.response.c_str());
+    int byte = 0;
     while(true){
         if (connect.fdFile != -1){
-            connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
-            if (connect.byteRead > 0)
-                connect.response.append(buff, connect.byteRead);
+            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
+            
+            if (byte > 0)
+                connect.response.append(buff, byte);
         }
         // printf("response | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
-        num+= n;
         if (n < 0  || connect.response.empty())
             break;
         if (n == 0) {
@@ -109,11 +126,9 @@ void sendResponse(maptype &config, Client &connect) {
 
     }
 
-    printf("size -> %d %zu \n",connect.fd, num);
    
     if (connect.response.size() > 0 || connect.byteRead > 0 )
         connect.sending = true;
-    std::cout << "Sent " << n << " bytes (HTTP " << connect.parsedRequest.status << ")" << std::endl;
     
     checkClientConnection(config, connect);
 }

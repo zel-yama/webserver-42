@@ -53,6 +53,7 @@ Client Server::acceptClient(){
         exit(1);
     }
     newOne.data.events = EPOLLIN | EPOLLHUP  | EPOLLERR;
+    /// socket buffer input output 
     newOne.data.data.fd = newOne.fd;
     return newOne;
 }

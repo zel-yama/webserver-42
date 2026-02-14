@@ -18,8 +18,8 @@ int myread(Client &connect, std::string& buffer) {
     char tmp[MAXSIZEBYTE];
     int byte = 0;
     int n = 1;
-    while (n > 0)
-    {
+    // while (n > 0)
+    // {
         if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
             byte = connect.bodysize;
         else 
@@ -36,10 +36,10 @@ int myread(Client &connect, std::string& buffer) {
             return 0;
         }
         if (n < 0) {
-            break;
+            return n;
         }
      
-    }
+    // }
     
     return 1;
 }
@@ -70,7 +70,10 @@ void readRequest(int fd,  Client &connect, RequestParser *parser)
         close(fd);
         return;
     }
-    
+    if (readResult < 0 && connect.requestFinish) {
+
+        return ;
+    }
     Request req = parser->parse(connect.fd, connect.buffer);
 
     if (req.complete) {
@@ -86,6 +89,13 @@ void readRequest(int fd,  Client &connect, RequestParser *parser)
             parser->buffer.erase(fd);
             connect.keepAlive = false;
         }
+        cout << req.body.size() << endl;
+        std::cout << "  Method: " << req.method << std::endl;
+        std::cout << "  Path: " << req.path << std::endl;
+        std::cout << "Content-type" << req.headers["Content-Type"] << std::endl;
+        std::cout << "  Version: " << req.version << std::endl;
+        std::cout << "  Status: " << req.status << std::endl;
+        std::cout << "  Status: " << req.headers["content-length"] << std::endl;
 
         // std::cout << "Request parsed successfully:" << std::endl;
         // std::cout << "  Method: " << req.method << std::endl;

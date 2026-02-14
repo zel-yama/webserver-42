@@ -57,6 +57,7 @@ int creatEpoll( maptype config){
     
        
         Server *serv =   dynamic_cast<Server*>(it->second);
+        serv->fdEp = fdEp;
         if (!serv)
             throw std::runtime_error("Error in caseting servers");
         addSockettoEpoll(fdEp, serv->data);

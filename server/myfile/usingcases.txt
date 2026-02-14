@@ -70,3 +70,5 @@ signale contrlr + c to help user can use my webserver|
 -----------------------------------------------------------
 over flow in body request max check |
 ----------------------------------------
+moving host resultion from host resultion | 
+------------------------------------

@@ -154,9 +154,9 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
 
     if (pid == 0)
     {
+       
         dup2(inPipe[0], STDIN_FILENO);
         dup2(outPipe[1], STDOUT_FILENO);
-
         close(inPipe[1]);
         close(outPipe[0]);
 
@@ -165,6 +165,7 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
         execve(cgiPath.c_str(), argv, envp);
         exit(1);
     }
+    
 
     close(inPipe[0]);
     close(outPipe[1]);

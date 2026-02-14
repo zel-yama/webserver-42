@@ -44,11 +44,12 @@ void eventLoop(maptype config ){
     int n;
     
     fdEp = creatEpoll(config);
+    
     struct epoll_event events[MAXEVENT];
     while(1){
         
         
-        printf("-----epoll wait -\n");
+        printf("-----epoll wait ---\n");
     
         printf("before EPOLL WAIT \n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
@@ -83,8 +84,6 @@ void eventLoop(maptype config ){
                     Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));
                     Server *serv = getServerFromClient(config, *Cli);
                     handlingOFCGi(config, serv, cgI, Cli);
-      
-
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {

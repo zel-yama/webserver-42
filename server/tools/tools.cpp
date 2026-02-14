@@ -14,6 +14,8 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
     {
         cerr << "Error to add socket to epoll" << endl;
+        perror("here: ");
+        printf("%s", strerror(errno));
         return -1;
     }
     return 0;

@@ -157,6 +157,8 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
        
         dup2(inPipe[0], STDIN_FILENO);
         dup2(outPipe[1], STDOUT_FILENO);
+        close(outPipe[1]);
+        close(inPipe[0]);
         close(inPipe[1]);
         close(outPipe[0]);
 
@@ -166,17 +168,23 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
         exit(1);
     }
     
-
-    close(inPipe[0]);
-    close(outPipe[1]);
-
-    fcntl(outPipe[0], F_SETFL, O_NONBLOCK);
-    fcntl(inPipe[1], F_SETFL, O_NONBLOCK);
-
-    handle.readFd = outPipe[0];
-    handle.writeFd = inPipe[1];
-    handle.pid = pid;
-
+    else{
+        close(inPipe[0]);
+        close(outPipe[1]);
+    
+        fcntl(outPipe[0], F_SETFL, O_NONBLOCK);
+        fcntl(inPipe[1], F_SETFL, O_NONBLOCK);
+    
+        printf("read e end %d \n", outPipe[0]);
+        printf("write end %d\n", inPipe[1]);
+        handle.readFd = outPipe[0];
+        handle.writeFd = inPipe[1];
+        char buff[22];
+        printf("read by %zd\n", read(inPipe[0], buff, 21));
+        handle.pid = pid;
+    
+        
+    }
     freeEnvp(envp);
     return handle;
 }

@@ -70,10 +70,12 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     _Cgi *obj;
 
     obj = new _Cgi();
-    close(pip);
+    
+    memset(&obj->data, 0, sizeof(obj->data));
     obj->name = "cgi";
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
-    obj->data.data.fd = makeNonBlockingFD(fdIN);
+    obj->data.data.fd =fdIN;
+    obj->fd_in = fdIN;
     printf("df %d\n", fdIN);
     close (fdOUT);
     obj->fd_client = connect.fd;
@@ -94,7 +96,7 @@ void sendResponse(maptype &config, Client &connect) {
         connect.response = srv->respone->build();
         if (srv->respone->isCgipending()){
          
-            printf("cgi");
+            printf("cgi \n");
             addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
             return ;
         }

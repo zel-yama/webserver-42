@@ -263,6 +263,14 @@ std::string& Response::getFilePath()
     return  filePath;
 }
 
+bool Response::isCgipending() const {return cgiPending;}
+
+int Response::getcgiReadFd() const {return cgiReadFd;}
+
+int Response::getcgiWriteFd() const {return cgiWriteFd;}
+
+pid_t Response::getcgiPid() const {return cgiPid;}
+
 size_t Response::getFileSize() const
 {
     return fileSize;
@@ -346,10 +354,10 @@ void Response::processRequest(Request &req, Server &ser)
     validateRequest(req, &ser);
     if (req.status != 200)
     {
-        if (req.status >= 300 && req.status < 400 && req.headers.find("Location") != req.headers.end())
+        if (req.status >= 300 && req.status < 400 && req.headers.find("location") != req.headers.end())
         {
             setStatus(req.status, "");
-            setHeader("Location", req.headers["Location"]);
+            setHeader("Location", req.headers["location"]);
             setHeader("Content-Length", "0");
             body.clear();
             return;

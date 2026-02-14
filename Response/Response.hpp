@@ -80,10 +80,10 @@ public:
     void handleDelete(const std::string &path,
         const Request &req,
         const Server &srv);
+        void handleMultipartUpload(const Request &req, const Server &srv);
+        
+        // for cgi fds
     void applyCgiResponse(const std::string &cgiOutput);
-    void handleMultipartUpload(const Request &req, const Server &srv);
-
-    // for cgi fds
     bool isCgipending() const;
     int getcgiReadFd() const;
     int getcgiWriteFd() const;

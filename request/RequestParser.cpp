@@ -115,23 +115,6 @@ bool RequestParser::decodeChunked(std::string& buf, std::string& out) {
     }
 }
 
-std::string normalize(std::string &data) {
-    std::string nor;
-    nor.reserve(data.size() + data.size() / 10);
-    
-    for (size_t i = 0; i < data.size(); i++) {
-        if (data[i] == '\r') {
-            nor += "\r\n";
-            if (i + 1 < data.size() && data[i + 1] == '\n')
-                i++;
-        } else if (data[i] == '\n') {
-            nor += "\r\n";
-        } else {
-            nor += data[i];
-        }
-    }
-    return nor;
-}
 
 bool RequestParser::parseHeaders(std::string& b, Request& req)
 {

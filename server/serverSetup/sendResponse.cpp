@@ -74,6 +74,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->name = "cgi";
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
     obj->data.data.fd = makeNonBlockingFD(fdIN);
+    printf("df %d\n", fdIN);
     close (fdOUT);
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
@@ -93,6 +94,7 @@ void sendResponse(maptype &config, Client &connect) {
         connect.response = srv->respone->build();
         if (srv->respone->isCgipending()){
          
+            printf("cgi");
             addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
             return ;
         }

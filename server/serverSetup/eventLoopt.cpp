@@ -26,6 +26,7 @@ void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
     int i = read(cg->fd_in, buffer, va );
     if (i <= 0)
         return ;
+    printf("cgi event \n");
     connect->response.append(buffer, i);
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
@@ -77,11 +78,12 @@ void eventLoop(maptype config ){
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
         
+                    printf("cgi -> event loop  \n");
                     cgI = dynamic_cast<_Cgi *>(config.at(events[i].data.fd));
                     Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));
                     Server *serv = getServerFromClient(config, *Cli);
                     handlingOFCGi(config, serv, cgI, Cli);
-                    continue;
+      
 
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
@@ -94,10 +96,8 @@ void eventLoop(maptype config ){
                     if (checkTimeout(*Cli))
                         continue;
                     if (events[i].events & EPOLLIN ){
-                        Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                      
                         std::cout << " fd cleint  "<< Cli->fd << std::endl;
-                        if (!Cli)
-                            continue;
                         if (!Cli->requestFinish)
                             readRequest(events[i].data.fd, *Cli, clientServer->parser);
                         

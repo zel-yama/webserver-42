@@ -119,8 +119,9 @@ servers parsing(std::string FileName){
     
     tockV = tokeniezer(v);
     bracketValidtion(tockV);
-   
+    
     servs =  setUpServers(tockV);
+  
     return servs;
 
 }   

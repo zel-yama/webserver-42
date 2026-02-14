@@ -102,14 +102,14 @@ void validateRequest(Request& req, Server* srv) {
     if (req.loc && !req.loc->returnP.empty()) {
         int code = (req.loc->returnCode > 0) ? req.loc->returnCode : 301;
         req.status = code;
-        req.headers["Location"] = req.loc->returnP;
+        req.headers["location"] = req.loc->returnP;
         return;
     }
 
     if (!srv->returnP.empty()) {
         int code = (srv->returnCode > 0) ? srv->returnCode : 301;
         req.status = code;
-        req.headers["Location"] = srv->returnP;
+        req.headers["location"] = srv->returnP;
         return;
     }
     

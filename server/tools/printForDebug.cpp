@@ -48,6 +48,8 @@ void printAttr(Server &Serv){
        std::cout << "autoindex -> " << Serv.outoIndex << std::endl;
         std::cout << "max byte size -> "<< Serv.bodyMaxByte << std::endl;
         std::cout << "root -> " << Serv.root << std::endl;
+        printf("index \n");
+        printvector(Serv.indexFile);
         printf("this is allowd methods \n");
         printvector(Serv.allowedMethods);
         printf("this index file \n");
@@ -79,6 +81,9 @@ void printlocation(location obj){
     printf("this is allowed methods -> \n");
     printvector(obj.allowedMethods);
     printMap(obj.CgiCofing);
+    printf("index files");
+    printf("index \n");
+    printvector(obj.indexFile);
     printf("this cgi status -> %d\n", obj.cgiStatus);
     printf("this cgi path string -> %s\n", obj.cgiPath.c_str());
     printf("this upload -> %d\n", obj.upload);

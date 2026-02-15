@@ -115,10 +115,10 @@ void variableSingleValue(std::string str, std::string &buff){
         throw std::runtime_error("invalid  extra value -> {" + str + "}");
 }
 /// now i handle limit methods like this methods get put after i handle {deny all}
-void methodesHandler(std::vector<std::string> &methdsV, std::string methods){
+void methodesHandler(std::vector<std::string> &methdsV, std::string methods , int i){
     std::stringstream ss(methods);
     while(ss >> methods){
-        if (!methods.compare("GET") && !methods.compare("POST") && !methods.compare("DELETE"))
+        if ((!methods.compare("GET") && !methods.compare("POST") && !methods.compare("DELETE")) && i == 1)
             throw std::runtime_error("Error: invalid a method -> " + methods);
         methdsV.push_back(methods);
     }
@@ -142,7 +142,7 @@ void returnP(std::string token, std::string &path, int &exitCode){
     std::string s;
     ss >> s;
     exitCode = convertString(s);
-    if (exitCode == -1)
+    if (exitCode == -1 || (exitCode < 300 || exitCode > 599))
         costumThrow("invalid number of arguments", token);
     if (!ss.eof())
         ss >> path;

@@ -43,12 +43,7 @@ void checkTockens(tockens &tockn){
 		throw std::runtime_error( "in valid tockenz {" + tockn.val + "} give valid one ");
 
 }
-// CGI on;
-// 		upload on;
-// 		uploadPath ./; 
-// 		cgiPath /usr/bin/python3;
-// 		cgiExten .py;
-// 	}
+
 
 void serverCases(tockenIt &it, Server &serv){
     
@@ -71,7 +66,7 @@ void serverCases(tockenIt &it, Server &serv){
             break;   
         case METHODS:
             it++;
-            methodesHandler(serv.allowedMethods, it->val);
+            methodesHandler(serv.allowedMethods, it->val, 1);
             break;
         case AUTOINDEX:
             it++;
@@ -79,7 +74,7 @@ void serverCases(tockenIt &it, Server &serv){
             break;
         case INDEX:
             it++;
-            methodesHandler(serv.indexFile, it->val);
+            methodesHandler(serv.indexFile, it->val, 0);
             break;
         case SERVERNAME:
             it++;
@@ -135,7 +130,7 @@ void locationCases(tockenIt &it, location &local){
             break;
         case METHODS:
             it++;
-            methodesHandler(local.allowedMethods, it->val);
+            methodesHandler(local.allowedMethods, it->val, 1);
             break;
         case AUTOINDEX:
             it++;
@@ -144,7 +139,7 @@ void locationCases(tockenIt &it, location &local){
             break;
         case INDEX:
             it++;
-            methodesHandler(local.indexFile, it->val);
+            methodesHandler(local.indexFile, it->val, 0);
             break;
         case ERRORPAGE:
             it++;

@@ -18,8 +18,8 @@ int myread(Client &connect, std::string& buffer) {
     char tmp[MAXSIZEBYTE];
     int byte = 0;
     int n = 1;
-    // while (n > 0)
-    // {
+    while (n > 0)
+    {
         if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
             byte = connect.bodysize;
         else 
@@ -39,7 +39,7 @@ int myread(Client &connect, std::string& buffer) {
             return n;
         }
      
-    // }
+    }
     
     return 1;
 }
@@ -59,11 +59,11 @@ bool allowKeepAlive(Request req)
     return true;
 }
 
-void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *parser)
+void readRequest(int fd,  Client &connect, RequestParser *parser)
 {
     int readResult = myread(connect, parser->buffer[fd]);
     
-    // printf("buffer %s\n", connect.buffer.c_str());
+    printf("buffer %s\n", parser->buffer[fd].c_str());
     if (readResult == 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         connect.requestFinish = false; 
@@ -96,6 +96,16 @@ void readRequest(int fd, std::string& buffer, Client &connect, RequestParser *pa
         std::cout << "  Version: " << req.version << std::endl;
         std::cout << "  Status: " << req.status << std::endl;
         std::cout << "  Status: " << req.headers["content-length"] << std::endl;
+
+        // std::cout << "Request parsed successfully:" << std::endl;
+        // std::cout << "  Method: " << req.method << std::endl;
+        // std::cout << "  Path: " << req.path << std::endl;
+        // std::cout << "  Version: " << req.version << std::endl;
+        // std::cout << "  Status: " << req.status << std::endl;
+        // std::cout << "  content-type: " << req.headers["content-type"]  << std::endl;
+        // std::cout << "  content-length: " << req.headers["content-length"] << std::endl;
+        // std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
+        // std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
 
     } else {
         std::cout << "Request incomplete, waiting for more data..." << std::endl;

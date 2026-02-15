@@ -30,11 +30,10 @@ private:
     std::map<std::string, std::string> headers;
     std::map<int, std::string> statusMap;
     bool LargeFile;
-    std::string filePath;
     size_t fileSize;
     Server *srv;
     Request *req;
-
+    std::string filePath;
     // for detect fd of cgi by epool;
     bool cgiPending;
     int  cgiReadFd;
@@ -72,7 +71,7 @@ public:
     void generateautoindex(const std::string &path);
     std::string build();
     bool isLargeFile() const;
-    std::string getFilePath() const;
+    std::string& getFilePath();
     size_t getFileSize() const;
     void setContext(Request *r, Server *s);
     bool hasReadPermission(const std::string &path) const;

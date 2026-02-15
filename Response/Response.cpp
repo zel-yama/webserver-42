@@ -258,9 +258,9 @@ bool Response::isLargeFile() const
     return LargeFile;
 }
 
-std::string Response::getFilePath() const
+std::string& Response::getFilePath() 
 {
-    return filePath;
+    return  filePath;
 }
 
 bool Response::isCgipending() const {return cgiPending;}

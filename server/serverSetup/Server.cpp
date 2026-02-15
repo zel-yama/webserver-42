@@ -42,6 +42,7 @@ location::location(){
 Client Server::acceptClient(){
     Client newOne;
     newOne.serverId = this->fd; // i change this to fd?
+    newOne.fdEp = fdEp;
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
     newOne.fd = makeNonBlockingFD(newOne.fd);
@@ -52,8 +53,8 @@ Client Server::acceptClient(){
         cerr << ss.str() << endl;
         exit(1);
     }
+    newOne.data.events = EPOLLIN | EPOLLHUP  | EPOLLERR;
     /// socket buffer input output 
-    newOne.data.events = EPOLLIN | EPOLLET;//EPOLOUT 
     newOne.data.data.fd = newOne.fd;
     return newOne;
 }

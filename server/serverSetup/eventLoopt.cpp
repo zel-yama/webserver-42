@@ -26,14 +26,18 @@ void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
     const int  va = 15020;
     char buffer[va];
     int i = read(cg->fd_in, buffer, va );
-    
+    if (i == 0) {
+       deleteClient(data, cg->fd_in, cg->fdEp);
+        return ;
+    }
     printf("cgi event \n");
     connect->response.append(buffer, i);
+    printf("read from cgi {%s} \n", connect->response.c_str());
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
     kill(cg->pid, SIGTERM);
 
-    printf("conn ->  %s }} \n", connect->response.c_str());
+    
     sendResponse(data, *connect);
 
 
@@ -65,6 +69,8 @@ void eventLoop(maptype config ){
             
             for(int i = 0; i < n; i++){
                 
+                if (config.count(events[i].data.fd) == 0)
+                    continue;
                 if (findElement(config, events[i].data.fd) == "Server"){
                     
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
@@ -79,7 +85,7 @@ void eventLoop(maptype config ){
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
                     printf("close connection due to Error happens in client side ");
-                    deleteClient(config, events[i].data.fd, fdEp);
+                     deleteClient(config, events[i].data.fd, fdEp);
                     continue;
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){

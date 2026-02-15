@@ -40,7 +40,7 @@ void checkClientConnection(maptype &config, Client &connect) {
         connect.buffer = "";
         connect.prevTime = time(NULL);
         setClientSend(connect.fdEp, connect);
-        cout << "test test ====> " << connect.sending << endl;
+      
         return;
     }
     
@@ -53,7 +53,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     
     // Keep-alive: reset for next request
     connect.buildDone = false;
-
+    printf("reset flags to  \n ");
     connect.prevTime = time(NULL);
     connect.requestFinish = false;
     connect.headersOnly = false;
@@ -110,13 +110,13 @@ void sendResponse(maptype &config, Client &connect) {
         }
 
     }
-    int byte = 0;
+
     while(true){
         if (connect.fdFile != -1){
-            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
+            connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
             
-            if (byte > 0)
-                connect.response.append(buff, byte);
+            if (connect.byteRead > 0)
+                connect.response.append(buff, connect.byteRead);
         }
         printf("response send | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);

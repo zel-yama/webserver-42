@@ -15,7 +15,8 @@ location locationHandling(tockenIt &it){
   return local;
 }
 
-void location_handle(Server &serv, std::string path){
+void location_handle(Server &serv, std::string path)//extra 
+ {
     serv.ServerName = path;
 }
 
@@ -51,7 +52,7 @@ servers setUpServers(std::vector<tockens> &v){
     it = v.begin();
     while (it != v.end())
     {
-       // printf("----------------------------\n");
+      
         if (!it->val.compare("server")){
             i = serverHnding(it,Servs);
             if (i <= v.size())
@@ -61,8 +62,8 @@ servers setUpServers(std::vector<tockens> &v){
         }
         it++;
     }
-//     printf("------");
-//    printAllConfig (Servs);
+    printf("------");
+   printAllConfig (Servs);
 
 
     return Servs;

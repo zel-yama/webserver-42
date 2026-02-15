@@ -18,18 +18,24 @@ class Config{
         virtual ~Config(){}
 };
 
-class File : public Config{
+// class File : public Config{
     
+//     public:
+
+//         std::string buffer;
+//         int bytsent;
+//         int fd;
+    
+// };
+
+class _Cgi : public Config{
+
     public:
-
-        std::string buffer;
-        int bytsent;
-        int fd;
-    
-};
-
-class Cgi : public Config{
-
+        int fd_client;
+        int fd_in;
+        int fdEp;
+        pid_t pid;
+        
     
 };
 

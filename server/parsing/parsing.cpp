@@ -87,18 +87,24 @@ void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
         v.push_back(tock);
 
 }
+void parseFileExten(std::string &fileName){
+    std::string exten = fileName.substr(fileName.size() - 5); 
+
+    if (exten.compare(".conf"))
+        throw std::runtime_error("Error: in file exstention " + fileName); //search on it
+}
 
 servers parsing(std::string FileName){
     
     
-    maptype config;
+ 
     servers servs;
     std::vector<std::string> store;
-    //std::string var;
     doubleStr v;
     std::vector<tockens> tockV;
     std::ifstream ObjFile(FileName.c_str());
     std::string line;
+    parseFileExten(FileName);
     while (getline(ObjFile, line))
     {
         if (!line.empty())
@@ -113,8 +119,9 @@ servers parsing(std::string FileName){
     
     tockV = tokeniezer(v);
     bracketValidtion(tockV);
-   
+    
     servs =  setUpServers(tockV);
+  
     return servs;
 
 }   

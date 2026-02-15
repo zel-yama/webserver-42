@@ -20,20 +20,20 @@ class Server : public Config {
     
     Server();
     
-    std::vector<std::string>            indexFile;
-    unsigned int                        port;
-    std::string                         ipAdress;
-    std::string                         returnP;
-    size_t                              bodyMaxByte;
-    std::string                         root;
+    std::vector<std::string>                indexFile;
+    unsigned int                            port;
+    std::string                             ipAdress;
+    std::string                             returnP;
+    size_t                                  bodyMaxByte;
+    std::string                              root;
     int upload;
-    std::string                          uploadPath;
-    std::string                               cgiPath;
-    std::string                          cgiExten;
-    bool                                   infoFull;
+    std::string                             uploadPath;
+    std::string                             cgiPath;
+    std::string                             cgiExten;
+    bool                                    infoFull;
     int                                     cgiStatus;
         std::vector<std::string>            allowedMethods;
-        int                              outoIndex;
+        int                                  outoIndex;
         int                                 fd;
         int                                 returnCode ;
         struct sockaddr_in                  addressServer;
@@ -81,7 +81,7 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data);
 size_t countBuffersize(std::string buffer, Client &connect);
 
 // Helper to get server from client (me again)
-Server* getServerFromClient(maptype& config, Client& client);
-void    costumThrow(std::string des, std::string invalid);
-
+Server*     getServerFromClient(maptype& config, Client& client);
+void        costumThrow(std::string des, std::string invalid);
+bool        checkTimeout(Client &connect);
 #endif

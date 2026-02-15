@@ -75,8 +75,9 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->name = "cgi";
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
     obj->data.data.fd =fdIN;
+    obj->currentTime = time(NULL);
     obj->fd_in = fdIN;
-    printf("df %d\n", fdIN);
+    obj->pid = pip;
     close (fdOUT);
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
@@ -94,13 +95,13 @@ void sendResponse(maptype &config, Client &connect) {
         Server* srv = getServerForClient(config, connect.serverId);
         srv->respone->processRequest(connect.parsedRequest, *srv);
         connect.response = srv->respone->build();
+        connect.buildDone = true;
         if (srv->respone->isCgipending()){
          
-            printf("cgi \n");
+            printf("cgi  here again \n");
             addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
             return ;
         }
-        connect.buildDone = true;
         if (srv->respone->isLargeFile()){
             printf("file name %s  fd %d \n", srv->respone->getFilePath().c_str(), connect.fd );
             connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
@@ -117,7 +118,7 @@ void sendResponse(maptype &config, Client &connect) {
             if (byte > 0)
                 connect.response.append(buff, byte);
         }
-        // printf("response | %s |\n", connect.response.c_str());
+        printf("response send | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         if (n < 0  || connect.response.empty())
             break;

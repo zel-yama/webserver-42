@@ -84,4 +84,5 @@ size_t countBuffersize(std::string buffer, Client &connect);
 Server*     getServerFromClient(maptype& config, Client& client);
 void        costumThrow(std::string des, std::string invalid);
 bool        checkTimeout(Client &connect);
+void    handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect);
 #endif

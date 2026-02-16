@@ -17,6 +17,7 @@ int function(int va){
     return var;
 }
 void signalhandler(int sig){
+    (void)sig;
     function(1);
 }
 
@@ -37,8 +38,8 @@ void cleanUP(maptype &config){
     Server *s;
     Client *c;
     ConfigIter it = config.begin();
-    int i = 0;
-    while(i < it->second->fdsBuffer.size()){
+    size_t i = 0;
+    while( i < it->second->fdsBuffer.size()){
         close (it->second->fdsBuffer[i]);
         i++;
     }
@@ -49,6 +50,18 @@ void cleanUP(maptype &config){
         }
         if (it->second->name == "Server"){
             s  = (Server *) it->second;
+            std::map<int , Request>::iterator it  = s->parser->requests.begin();
+            while (it != s->parser->requests.end())
+            {
+                Request ptr = it->second; 
+                delete ptr.loc;
+            }
+            
+            delete s->parser;
+
+            delete s->respone;
+      
+            
             
         }
         if (it->second->name == "Client"){
@@ -66,7 +79,7 @@ void eventLoop(maptype config ){
     
     int fdEp;
     Client *Cli = NULL;
-    Client  newClient;
+    Client*  newClient;
     Server *serv = NULL;
     _Cgi    *cgI = NULL;
     int n;
@@ -89,33 +102,36 @@ void eventLoop(maptype config ){
          
             for(int i = 0; i < n; i++){
                
-                if (config.count(events[i].data.fd) == 0){
-             
+                if (config.count(events[i].data.fd) == 0){        
                     continue;
                 }
 
-                
                 if (findElement(config, events[i].data.fd) == "Server"){
                     
+                
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
-                    newClient =  serv->acceptClient();
-                    config[newClient.fd] = &newClient;
-                    cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
-                    addSockettoEpoll(fdEp, newClient.data);               
+                    newClient =  new Client(serv->acceptClient());
+                    config[newClient->fd] = newClient;
+                    cout << "Accept [client] [ " << newClient->fd << " ] from server " << serv->fd << endl; 
+                    addSockettoEpoll(fdEp, newClient->data);               
                     continue; 
                 }
-                if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && (findElement(config, events[i].data.fd)  == "client" ||findElement(config, events[i].data.fd)  == "cgi" )){
+                if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && (findElement(config, events[i].data.fd)  == "client" || findElement(config, events[i].data.fd)  == "cgi" )){
                     continue;
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
                     printf("close connection due to Error happens in client side ");
-                     deleteClient(config, events[i].data.fd, fdEp);
+                    deleteClient(config, events[i].data.fd, fdEp);
                     continue;
                 }
-                else if (findElement(config, events[i].data.fd) == "cgi"){
+                else if (findElement(config, events[i].data.fd) == "cgi"){//new pwd 
+          
+                    if (config.count(events[i].data.fd) || config.count(cgI->fd_client))
+                        continue;
                     cgI = dynamic_cast<_Cgi *>(config.at(events[i].data.fd));
                     Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));
                     Server *serv = getServerFromClient(config, *Cli);
+                    
                     handlingOFCGi(config, serv, cgI, Cli);
                     continue;
                 }
@@ -128,12 +144,12 @@ void eventLoop(maptype config ){
                         
                         std::cout << " fd cleint  "<< Cli->fd << std::endl;
                         if (!Cli->requestFinish)
-                        readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
+                            readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
                         
                         if  (Cli->requestFinish)
-                        sendResponse(config, *Cli);
+                            sendResponse(config, *Cli);
                         else 
-                        continue;
+                            continue;
                     }
                     if (events[i].events & EPOLLOUT  ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));

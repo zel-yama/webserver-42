@@ -12,8 +12,8 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ -I./include  #-fsanitize=address,undefined -g  #-std=c++98 
-FLAGS = #-Werror -Wextra -Wall  -std=c++98
+CC = c++ -I./include  #-fsanitize=address  #std=c++98 
+FLAGS = #-Werror -Wextra -Wall # -std=c++98
 headers = #server/include/tools.hpp  server/include/Server.hpp \
 server/include/parsing.hpp server/include/include.hpp server/include/Config.hpp \
  server/include/Client.hpp request/RequestParser.hpp Response/cgi.hpp Response/Response.hpp

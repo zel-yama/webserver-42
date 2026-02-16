@@ -22,16 +22,16 @@ struct Request {
     std::string query;
     std::string version;
     std::string body;
-    int status;
     
     std::map<std::string, std::string> headers;
     std::vector<MultipartPart> multipartData;
     std::map<std::string, std::string> cookies;
-
-    bool headersParsed;
+    
     
     bool complete;
+    int status;
     bool keepalive;
+    bool headersParsed;
     std::string fullpath;
     location *loc;
 

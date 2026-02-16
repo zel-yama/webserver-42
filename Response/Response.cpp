@@ -13,8 +13,8 @@ Response::Response()
       protocol("HTTP"),
       version("1.0"),
       body("<h1>Hello World</h1>"),
-      srv(NULL),
       req(NULL),
+      srv(NULL),
       LargeFile(false)      
 {
     statusMap[200] = "OK";
@@ -823,6 +823,8 @@ void Response::handleDelete(const std::string &path,
                             const Request &req,
                             const Server &srv)
 {
+    (void)req;
+    (void)srv;
     if (!existFile(path.c_str()))
     {
         sendError(404, "");

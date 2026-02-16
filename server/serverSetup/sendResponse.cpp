@@ -9,19 +9,18 @@ void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
     
     const int  va = 15020;
     char buffer[va];
+
     int i = read(cg->fd_in, buffer, va );
-    if (i < 0) {
-       deleteClient(data, cg->fd_in, cg->fdEp);
+    if (i < 0 || !srv|| !connect) {
+        kill(cg->pid, SIGTERM);
+        deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
     }
-    
-   
+    printf("handling cgi \n");
     if (i > 0){
         connect->response.append(buffer, i);
         return ;
     }
-  
-   
     printf("read from cgi {%s} \n", connect->response.c_str());
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
@@ -57,8 +56,11 @@ void checkClientsTimeout(maptype& config, int fdEp)
         }
         if (i->second->name == "cgi"){
             _Cgi *cg = (_Cgi *) i->second;
-            if (checkTimeout(cg->currentTime, TIMEOUT))
+            if (checkTimeout(cg->currentTime, TIMEOUT)){
+                kill(cg->pid, SIGTERM);
                 ve.push_back(cg->fd_in);
+
+            }
         }
     }
     for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
@@ -123,7 +125,7 @@ void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
     int n = 1 ;
-    int readB = 0;
+ 
     char buff[MAXSIZEBYTE];
    
     if (!connect.buildDone){
@@ -149,7 +151,8 @@ void sendResponse(maptype &config, Client &connect) {
 
     if (!connect.response.empty()){
 
-        printf("response send | %s |\n", connect.response.c_str());
+        // printf("response send | %s |\n", connect.response.c_str());
+        std::cout << "send response \n";
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {

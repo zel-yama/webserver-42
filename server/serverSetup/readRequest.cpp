@@ -17,30 +17,23 @@ int myread(Client &connect, std::string& buffer) {
     
     char tmp[MAXSIZEBYTE];
     int byte = 0;
-    int n = 1;
-    while (n > 0)
-    {
-        if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
-            byte = connect.bodysize;
-        else 
-            byte = MAXSIZEBYTE;
+    int n = 0;
 
-        n = read(connect.fd, tmp, byte);
+    n = read(connect.fd, tmp, MAXSIZEBYTE);
 
-        printf("this n of read byte in while {%d}\n", n);
-        if (n > 0) {
-            connect.byteSent += n;
-            buffer.append(tmp, n);    
-        }
-        if (n == 0) {
-            return 0;
-        }
-        if (n < 0) {
-            return n;
-        }
-     
+    if (n > 0) {
+        connect.byteSent += n;
+        buffer.append(tmp, n);   
+        return n; 
     }
+    if (n == 0) {
+        return 0;
+    }
+    if (n < 0) {
+        return n;
+    }   
     
+
     return 1;
 }
 
@@ -64,7 +57,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
     int readResult = myread(connect, parser->buffer[fd]);
     
     printf("buffer %s\n", parser->buffer[fd].c_str());
-    if (readResult == 0) {
+    if (readResult <= 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         deleteClient(data, fd, connect.fdEp);
         return;

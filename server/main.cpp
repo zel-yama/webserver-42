@@ -30,7 +30,9 @@ int main(int av, char *argc[]){
 	catch (exception &e)
 	{
 		cout << e.what() << endl;
+		printf("trow catch ");
 		close(Serv.fd);
+		
 		return 1;
 	}
 	close(Serv.fd);

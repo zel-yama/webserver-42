@@ -131,9 +131,9 @@ void eventLoop(maptype config ){
                         readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
                         
                         if  (Cli->requestFinish)
-                        sendResponse(config, *Cli);
+                            sendResponse(config, *Cli);
                         else 
-                        continue;
+                            continue;
                     }
                     if (events[i].events & EPOLLOUT  ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));

@@ -57,8 +57,10 @@ void checkClientsTimeout(maptype& config, int fdEp)
         }
         if (i->second->name == "cgi"){
             _Cgi *cg = (_Cgi *) i->second;
-            if (checkTimeout(cg->currentTime, TIMEOUT))
+            if (checkTimeout(cg->currentTime, TIMEOUT)){
+                
                 ve.push_back(cg->fd_in);
+            }
         }
     }
     for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){

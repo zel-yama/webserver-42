@@ -18,8 +18,8 @@ int myread(Client &connect, std::string& buffer) {
     char tmp[MAXSIZEBYTE];
     int byte = 0;
     int n = 1;
-    while (n > 0)
-    {
+    // while (n > 0)
+    // {
         if (connect.headersOnly &&  connect.bodysize < MAXSIZEBYTE)
             byte = connect.bodysize;
         else 
@@ -39,7 +39,7 @@ int myread(Client &connect, std::string& buffer) {
             return n;
         }
      
-    }
+    // }
     
     return 1;
 }

@@ -8,7 +8,6 @@ Client::Client(){
     name = "client";
     keepAlive = false;
     timeout = 40; // there defoult but it would be a one in config file 
-    prevTime = time(NULL);
     requestFinish = false;// if request finish i should watch it to reading request ;
     bodySizeStatus = false;
     byteSent = 0;

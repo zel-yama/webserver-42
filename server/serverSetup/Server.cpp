@@ -57,7 +57,7 @@ Client Server::acceptClient(){
     newOne.data.events = EPOLLIN | EPOLLHUP  | EPOLLERR;
     /// socket buffer input output 
     newOne.data.data.fd = newOne.fd;
-    newOne.prevTime = time(NULL);
+    newOne.currentTime = time(NULL);
     fdsBuffer.push_back(newOne.fd);
     return newOne;
 }

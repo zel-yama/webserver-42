@@ -46,11 +46,12 @@ void checkClientsTimeout(maptype& config, int fdEp)
     Client *connect = NULL;
     std::vector<int> ve;
    
+    
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
         if (i->second->name == "client") {
             connect = dynamic_cast<Client*>(i->second);
 
-            if (checkTimeout(connect->prevTime, TIMEOUT)) {
+            if (checkTimeout(connect->currentTime, TIMEOUT)) {
                 ve.push_back(connect->fd);
             }
         }
@@ -74,6 +75,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     
 
     // Check if connection should close (from parsed request)
+    printf("yes after respuons ");
     if (!connect.keepAlive) {
         deleteClient(config, connect.fd, connect.fdEp);
         return;
@@ -82,7 +84,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     // Keep-alive: reset for next request
     connect.buildDone = false;
     printf("reset flags to  \n ");
-    connect.prevTime = time(NULL);
+    connect.currentTime = time(NULL);
     connect.requestFinish = false;
     connect.headersOnly = false;
     connect.bodysize = 0;

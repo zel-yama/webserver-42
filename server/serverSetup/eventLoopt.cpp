@@ -88,9 +88,9 @@ void eventLoop(maptype config ){
            }
          
             for(int i = 0; i < n; i++){
-                printf("in loop \n");
+               
                 if (config.count(events[i].data.fd) == 0){
-                    printf("not exists");
+             
                     continue;
                 }
 
@@ -104,8 +104,8 @@ void eventLoop(maptype config ){
                     addSockettoEpoll(fdEp, newClient.data);               
                     continue; 
                 }
-                if (checkTimeout(config.at(events[i].data.fd)->name == "client" && config[events[i].data.fd]->currentTime, TIMEOUT)){
-                    printf("close timeout\n");
+                if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && findElement(config, events[i].data.fd)  == "client"){
+                    continue;
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
                     printf("close connection due to Error happens in client side ");

@@ -104,9 +104,9 @@ void eventLoop(maptype config ){
                     addSockettoEpoll(fdEp, newClient.data);               
                     continue; 
                 }
-                // if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT)){
-                //     printf("close timeout\n");
-                // }
+                if (checkTimeout(config.at(events[i].data.fd)->name == "client" && config[events[i].data.fd]->currentTime, TIMEOUT)){
+                    printf("close timeout\n");
+                }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
                     printf("close connection due to Error happens in client side ");
                      deleteClient(config, events[i].data.fd, fdEp);

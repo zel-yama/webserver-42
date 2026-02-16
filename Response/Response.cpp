@@ -501,7 +501,7 @@ void Response::handlePost(const std::string &path,
             ext = "." + ext;
 
         int cgiEnabled = srv.cgiStatus;
-        map<std::string, std::string> cgiConfig = srv.cgiConfig;
+        std::map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
         if (req.loc && req.loc->cgiStatus != -1)
             cgiEnabled = req.loc->cgiStatus;
@@ -682,7 +682,7 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
             ext = "." + ext;
 
         int cgiEnabled = srv.cgiStatus;
-        map<std::string, std::string> cgiConfig = srv.cgiConfig;
+        std::map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
         if (req.loc && req.loc->cgiStatus != -1)
             cgiEnabled = req.loc->cgiStatus;
@@ -839,6 +839,39 @@ void Response::handleDelete(const std::string &path,
     {
         sendError(403, "");
         return;
+    }
+    std::string ext = getFileExtention(path);
+    if (!ext.empty() && ext[0] != '.')
+        ext = "."  + ext;
+
+    int cgiEnabled = srv.cgiStatus;
+    std::map<std::string, std::string> cgiConfig = srv.cgiConfig;
+
+    if(req.loc && req.loc->cgiStatus != -1)
+        cgiEnabled = req.loc->cgiStatus;
+    if (req.loc && !req.loc->CgiCofing.empty())
+        cgiConfig = req.loc->CgiCofing;
+
+    if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
+    {
+        Cgi cgi(req);
+
+        std::string UploadPath = srv.uploadPath;
+        if (req.loc && !req.loc->uploadPath.empty())
+            UploadPath = req.loc->uploadPath;
+        
+        std::string cgiPath = cgiConfig[ext];
+        Cgihandle handle = cgi.execute(cgiPath, path);
+        if (handle.readFd == -1 || handle.pid == -1)
+        {
+            sendError(500, "");
+            return ;
+        }
+        cgiPending = true;
+        cgiReadFd = handle.readFd;
+        cgiWriteFd = handle.writeFd;
+        cgiPid = handle.pid;
+        return ;
     }
 
     if (std::remove(path.c_str()) != 0)

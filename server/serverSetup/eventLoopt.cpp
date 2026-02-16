@@ -9,6 +9,16 @@
 // allawyz check client for timeout in case timeout and close mod and i should 
 // conclusesion now is monitor all  connection and i should disconnecte or rest  all expir ones  
 //note all clients should know his server to get info from std
+int function(int va){
+  static int var; 
+    if (va == 0)
+        return var;
+    var = va;
+    return var;
+}
+void signalhandler(int sig){
+    function(1);
+}
 
 std::string findElement(maptype &config, int fd){
     std::string str = "NOT FOUND";
@@ -21,22 +31,9 @@ std::string findElement(maptype &config, int fd){
     else
         return str;
 }
-void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
+void cleanUP(maptype &config){
     
-    const int  va = 15020;
-    char buffer[va];
-    int i = read(cg->fd_in, buffer, va );
-    
-    printf("cgi event \n");
-    connect->response.append(buffer, i);
-    srv->respone->applyCgiResponse(connect->response);
-    connect->response =   srv->respone->build();
-    kill(cg->pid, SIGTERM);
-
-    printf("conn ->  %s }} \n", connect->response.c_str());
-    sendResponse(data, *connect);
-
-
+    exit(1);
 }
 
 void eventLoop(maptype config ){
@@ -47,24 +44,27 @@ void eventLoop(maptype config ){
     Server *serv = NULL;
     _Cgi    *cgI = NULL;
     int n;
-    
+    function(0);
     fdEp = creatEpoll(config);
     
     struct epoll_event events[MAXEVENT];
     while(1){
         
+        signal(SIGINT, signalhandler);
         
-        printf("-----epoll wait ---\n");
-    
+        
+        printf("----- epoll wait -----\n");
+        
         printf("before EPOLL WAIT \n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
-        printf("  and this epoll FD %d the size of config %lu and this event lengh %d \n", fdEp, config.size(), n);
-        if (n == -1){
-            throw runtime_error("error in epoll wait function ");}
-       
+           if (function(0) == 1 || n == -1){
+                cleanUP(config);
+           }
             
             for(int i = 0; i < n; i++){
                 
+                if (config.count(events[i].data.fd) == 0)
+                    continue;
                 if (findElement(config, events[i].data.fd) == "Server"){
                     
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
@@ -79,7 +79,7 @@ void eventLoop(maptype config ){
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
                     printf("close connection due to Error happens in client side ");
-                    deleteClient(config, events[i].data.fd, fdEp);
+                     deleteClient(config, events[i].data.fd, fdEp);
                     continue;
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){

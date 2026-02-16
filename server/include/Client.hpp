@@ -19,15 +19,14 @@ class Client: public Config{
         int timeout;
         time_t prevTime;
         bool keepAlive;
-        bool requestFinish; // if request finished return response 
+        bool requestFinish; 
         size_t bodysize ;
         std::string buffer;
         std::string response;
         bool sending;
         bool bodySizeStatus;
         bool headersOnly;
-        //  std::vector<std::string> bufferRequest;
-        // std::vector<std::string> contentResponse;
+    
         long byteRead;
         long byteSent;
         long responseSize;

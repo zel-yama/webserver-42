@@ -5,6 +5,28 @@
 Server* getServerForClient(maptype& config, int serverId);
 
 
+void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
+    
+    const int  va = 15020;
+    char buffer[va];
+    int i = read(cg->fd_in, buffer, va );
+    if (i == 0) {
+       deleteClient(data, cg->fd_in, cg->fdEp);
+        return ;
+    }
+    printf("cgi event \n");
+    connect->response.append(buffer, i);
+    printf("read from cgi {%s} \n", connect->response.c_str());
+    srv->respone->applyCgiResponse(connect->response);
+    connect->response =   srv->respone->build();
+    kill(cg->pid, SIGTERM);
+
+    
+    sendResponse(data, *connect);
+
+
+}
+
 bool checkTimeout(Client &connect){
     time_t currentT =  time(NULL);
     if ((currentT - connect.prevTime) >= connect.timeout )
@@ -40,7 +62,7 @@ void checkClientConnection(maptype &config, Client &connect) {
         connect.buffer = "";
         connect.prevTime = time(NULL);
         setClientSend(connect.fdEp, connect);
-        cout << "test test ====> " << connect.sending << endl;
+      
         return;
     }
     
@@ -53,7 +75,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     
     // Keep-alive: reset for next request
     connect.buildDone = false;
-
+    printf("reset flags to  \n ");
     connect.prevTime = time(NULL);
     connect.requestFinish = false;
     connect.headersOnly = false;
@@ -97,8 +119,8 @@ void sendResponse(maptype &config, Client &connect) {
         connect.response = srv->respone->build();
         connect.buildDone = true;
         if (srv->respone->isCgipending()){
-         
-            printf("cgi  here again \n");
+            connect.response.clear();
+           
             addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
             return ;
         }
@@ -110,26 +132,25 @@ void sendResponse(maptype &config, Client &connect) {
         }
 
     }
-    int byte = 0;
-    while(true){
+
+    // while(true){
         if (connect.fdFile != -1){
-            byte =  read(connect.fdFile, buff, MAXSIZEBYTE);
+            connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
             
-            if (byte > 0)
-                connect.response.append(buff, byte);
+            if (connect.byteRead > 0)
+                connect.response.append(buff, connect.byteRead);
         }
         printf("response send | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
-        if (n < 0  || connect.response.empty())
-            break;
+       
         if (n == 0) {
             deleteClient(config, connect.fd, connect.fdEp);
-            break;
+            return ;
         }
         if (n > 0)
             connect.response.erase(0, n);
 
-    }
+    // }
 
    
     if (connect.response.size() > 0 || connect.byteRead > 0 )

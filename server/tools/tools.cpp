@@ -42,6 +42,7 @@ void  deleteClient(maptype& config, int fd, int fdEP){
    std::cout << " close connection this  [" << fd << "]  \n " << std::endl;
     close(fd);
     maptype::iterator it = config.find(fd);
+    
     if (it != config.end())
         config.erase(fd);
    

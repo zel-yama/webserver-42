@@ -10,26 +10,33 @@ void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
     const int  va = 15020;
     char buffer[va];
     int i = read(cg->fd_in, buffer, va );
-    if (i == 0) {
+    if (i < 0) {
        deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
     }
-    printf("cgi event \n");
-    connect->response.append(buffer, i);
+    if (i > 0){
+        connect->response.append(buffer, i);
+    }
+  
+   \
     printf("read from cgi {%s} \n", connect->response.c_str());
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
-    kill(cg->pid, SIGTERM);
 
-    
+    int status;
+    waitpid(cg->pid, &status, 0);
+
+    connect->buildDone = true;
+    connect->requestFinish = true;
+    deleteClient(data, cg->fd_in, connect->fdEp);
     sendResponse(data, *connect);
 
 
 }
 
-bool checkTimeout(Client &connect){
+bool checkTimeout(time_t prevTime, time_t timeout ){
     time_t currentT =  time(NULL);
-    if ((currentT - connect.prevTime) >= connect.timeout )
+    if ((currentT - prevTime) >= timeout )
         return true;
     return false;
 }
@@ -37,37 +44,38 @@ bool checkTimeout(Client &connect){
 void checkClientsTimeout(maptype& config, int fdEp) 
 {
     Client *connect = NULL;
+    std::vector<int> ve;
+   
     
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
         if (i->second->name == "client") {
             connect = dynamic_cast<Client*>(i->second);
-        
-            if (checkTimeout(*connect)) {
-                
-                deleteClient(config, connect->fd, fdEp);
-                
+
+            if (checkTimeout(connect->currentTime, TIMEOUT)) {
+                ve.push_back(connect->fd);
             }
         }
+    }
+    for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
+
+        deleteClient(config, *it, fdEp);
     }
 }
 
 void checkClientConnection(maptype &config, Client &connect) {
-    if (connect.response.empty() && connect.byteRead == 0)
-        connect.sending = false;
-    if (connect.response.empty() && connect.fdFile == -1)
-        connect.sending = false;
-
+ 
         
     if (connect.sending) {
         connect.buffer = "";
         connect.prevTime = time(NULL);
         setClientSend(connect.fdEp, connect);
-      
+    
         return;
     }
     
 
     // Check if connection should close (from parsed request)
+    printf("yes after respuons ");
     if (!connect.keepAlive) {
         deleteClient(config, connect.fd, connect.fdEp);
         return;
@@ -76,7 +84,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     // Keep-alive: reset for next request
     connect.buildDone = false;
     printf("reset flags to  \n ");
-    connect.prevTime = time(NULL);
+    connect.currentTime = time(NULL);
     connect.requestFinish = false;
     connect.headersOnly = false;
     connect.bodysize = 0;
@@ -127,34 +135,51 @@ void sendResponse(maptype &config, Client &connect) {
         if (srv->respone->isLargeFile()){
             printf("file name %s  fd %d \n", srv->respone->getFilePath().c_str(), connect.fd );
             connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
+            connect.fdsBuffer.push_back(connect.fdFile);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
             srv->respone->getFilePath() = "";
         }
 
     }
 
-    // while(true){
-        if (connect.fdFile != -1){
-            connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
-            
-            if (connect.byteRead > 0)
-                connect.response.append(buff, connect.byteRead);
-        }
+    if (!connect.response.empty()){
+
         printf("response send | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
-       
-        if (n == 0) {
+        
+        if (n <= 0) {
             deleteClient(config, connect.fd, connect.fdEp);
             return ;
         }
         if (n > 0)
-            connect.response.erase(0, n);
+             connect.response.erase(0, n);
 
-    // }
+    }
 
-   
-    if (connect.response.size() > 0 || connect.byteRead > 0 )
-        connect.sending = true;
-    
+    if (connect.response.empty() && connect.fdFile != -1){
+        connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
+
+        if (connect.byteRead == 0){
+            close(connect.fdFile);
+            printf("<= 0 read by ");
+            connect.fdFile = -1;
+        }
+
+        if (connect.byteRead > 0){
+            connect.response.append(buff, connect.byteRead);
+            setClientSend(connect.fdEp, connect);
+            return ;
+        }
+        
+        
+    }
+    if (connect.response.empty() || connect.fdFile == -1){
+        connect.sending  = false ;
+        checkClientConnection(config, connect);
+        return ;
+
+
+    }
+    connect.sending = true;
     checkClientConnection(config, connect);
 }

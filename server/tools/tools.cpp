@@ -47,10 +47,10 @@ void  deleteClient(maptype& config, int fd, int fdEP){
         config.erase(fd);
    
 }
-int creatEpoll( maptype config){
+int creatEpoll( maptype& config){
 
     int fdEp;
-    Config conf;
+   
     fdEp = epoll_create(8);
     if (fdEp == -1){
         cerr << "error in creating epoll " << errno << endl;
@@ -61,6 +61,8 @@ int creatEpoll( maptype config){
        
         Server *serv =   dynamic_cast<Server*>(it->second);
         serv->fdEp = fdEp;
+        serv->fdsBuffer.push_back(fdEp);
+        serv->fdsBuffer.push_back(serv->fd);
         if (!serv)
             throw std::runtime_error("Error in caseting servers");
         addSockettoEpoll(fdEp, serv->data);

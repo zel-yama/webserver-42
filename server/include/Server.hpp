@@ -1,7 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-
+#define TIMEOUT 62
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
@@ -83,6 +83,6 @@ size_t countBuffersize(std::string buffer, Client &connect);
 // Helper to get server from client (me again)
 Server*     getServerFromClient(maptype& config, Client& client);
 void        costumThrow(std::string des, std::string invalid);
-bool        checkTimeout(Client &connect);
+bool    checkTimeout(time_t prevTime, time_t timeout );
 void    handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect);
 #endif

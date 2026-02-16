@@ -59,21 +59,18 @@ bool allowKeepAlive(Request req)
     return true;
 }
 
-void readRequest(int fd,  Client &connect, RequestParser *parser)
+void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser)
 {
     int readResult = myread(connect, parser->buffer[fd]);
     
     printf("buffer %s\n", parser->buffer[fd].c_str());
     if (readResult == 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
-        connect.requestFinish = false; 
-        close(fd);
+        deleteClient(data, fd, connect.fdEp);
         return;
     }
-    if (readResult < 0 && connect.requestFinish) {
-
+    if (readResult < 0 && connect.requestFinish) 
         return ;
-    }
     Request req = parser->parse(connect.fd, connect.buffer);
 
     if (req.complete) {

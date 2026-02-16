@@ -9,6 +9,7 @@
 
 class Config{
     public:
+        static std::vector<int> fdsBuffer;
         int fdEp;
         std::string name ;
         struct epoll_event data;
@@ -18,15 +19,7 @@ class Config{
         virtual ~Config(){}
 };
 
-// class File : public Config{
-    
-//     public:
 
-//         std::string buffer;
-//         int bytsent;
-//         int fd;
-    
-// };
 
 class _Cgi : public Config{
 

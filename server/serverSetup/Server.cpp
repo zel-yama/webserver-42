@@ -5,6 +5,7 @@
 #include "../../request/RequestParser.hpp"
 #include "../../Response/Response.hpp"
 
+std::vector<int>  Config::fdsBuffer;
 Server::Server(){
     this->cgiStatus = 0;
     this->upload = 0;
@@ -49,13 +50,15 @@ Client Server::acceptClient(){
  
     if (newOne.fd < 0){
         ostringstream ss;
-        ss << "server failed to accept connection from address " << inet_ntoa(newOne.ClientSock.sin_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);
+        ss << "server failed to accept connection from address " << " Port : " << ntohs(newOne.ClientSock.sin_port);
         cerr << ss.str() << endl;
-        exit(1);
+        return newOne ;
     }
     newOne.data.events = EPOLLIN | EPOLLHUP  | EPOLLERR;
     /// socket buffer input output 
     newOne.data.data.fd = newOne.fd;
+    newOne.currentTime = time(NULL);
+    fdsBuffer.push_back(newOne.fd);
     return newOne;
 }
 void Server::listenFunction(){

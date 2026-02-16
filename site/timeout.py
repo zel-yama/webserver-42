@@ -1,3 +1,3 @@
-print("hello woeld!")
-while(True):
-    print(123)
+
+while(1):
+    print("hello woeld!")

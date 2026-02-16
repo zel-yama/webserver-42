@@ -104,7 +104,7 @@ void eventLoop(maptype config ){
                     addSockettoEpoll(fdEp, newClient.data);               
                     continue; 
                 }
-                if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && findElement(config, events[i].data.fd)  == "client"){
+                if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && (findElement(config, events[i].data.fd)  == "client" ||findElement(config, events[i].data.fd)  == "cgi" )){
                     continue;
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
@@ -117,6 +117,7 @@ void eventLoop(maptype config ){
                     Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));
                     Server *serv = getServerFromClient(config, *Cli);
                     handlingOFCGi(config, serv, cgI, Cli);
+                    continue;
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {
@@ -138,9 +139,9 @@ void eventLoop(maptype config ){
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         sendResponse(config, *Cli);
                     }
-                    printf("in loop 2 \n");
                 }
             }
+            printf("in loop 2 \n");
             checkClientsTimeout(config, fdEp);
         }
         

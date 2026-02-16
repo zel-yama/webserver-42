@@ -14,17 +14,17 @@ void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
        deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
     }
+    
+   
     if (i > 0){
         connect->response.append(buffer, i);
+        return ;
     }
   
-   \
+   
     printf("read from cgi {%s} \n", connect->response.c_str());
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
-
-    int status;
-    waitpid(cg->pid, &status, 0);
 
     connect->buildDone = true;
     connect->requestFinish = true;
@@ -55,6 +55,11 @@ void checkClientsTimeout(maptype& config, int fdEp)
                 ve.push_back(connect->fd);
             }
         }
+        if (i->second->name == "cgi"){
+            _Cgi *cg = (_Cgi *) i->second;
+            if (checkTimeout(cg->currentTime, TIMEOUT))
+                ve.push_back(cg->fd_in);
+        }
     }
     for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
 
@@ -67,7 +72,7 @@ void checkClientConnection(maptype &config, Client &connect) {
         
     if (connect.sending) {
         connect.buffer = "";
-        connect.prevTime = time(NULL);
+        connect.currentTime = time(NULL);
         setClientSend(connect.fdEp, connect);
     
         return;
@@ -75,7 +80,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     
 
     // Check if connection should close (from parsed request)
-    printf("yes after respuons ");
+
     if (!connect.keepAlive) {
         deleteClient(config, connect.fd, connect.fdEp);
         return;

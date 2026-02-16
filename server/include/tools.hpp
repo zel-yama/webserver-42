@@ -10,13 +10,13 @@
 void    setClientSend(int fdEp,  Client &Clien);
 void    setClientRead(int fdEp, Client& clien );
 void    deleteClient(maptype& config, int fd, int fdEP);
-int     creatEpoll( maptype config);
+int     creatEpoll( maptype &config);
 void printdoulStr(doubleStr v);
 void         __displayTime();
 void        sendResponse(maptype &config, Client &connect);
 
 int     mysend(Client &connect);
-void readRequest(int fd, Client &connect, RequestParser *parser);
+void readRequest(maptype &data, int fd, Client &connect, RequestParser *parser);
 void    checkClientsTimeout(maptype& config, int fdEp);
 void     checkClientConnection(maptype &config, Client &connect);
 void    printAllConfig(std::vector<Server> servs);

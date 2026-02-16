@@ -33,6 +33,32 @@ std::string findElement(maptype &config, int fd){
 }
 void cleanUP(maptype &config){
     
+    _Cgi *cg;
+    Server *s;
+    Client *c;
+    ConfigIter it = config.begin();
+    int i = 0;
+    while(i < it->second->fdsBuffer.size()){
+        close (it->second->fdsBuffer[i]);
+        i++;
+    }
+    while(it != config.end()){
+        if (it->second->name == "cgi"){
+             cg = (_Cgi *) it->second;
+             delete  cg;
+        }
+        if (it->second->name == "Server"){
+            s  = (Server *) it->second;
+            
+        }
+        if (it->second->name == "Client"){
+            c = (Client *) it->second;
+            
+
+        }
+        it++;
+    }
+    std::cout << "CONTRL+C" << std::endl;
     exit(1);
 }
 
@@ -48,9 +74,9 @@ void eventLoop(maptype config ){
     fdEp = creatEpoll(config);
     
     struct epoll_event events[MAXEVENT];
+    signal(SIGINT, signalhandler);
     while(1){
         
-        signal(SIGINT, signalhandler);
         
         
         printf("----- epoll wait -----\n");
@@ -60,31 +86,33 @@ void eventLoop(maptype config ){
            if (function(0) == 1 || n == -1){
                 cleanUP(config);
            }
-            
+         
             for(int i = 0; i < n; i++){
-                
-                if (config.count(events[i].data.fd) == 0)
+                printf("in loop \n");
+                if (config.count(events[i].data.fd) == 0){
+                    printf("not exists");
                     continue;
+                }
+
+                
                 if (findElement(config, events[i].data.fd) == "Server"){
                     
                     serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
-                    if (!serv)
-                    continue;
-                    
                     newClient =  serv->acceptClient();
                     config[newClient.fd] = &newClient;
                     cout << "accept " << newClient.fd << " from server " << serv->fd << endl; 
                     addSockettoEpoll(fdEp, newClient.data);               
                     continue; 
                 }
+                // if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT)){
+                //     printf("close timeout\n");
+                // }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
                     printf("close connection due to Error happens in client side ");
                      deleteClient(config, events[i].data.fd, fdEp);
                     continue;
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
-        
-           
                     cgI = dynamic_cast<_Cgi *>(config.at(events[i].data.fd));
                     Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));
                     Server *serv = getServerFromClient(config, *Cli);
@@ -94,35 +122,30 @@ void eventLoop(maptype config ){
                 {
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                     Server *clientServer = getServerFromClient(config, *Cli);
-                    if (!Cli || !clientServer)
-                        continue;
-
-                    if (checkTimeout(*Cli))
-                        continue;
+                    
                     if (events[i].events & EPOLLIN ){
-                      
+                        
                         std::cout << " fd cleint  "<< Cli->fd << std::endl;
                         if (!Cli->requestFinish)
-                            readRequest(events[i].data.fd, *Cli, clientServer->parser);
+                        readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
                         
                         if  (Cli->requestFinish)
-                            sendResponse(config, *Cli);
+                        sendResponse(config, *Cli);
                         else 
-                            continue;
+                        continue;
                     }
                     if (events[i].events & EPOLLOUT  ) {
                         Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                         sendResponse(config, *Cli);
                     }
+                    printf("in loop 2 \n");
                 }
-        }
-
-        checkClientsTimeout(config, fdEp);
-               
             }
+            checkClientsTimeout(config, fdEp);
+        }
         
         
-    
+        
     }
-
-
+    
+    

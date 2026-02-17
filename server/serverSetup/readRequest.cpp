@@ -87,15 +87,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
         std::cout << "  Status: " << req.status << std::endl;
         std::cout << "  Status: " << req.headers["content-length"] << std::endl;
 
-        // std::cout << "Request parsed successfully:" << std::endl;
-        // std::cout << "  Method: " << req.method << std::endl;
-        // std::cout << "  Path: " << req.path << std::endl;
-        // std::cout << "  Version: " << req.version << std::endl;
-        // std::cout << "  Status: " << req.status << std::endl;
-        // std::cout << "  content-type: " << req.headers["content-type"]  << std::endl;
-        // std::cout << "  content-length: " << req.headers["content-length"] << std::endl;
-        // std::cout << "  Keep-Alive: " << (req.keepalive ? "YES" : "NO") << std::endl;
-        // std::cout << "  Body size: " << req.body.size() << " bytes" << std::endl;
+   
 
     } else {
         std::cout << "Request incomplete, waiting for more data..." << std::endl;

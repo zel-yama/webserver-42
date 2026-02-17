@@ -39,43 +39,54 @@ void cleanUP(maptype &config){
     Client *c;
     ConfigIter it = config.begin();
     size_t i = 0;
-    while( i < it->second->fdsBuffer.size()){
-        close (it->second->fdsBuffer[i]);
-        i++;
-    }
-    while(it != config.end()){
-        if (it->second->name == "cgi"){
-             cg = (_Cgi *) it->second;
-             delete  cg;
-        }
-        if (it->second->name == "Server"){
-            s  = (Server *) it->second;
-            std::map<int , Request>::iterator it  = s->parser->requests.begin();
-            while (it != s->parser->requests.end())
-            {
-                Request ptr = it->second; 
-                delete ptr.loc;
+    if (it != config.end()){
+            while( i < it->second->fdsBuffer.size()){
+                close(it->second->fdsBuffer[i]);
+                i++;
             }
+            while(it != config.end()){
+                if (it->second->name == "cgi"){
+                    cg = (_Cgi *) it->second;
+                    delete  cg;
+                }
+                if (it->second->name == "Server"){
+                    s  = (Server *) it->second;
+                    std::map<int , Request>::iterator it  = s->parser->requests.begin();
+                    while (it != s->parser->requests.end())
+                    {
+                        Request ptr = it->second; 
+                        delete ptr.loc;
+                        it++;
+                    }
+                    
+                    delete s->parser;
+        
+                    delete s->respone;
             
-            delete s->parser;
+                    
+                    
+                }
+                if (it->second->name == "Client"){
+                    c = (Client *) it->second;
+                    
+        
+                }
+                it++;
+            }
 
-            delete s->respone;
-      
-            
-            
-        }
-        if (it->second->name == "Client"){
-            c = (Client *) it->second;
-            
 
-        }
-        it++;
     }
     std::cout << "CONTRL+C" << std::endl;
     exit(1);
 }
+Config *returnElement(int fd, maptype &data){
+    if (data.count(fd) == 0)
+        return NULL;
 
-void eventLoop(maptype config ){
+    return data.at(fd);
+}
+
+void eventLoop(maptype &config ){
     
     int fdEp;
     Client *Cli = NULL;
@@ -97,7 +108,8 @@ void eventLoop(maptype config ){
         printf("before EPOLL WAIT \n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
            if (function(0) == 1 || n == -1){
-                cleanUP(config);
+               cleanUP(config);
+
            }
          
             for(int i = 0; i < n; i++){
@@ -106,34 +118,38 @@ void eventLoop(maptype config ){
                     continue;
                 }
 
-                if (findElement(config, events[i].data.fd) == "Server"){
+                else if (findElement(config, events[i].data.fd) == "Server"){
                     
                 
-                    serv = dynamic_cast<Server *>(config.at(events[i].data.fd));
+                    serv = (Server *)returnElement(events[i].data.fd, config);  
                     newClient =  new Client(serv->acceptClient());
                     config[newClient->fd] = newClient;
                     cout << "Accept [client] [ " << newClient->fd << " ] from server " << serv->fd << endl; 
                     addSockettoEpoll(fdEp, newClient->data);               
-                    continue; 
+                   
                 }
-                if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && (findElement(config, events[i].data.fd)  == "client" || findElement(config, events[i].data.fd)  == "cgi" )){
-                    continue;
+                else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
+                (findElement(config, events[i].data.fd)  == "client" || findElement(config, events[i].data.fd)  == "cgi" )){
+                  continue;
+
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
+                    
+                    if (findElement(config, events[i].data.fd) == "cgi" ){
+                        handlingOFCGi(config, events[i].data.fd, 1);
+                        continue;
+                    }
+                    
                     printf("close connection due to Error happens in client side ");
-                    deleteClient(config, events[i].data.fd, fdEp);
-                    continue;
+                    deleteClient(config, events[i].data.fd, fdEp);    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){//new pwd 
-          
-                    if (config.count(events[i].data.fd) || config.count(cgI->fd_client))
-                        continue;
-                    cgI = dynamic_cast<_Cgi *>(config.at(events[i].data.fd));
-                    Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));
-                    Server *serv = getServerFromClient(config, *Cli);
+
+                    if (events[i].events & EPOLLIN)
+                        handlingOFCGi(config, events[i].data.fd, 1);
+                    else if (events[i].events & EPOLLOUT)
+                        handlingOFCGi(config, events[i].data.fd, 2);
                     
-                    handlingOFCGi(config, serv, cgI, Cli);
-                    continue;
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {
@@ -152,12 +168,12 @@ void eventLoop(maptype config ){
                             continue;
                     }
                     if (events[i].events & EPOLLOUT  ) {
-                        Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                        Cli = (Client *) returnElement(events[i].data.fd, config);
                         sendResponse(config, *Cli);
                     }
                 }
             }
-            printf("in loop 2 \n");
+    
             checkClientsTimeout(config, fdEp);
         }
         

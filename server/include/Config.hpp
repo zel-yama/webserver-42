@@ -25,8 +25,11 @@ class _Cgi : public Config{
 
     public:
         int fd_client;
+        struct epoll_event OUT;
         int fd_in;
         int fdEp;
+        int writeB;
+        int fdOUT;
         pid_t pid;
         
     

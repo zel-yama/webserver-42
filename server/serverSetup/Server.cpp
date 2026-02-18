@@ -28,14 +28,14 @@ Server::Server(){
 location::location(){
     this->outoIndex = -1;
 
-    this->bodyMaxByte = -1;
+
     this->cgiStatus = -1;
     this->upload = -1;
     this->returnCode = 0;
     this->allowedMethods.push_back("GET");
     this->indexFile.push_back("index.hmtl");
-    this->bodyMaxByte  = 0;
-    this->outoIndex = false;
+
+  
     this->ex = false;
     
 }

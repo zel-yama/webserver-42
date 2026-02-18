@@ -857,7 +857,7 @@ std::string Response::build()
 {
     std::ostringstream response;
 
-    response << req->version << " "
+    response << version << " "
              << statusCode << " " << statusMessage << "\r\n";
 
     if (headers.find("Date") == headers.end())

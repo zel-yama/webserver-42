@@ -15,9 +15,10 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
     char buffer[MAXSIZEBYTE];
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
-        return ;
+    return ;
     Client *connect = (Client *) returnElement(cg->fd_client, data);
     if (!connect){
+        printf("cgi handil\n");
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
@@ -64,7 +65,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
 
-
+    
     deleteClient(data, cg->fdOUT, connect->fdEp);
 
     connect->buildDone = true;
@@ -73,8 +74,9 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
         kill(cg->pid, SIGTERM);
         waitpid(cg->pid, NULL, WNOHANG );
     }
-    deleteClient(data, cg->fd_in, connect->fdEp);
+    printf("%s\n", connect->response.c_str());
     sendResponse(data, *connect);
+    deleteClient(data, cg->fd_in, connect->fdEp);
 }
 
 bool checkTimeout(time_t prevTime, time_t timeout ){
@@ -95,6 +97,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
             connect = dynamic_cast<Client*>(i->second);
 
             if (checkTimeout(connect->currentTime, TIMEOUT)) {
+                printf("this client is timeout ");
                 ve.push_back(connect->fd);
             }
         }
@@ -116,12 +119,12 @@ void checkClientsTimeout(maptype& config, int fdEp)
 
 void checkClientConnection(maptype &config, Client &connect) {
  
-   
-    
+
 
     // Check if connection should close (from parsed request)
 
     if (!connect.keepAlive) {
+        printf("keep alive \n");
         deleteClient(config, connect.fd, connect.fdEp);
         return;
     }
@@ -199,9 +202,11 @@ void sendResponse(maptype &config, Client &connect) {
 
     if (!connect.response.empty()){
 
+        printf("send  %s\n ", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {
+            printf("sending close clonnection");
             deleteClient(config, connect.fd, connect.fdEp);
             return ;
         }

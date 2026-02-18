@@ -39,7 +39,7 @@ void  deleteClient(maptype& config, int fd, int fdEP){
         return ;
    }
    __displayTime();
-   std::cout << " close connection this  [" << fd << "]  \n " << std::endl;
+   std::cout << " close connection this  [" << fd << "]  \n "<< std::endl;
     close(fd);
     maptype::iterator it = config.find(fd);
     

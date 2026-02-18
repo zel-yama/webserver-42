@@ -106,7 +106,7 @@ void eventLoop(maptype &config ){
         printf("----- epoll wait -----\n");
         
         printf("before EPOLL WAIT \n");
-	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
+	    n = epoll_wait(fdEp, events, MAXEVENT,5000);
            if (function(0) == 1 || n == -1){
                cleanUP(config);
 
@@ -114,7 +114,8 @@ void eventLoop(maptype &config ){
          
             for(int i = 0; i < n; i++){
                
-                if (config.count(events[i].data.fd) == 0){        
+                if (config.count(events[i].data.fd) == 0){ 
+                         
                     continue;
                 }
 
@@ -130,6 +131,7 @@ void eventLoop(maptype &config ){
                 }
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
                                     findElement(config, events[i].data.fd)  == "client" ){
+               
                   continue;
 
                 }
@@ -144,7 +146,7 @@ void eventLoop(maptype &config ){
                     deleteClient(config, events[i].data.fd, fdEp);    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){//new pwd 
-
+            
                     if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUTCGI))
                         continue;
                     if (events[i].events & EPOLLIN)
@@ -157,16 +159,17 @@ void eventLoop(maptype &config ){
                 {
                     Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
                     Server *clientServer = getServerFromClient(config, *Cli);
-                    
+              
                     if (events[i].events & EPOLLIN ){
                         
                         std::cout << " fd cleint  "<< Cli->fd << std::endl;
                         if (!Cli->requestFinish)
                             readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
-                        
-                        if  (Cli->requestFinish)
-                            sendResponse(config, *Cli);
-                        else 
+                        if (Cli->requestFinish)
+                            setClientSend(fdEp, *Cli);
+                        // if  (Cli->requestFinish)
+                        //     sendResponse(config, *Cli);
+                        // else 
                             continue;
                     }
                     if (events[i].events & EPOLLOUT  ) {

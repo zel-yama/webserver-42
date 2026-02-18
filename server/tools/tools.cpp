@@ -56,19 +56,21 @@ int creatEpoll( maptype& config){
    
     fdEp = epoll_create(8);
     if (fdEp == -1){
-        cerr << "error in creating epoll " << errno << endl;
+        throw std::runtime_error ("Error in creating epoll ");
     }
     for(ConfigIter it = config.begin(); it != config.end(); it++)
    { 
     
        
-        Server *serv =   dynamic_cast<Server*>(it->second);
-        serv->fdEp = fdEp;
-        serv->fdsBuffer.push_back(fdEp);
-        serv->fdsBuffer.push_back(serv->fd);
-        if (!serv)
-            throw std::runtime_error("Error in caseting servers");
-        addSockettoEpoll(fdEp, serv->data);
+       Server *serv =   dynamic_cast<Server*>(it->second);
+       if (!serv)
+         continue;
+       serv->fdEp = fdEp;
+       serv->fdsBuffer.push_back(fdEp);
+       serv->fdsBuffer.push_back(serv->fd);
+       printf("sss %d\n", serv->data.data.fd);
+        if (addSockettoEpoll(fdEp, serv->data) == -1)
+            throw std::runtime_error("Error in add server to Epoll ");
    }
     return fdEp;
 }
@@ -78,18 +80,4 @@ void __displayTime(){
     struct tm local = *localtime(&current);
     printf("[%d-%d-%d %d:%d:%d]",local.tm_year, local.tm_mon, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
 
-}
-void printInfo(string Info, string descr){
-
-    __displayTime();
-    printf("  [%s]  %s\n", Info.c_str(), descr.c_str());
-}
-
-bool checkTimeout(long timeSec){
-    time_t currentTime = time(NULL);
-    int diff = currentTime - timeSec;
-    if (diff > 0)
-        return true;
-    
-    return false;
 }

@@ -51,7 +51,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
             return ;
         }
         
-        printf("handling cgi %d %d \n",  i, process);
+        
         if (i > 0 ){
             connect->response.append(buffer, i);
             return ;

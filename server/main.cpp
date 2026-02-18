@@ -4,7 +4,7 @@
 #include "include/parsing.hpp"
 int main(int av, char *argc[]){
 
-	Server Serv;
+	Server *Serv;
 	maptype config;
 	int fd;
 	servers serv ;
@@ -19,10 +19,12 @@ int main(int av, char *argc[]){
 		serv = parsing(argc[1]);
 		it = serv.begin();
 		while(it != serv.end()){
-			Serv = *it;
-			fd = Serv.CreateServer(Serv.port, Serv.ipAdress);//check if server should heap alocated 
-			Serv.serverId = fd;
-			config.insert(pair<int, Config *>(fd, &Serv));
+			Serv = new Server(*it);
+			fd = Serv->CreateServer(Serv->port, Serv->ipAdress);//check if server should heap alocated 
+			
+			Serv->serverId = fd;
+			Serv->fd = fd;
+			config.insert(pair<int, Config *>(fd, Serv));
 			it++;
 		}
 		eventLoop(config);
@@ -30,11 +32,11 @@ int main(int av, char *argc[]){
 	catch (exception &e)
 	{
 		cout << e.what() << endl;
-		printf("trow catch ");
-		close(Serv.fd);
+	
+		close(Serv->fd);
 		
 		return 1;
 	}
-	close(Serv.fd);
+	close(Serv->fd);
 	return 0;
 }

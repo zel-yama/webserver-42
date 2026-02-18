@@ -100,11 +100,8 @@ void checkClientsTimeout(maptype& config, int fdEp)
         }
         if (i->second->name == "cgi"){
             _Cgi *cg = (_Cgi *) i->second;
-            if (checkTimeout(cg->currentTime, TIMEOUT)){
-             
-              
+            if (checkTimeout(cg->currentTime, TIMEOUTCGI)){
                 ve.push_back(cg->fd_in);
-
             }
         }
     }
@@ -119,14 +116,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
 
 void checkClientConnection(maptype &config, Client &connect) {
  
-        
-    if (connect.sending) {
-        connect.buffer = "";
-        connect.currentTime = time(NULL);
-        setClientSend(connect.fdEp, connect);
-    
-        return;
-    }
+   
     
 
     // Check if connection should close (from parsed request)
@@ -194,10 +184,11 @@ void sendResponse(maptype &config, Client &connect) {
             connect.response.clear();
            
             addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
+            connect.currentTime = time(NULL); 
             return ;
         }
         if (srv->respone->isLargeFile()){
-            printf("file name %s  fd %d \n", srv->respone->getFilePath().c_str(), connect.fd );
+           
             connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
             connect.fdsBuffer.push_back(connect.fdFile);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
@@ -208,16 +199,16 @@ void sendResponse(maptype &config, Client &connect) {
 
     if (!connect.response.empty()){
 
-        // printf("response send | %s |\n", connect.response.c_str());
-        std::cout << "send response \n";
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {
             deleteClient(config, connect.fd, connect.fdEp);
             return ;
         }
-        if (n > 0)
-             connect.response.erase(0, n);
+        if (n > 0){
+            connect.currentTime = time(NULL);  
+            connect.response.erase(0, n);
+        }
 
     }
 
@@ -226,7 +217,7 @@ void sendResponse(maptype &config, Client &connect) {
 
         if (connect.byteRead == 0){
             close(connect.fdFile);
-            printf("<= 0 read by ");
+           
             connect.fdFile = -1;
         }
 

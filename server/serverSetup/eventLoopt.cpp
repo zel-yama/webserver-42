@@ -129,7 +129,7 @@ void eventLoop(maptype &config ){
                    
                 }
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
-                (findElement(config, events[i].data.fd)  == "client" || findElement(config, events[i].data.fd)  == "cgi" )){
+                                    findElement(config, events[i].data.fd)  == "client" ){
                   continue;
 
                 }
@@ -145,6 +145,8 @@ void eventLoop(maptype &config ){
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){//new pwd 
 
+                    if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUTCGI))
+                        continue;
                     if (events[i].events & EPOLLIN)
                         handlingOFCGi(config, events[i].data.fd, 1);
                     else if (events[i].events & EPOLLOUT)

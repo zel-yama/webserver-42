@@ -4,34 +4,77 @@
 
 Server* getServerForClient(maptype& config, int serverId);
 
-
-void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
+// check is if client exists ok 
+// check process still contune runing if rading 
+///  timeout return bad get way 
+// no output what should return like empyt file  string 
+// reading 
+void handlingOFCGi(maptype &data, int fd, int flag ){
     
-    const int  va = 15020;
-    char buffer[va];
-    int i = read(cg->fd_in, buffer, va );
-    if (i < 0) {
-       deleteClient(data, cg->fd_in, cg->fdEp);
+    
+    char buffer[MAXSIZEBYTE];
+    _Cgi *cg = (_Cgi *) returnElement( fd, data);
+    if (!cg ) 
+        return ;
+    Client *connect = (Client *) returnElement(cg->fd_client, data);
+    if (!connect){
+        kill(cg->pid, SIGTERM);
+        deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
     }
-    
-   
-    if (i > 0){
-        connect->response.append(buffer, i);
+    Server *srv = (Server *) returnElement(connect->serverId, data);
+        if (!srv)
+            return;
+    int n = 0;  
+    if (flag ==  2){
+        if (cg->writeB < connect->parsedRequest.body.size())
+         n = write(cg->fdOUT, connect->parsedRequest.body.c_str() + cg->writeB, connect->parsedRequest.body.size() - cg->writeB);
+        if (n > 0){
+            cg->writeB += n;
+        }
         return;
     }
-  
-   
-    close(cg->fdOUT);
-    printf("read from cgi {%s} \n", connect->response.c_str());
+    int status;
+    int process = waitpid(cg->pid, &status, WNOHANG );
+    if (process == -1){
+        flag = -1;
+        connect->response = "Status:500 Inter Server Erorr  \r\n\r\n Error ";
+
+    }
+    if (flag == 1){
+
+        int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
+        if (i < 0 || process < 0 ) {
+            kill(cg->pid, SIGTERM);
+            printf("invalid data socket or erro in cgi ");
+            deleteClient(data, cg->fd_in, cg->fdEp);
+            return ;
+        }
+        
+        printf("handling cgi %d %d \n",  i, process);
+        if (i > 0 ){
+            connect->response.append(buffer, i);
+            return ;
+      
+        }
+
+    }
+    if (flag == 0)
+        connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
+
+
+    deleteClient(data, cg->fdOUT, connect->fdEp);
+
     connect->buildDone = true;
     connect->requestFinish = true;
+    if (flag == 0 || flag == -1 ){
+        kill(cg->pid, SIGTERM);
+        waitpid(cg->pid, NULL, WNOHANG );
+    }
     deleteClient(data, cg->fd_in, connect->fdEp);
     sendResponse(data, *connect);
-
-
 }
 
 bool checkTimeout(time_t prevTime, time_t timeout ){
@@ -57,28 +100,23 @@ void checkClientsTimeout(maptype& config, int fdEp)
         }
         if (i->second->name == "cgi"){
             _Cgi *cg = (_Cgi *) i->second;
-            if (checkTimeout(cg->currentTime, TIMEOUT)){
-                
+            if (checkTimeout(cg->currentTime, TIMEOUTCGI)){
                 ve.push_back(cg->fd_in);
             }
         }
     }
     for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
-
-        deleteClient(config, *it, fdEp);
+      
+        if (findElement(config, *it) == "cgi") 
+            handlingOFCGi(config, *it, 0);
+        else
+            deleteClient(config, *it, fdEp);
     }
 }
 
 void checkClientConnection(maptype &config, Client &connect) {
  
-        
-    if (connect.sending) {
-        connect.buffer = "";
-        connect.currentTime = time(NULL);
-        setClientSend(connect.fdEp, connect);
-    
-        return;
-    }
+   
     
 
     // Check if connection should close (from parsed request)
@@ -108,15 +146,23 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
 
     obj = new _Cgi();
     
+    obj->writeB = 0;
+    fdIN = makeNonBlockingFD(fdIN);
     memset(&obj->data, 0, sizeof(obj->data));
     obj->name = "cgi";
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
-    obj->data.data.fd =fdIN;
+    obj->data.data.fd = fdIN;
     obj->currentTime = time(NULL);
     obj->fd_in = fdIN;
     obj->pid = pip;
     obj->fdOUT = fdOUT;
-    write(obj->fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
+    obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
+    if (obj->writeB != connect.parsedRequest.body.size()){
+        obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
+        obj->OUT.data.fd = fdOUT;
+        addSockettoEpoll(connect.fdEp, obj->OUT);
+        data[fdOUT] = obj;
+    }
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
     data[fdIN] = obj;
@@ -126,7 +172,7 @@ void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
     int n = 1 ;
-    int readB = 0;
+ 
     char buff[MAXSIZEBYTE];
    
     if (!connect.buildDone){
@@ -138,10 +184,11 @@ void sendResponse(maptype &config, Client &connect) {
             connect.response.clear();
            
             addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
+            connect.currentTime = time(NULL); 
             return ;
         }
         if (srv->respone->isLargeFile()){
-            printf("file name %s  fd %d \n", srv->respone->getFilePath().c_str(), connect.fd );
+           
             connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
             connect.fdsBuffer.push_back(connect.fdFile);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
@@ -152,15 +199,16 @@ void sendResponse(maptype &config, Client &connect) {
 
     if (!connect.response.empty()){
 
-        printf("response send | %s |\n", connect.response.c_str());
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {
             deleteClient(config, connect.fd, connect.fdEp);
             return ;
         }
-        if (n > 0)
-             connect.response.erase(0, n);
+        if (n > 0){
+            connect.currentTime = time(NULL);  
+            connect.response.erase(0, n);
+        }
 
     }
 
@@ -169,7 +217,7 @@ void sendResponse(maptype &config, Client &connect) {
 
         if (connect.byteRead == 0){
             close(connect.fdFile);
-            printf("<= 0 read by ");
+           
             connect.fdFile = -1;
         }
 

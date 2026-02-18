@@ -1,7 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 15
+#define TIMEOUT 30
+#define TIMEOUTCGI 22
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
@@ -76,7 +77,7 @@ struct location {
 
 
 int makeNonBlockingFD(int socket);
-void eventLoop(maptype config );
+void eventLoop(maptype &config );
 int addSockettoEpoll(int fdEp, struct epoll_event  data);
 size_t countBuffersize(std::string buffer, Client &connect);
 
@@ -84,5 +85,7 @@ size_t countBuffersize(std::string buffer, Client &connect);
 Server*     getServerFromClient(maptype& config, Client& client);
 void        costumThrow(std::string des, std::string invalid);
 bool    checkTimeout(time_t prevTime, time_t timeout );
-void    handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect);
+void    handlingOFCGi(maptype &data, int fd, int flag);
+Config *returnElement(int fd, maptype &data);
+std::string findElement(maptype &config, int fd);
 #endif

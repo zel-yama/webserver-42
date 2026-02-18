@@ -43,8 +43,11 @@ void  deleteClient(maptype& config, int fd, int fdEP){
     close(fd);
     maptype::iterator it = config.find(fd);
     
-    if (it != config.end())
+    if (it != config.end()){
+        Client *c = (Client *) it->second;
+        delete c;
         config.erase(fd);
+    }
    
 }
 int creatEpoll( maptype& config){

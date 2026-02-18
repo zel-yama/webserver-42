@@ -107,11 +107,11 @@ void eventLoop(maptype config ){
                 if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && (findElement(config, events[i].data.fd)  == "client" ||findElement(config, events[i].data.fd)  == "cgi" )){
                     continue;
                 }
-                else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
-                    printf("close connection due to Error happens in client side ");
-                     deleteClient(config, events[i].data.fd, fdEp);
-                    continue;
-                }
+                // else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
+                //     printf("close connection due to Error happens in client side ");
+                //      deleteClient(config, events[i].data.fd, fdEp);
+                //     continue;
+                // }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
                     cgI = dynamic_cast<_Cgi *>(config.at(events[i].data.fd));
                     Cli = dynamic_cast<Client *> (config.at(cgI->fd_client));

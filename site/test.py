@@ -1,20 +1,22 @@
-import os
-import sys
-from urllib.parse import parse_qs
+#!/usr/bin/env python3
 
-content_length = os.environ.get('CONTENT_LENGTH', '0')
-try:
-    content_length = int(content_length)
-except ValueError:
-    content_length = 0
+import cgi
+import cgitb
 
-data = sys.stdin.read(content_length) if content_length > 0 else ""
+# Enable debugging (optional, useful during development)
+cgitb.enable()
 
-params = parse_qs(data)
-name = params.get('name', [''])[0]
-message = params.get('message', [''])[0]
+# Create FieldStorage instance to parse form data
+form = cgi.FieldStorage()
 
+# Get the values of 'name' and 'message' fields
+name = form.getvalue('name', '')
+message = form.getvalue('message', '')
+
+# Output HTTP header
 print("Content-Type: text/html\n")
+
+# Output HTML
 print("<html>")
 print("<body>")
 print(f"<h1>Name: {name}</h1>")

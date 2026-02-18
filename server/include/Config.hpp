@@ -27,6 +27,7 @@ class _Cgi : public Config{
         int fd_client;
         int fd_in;
         int fdEp;
+        int fdOUT;
         pid_t pid;
         
     

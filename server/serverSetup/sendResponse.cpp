@@ -18,14 +18,14 @@ void handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect){
    
     if (i > 0){
         connect->response.append(buffer, i);
-        return ;
+        return;
     }
   
    
+    close(cg->fdOUT);
     printf("read from cgi {%s} \n", connect->response.c_str());
     srv->respone->applyCgiResponse(connect->response);
     connect->response =   srv->respone->build();
-
     connect->buildDone = true;
     connect->requestFinish = true;
     deleteClient(data, cg->fd_in, connect->fdEp);
@@ -115,7 +115,8 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->currentTime = time(NULL);
     obj->fd_in = fdIN;
     obj->pid = pip;
-    close (fdOUT);
+    obj->fdOUT = fdOUT;
+    write(obj->fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
     data[fdIN] = obj;

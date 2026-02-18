@@ -1,5 +1,5 @@
-height = float(input("height -> "))
-weight = float(input("weight -> "))
+height = 1000
+weight = 9000
 
 bmi = weight / (height / 100) ** 2
 

@@ -103,9 +103,9 @@ void eventLoop(maptype &config ){
         
         
         
-        printf("----- epoll wait -----\n");
+        // printf("----- epoll wait -----\n");
         
-        printf("before EPOLL WAIT \n");
+        // printf("before EPOLL WAIT \n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,-1);
            if (function(0) == 1 || n == -1){
                cleanUP(config);

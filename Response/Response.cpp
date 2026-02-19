@@ -10,8 +10,7 @@ void validateRequest(Request &req, Server *srv);
 Response::Response()
     : statusCode(200),
       statusMessage("OK"),
-      protocol("HTTP"),
-      version("1.0"),
+      version("HTTP/1.0"),
       body("<h1>Hello World</h1>"),
       req(NULL),
       srv(NULL),
@@ -344,7 +343,7 @@ void Response::processRequest(Request &req, Server &ser)
 {
     resetCgiFlag();
     setContext(&req, &ser);
-    setHeader("Server", req.version);
+    setHeader("Server", srv->ServerName);
 
     if (!req.keepalive)
         setHeader("Connection", "close");
@@ -890,7 +889,7 @@ std::string Response::build()
 {
     std::ostringstream response;
 
-    response << req->version << " "
+    response << version << " "
              << statusCode << " " << statusMessage << "\r\n";
 
     if (headers.find("Date") == headers.end())
@@ -907,6 +906,5 @@ std::string Response::build()
     {
         response << body;
     }
-
     return response.str();
 }

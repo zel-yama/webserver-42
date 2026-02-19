@@ -618,6 +618,7 @@ void Response::handleDirectory(const std::string &path,
     else
         sendError(403, "");
 }
+
 void Response::generateautoindex(const std::string &path)
 {
     if (!hasDirPermission(path))

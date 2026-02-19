@@ -88,4 +88,5 @@ bool    checkTimeout(time_t prevTime, time_t timeout );
 void    handlingOFCGi(maptype &data, int fd, int flag);
 Config *returnElement(int fd, maptype &data);
 std::string findElement(maptype &config, int fd);
+std::string convertIpAdder( uint32_t ipaddres);
 #endif

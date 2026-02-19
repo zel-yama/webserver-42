@@ -1,5 +1,5 @@
 
-NAME = webserver
+NAME = webserv
 FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/tools/tools.cpp  server/tools/tools1.cpp server/serverSetup/Server.cpp \
  		server/serverSetup/sendResponse.cpp server/serverSetup/eventLoopt.cpp \

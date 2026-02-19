@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <sstream>
-#include "../request/RequestParser.hpp"
+#include "../server/include/Client.hpp"
 #include "../webserv.hpp"
 
 Cgi::Cgi(const Request &req)

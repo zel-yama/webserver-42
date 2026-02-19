@@ -6,7 +6,7 @@
 // #include <vector>
 // #include <sys/socket.h>
 // #include <sys/epoll.h>
-#include "../../request/RequestParser.hpp"
+#include "Server.hpp"
 #include "Config.hpp"
 // #include <arpa/inet.h>
 class Client: public Config{

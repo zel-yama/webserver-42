@@ -1,5 +1,6 @@
-#include "../server/include/Server.hpp"
-#include "RequestParser.hpp"
+// #include "../server/include/Server.hpp"
+#include "../server/include/Client.hpp"
+// #include "RequestParser.hpp"
 
 Server* getServerFromClient(maptype& config, Client& client) {
     if (config.find(client.serverId) != config.end()) {

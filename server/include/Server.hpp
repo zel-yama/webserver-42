@@ -6,12 +6,71 @@
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
 
-#include "Client.hpp"
 #include "include.hpp"
+class Client;
 
 struct location;
 class Response;
-class RequestParser;
+
+struct MultipartPart {
+    std::string name;
+    std::string filename;
+    std::string contentType;
+    std::string content;
+};
+
+
+struct Request {
+    std::string method;
+    std::string path;
+    std::string query;
+    std::string version;
+    std::string body;
+    int status;
+    
+    std::map<std::string, std::string> headers;
+    std::vector<MultipartPart> multipartData;
+    std::map<std::string, std::string> cookies;
+
+    bool headersParsed;
+    
+    bool complete;
+    bool keepalive;
+    std::string fullpath;
+    location *loc;
+
+    Request();
+    ~Request();
+};
+
+class RequestParser {
+    public:
+        Request parse(int fd, std::string& data);
+        std::map<int, std::string> buffer;
+        std::map<int, Request> requests;
+    private:
+
+        std::string trim(const std::string& s);
+        std::string toLower(const std::string& s);
+
+        bool isValidMethod(const std::string& m);
+        bool isValidVersion(const std::string& v);
+
+        bool isValidUriChar(char c);
+        bool isValidUri(const std::string& uri);
+        std::string normalizePath(const std::string& path);
+
+        size_t parseContentLength(const std::string& v);
+        bool decodeChunked(std::string& buf, std::string& out);
+        bool parseBody(std::string& b, Request& req);
+        bool parseHeaders(std::string& b, Request& req);
+        
+        std::string extractBoundary(std::string& contentType);
+        bool parseMultipart(std::string& body, std::string& boundary, Request& req);
+        void parseCookies(Request& req);
+};
+std::string setCookie(std::string key, std::string value);
+
 
 typedef map<string, string>::iterator iter;
 class Server : public Config {

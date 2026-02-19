@@ -30,7 +30,7 @@ int myread(Client &connect, std::string& buffer) {
         printf("this n of read byte in while {%d}\n", n);
         if (n > 0) {
             connect.byteSent += n;
-            buffer.append(tmp, n);    
+            buffer.append(tmp, n);
         }
         if (n == 0) {
             return 0;
@@ -71,7 +71,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
     }
     if (readResult < 0 && connect.requestFinish) 
         return ;
-    Request req = parser->parse(connect.fd, connect.buffer);
+    Request req = parser->parse(connect.fd); //hydt connect.buffer
 
     if (req.complete) {
         connect.parsedRequest = req;

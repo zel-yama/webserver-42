@@ -45,7 +45,7 @@ struct Request {
 
 class RequestParser {
     public:
-        Request parse(int fd, std::string& data);
+        Request parse(int fd);
         std::map<int, std::string> buffer;
         std::map<int, Request> requests;
     private:

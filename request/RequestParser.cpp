@@ -281,13 +281,11 @@ bool RequestParser::parseBody(std::string& b, Request& req)
 }
 
 
-Request RequestParser::parse(int fd, std::string& data)
+Request RequestParser::parse(int fd)
 {
     Request& req = requests[fd];
     std::string& b = buffer[fd];
 
-
-    b += data;
     if (!req.headersParsed) {
         if (!parseHeaders(b, req))
             return req;

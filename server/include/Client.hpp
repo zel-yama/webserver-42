@@ -16,7 +16,7 @@ class Client: public Config{
         int fdEp;
         int fd;
         struct sockaddr_in ClientSock;
-        int timeout;
+
         time_t prevTime;
         bool keepAlive;
         bool requestFinish; 
@@ -25,15 +25,15 @@ class Client: public Config{
         std::string response;
         bool sending;
         bool bodySizeStatus;
-        bool headersOnly;
+
     
         long byteRead;
         long byteSent;
-        long responseSize;
+    
         long bodysizeRequest;
         bool buildDone;
         int fdFile;
-        bool is_cgi;
+
         // i add this
         Request parsedRequest;
         // Response respons;

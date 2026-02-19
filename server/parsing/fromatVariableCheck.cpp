@@ -44,8 +44,7 @@ void resolveIpName(std::string &Str , Server &serv){
                 memcpy(&serv.addressServer.sin_addr, &tmp->ai_addr->sa_data[2], 4);
                 serv.addressServer.sin_port = htons(serv.port);
             
-            
-                serv.infoFull = true;
+     
             }
             tmp = tmp->ai_next;
         }

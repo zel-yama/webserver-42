@@ -15,7 +15,6 @@ void printdoulStr(doubleStr v);
 void         __displayTime();
 void        sendResponse(maptype &config, Client &connect);
 
-int     mysend(Client &connect);
 void readRequest(maptype &data, int fd, Client &connect, RequestParser *parser);
 void    checkClientsTimeout(maptype& config, int fdEp);
 void     checkClientConnection(maptype &config, Client &connect);

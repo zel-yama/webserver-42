@@ -80,11 +80,12 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
         }
         cout << req.body.size() << endl;
         std::cout << "  Method: " << req.method << std::endl;
-        // std::cout << "  Path: " << req.path << std::endl;
-        // std::cout << "Content-type" << req.headers["Content-Type"] << std::endl;
+        std::cout << "  Path: " << req.path << std::endl;
+        std::cout << "Content-type" << req.headers["Content-Type"] << std::endl;
         std::cout << "  Version: " << req.version << std::endl;
-        // std::cout << "  Status: " << req.status << std::endl;
-        // std::cout << "  Status: " << req.headers["content-length"] << std::endl;
+        std::cout << "  Status: " << req.status << std::endl;
+        std::cout << "  Status: " << req.headers["content-length"] << std::endl;
+      
 
    
 

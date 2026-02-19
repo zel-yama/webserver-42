@@ -157,9 +157,10 @@ void eventLoop(maptype &config ){
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {
-                    Cli = dynamic_cast<Client *>(config.at(events[i].data.fd));
+                    Cli = (Client *)returnElement(events[i].data.fd ,config );
                     Server *clientServer = getServerFromClient(config, *Cli);
-              
+                    if (!clientServer)
+                        return ;
                     if (events[i].events & EPOLLIN ){
                         
                         std::cout << " fd cleint  "<< Cli->fd << std::endl;

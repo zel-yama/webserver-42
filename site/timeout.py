@@ -1,2 +1,2 @@
-
-print("hello woeld!")
+while(1):
+    print("hello woeld!")

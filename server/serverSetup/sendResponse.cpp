@@ -202,7 +202,7 @@ void sendResponse(maptype &config, Client &connect) {
 
     if (!connect.response.empty()){
 
-        printf("send  %s\n ", connect.response.c_str());
+        printf("send  %s fd %d \n ", connect.response.c_str(), connect.fd);
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {

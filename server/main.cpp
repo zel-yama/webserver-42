@@ -27,7 +27,7 @@ int main(int av, char *argc[]){
 			config.insert(pair<int, Config *>(fd, Serv));
 			it++;
 		}
-		eventLoop(config);
+		//eventLoop(config);
 	}
 	catch (exception &e)
 	{

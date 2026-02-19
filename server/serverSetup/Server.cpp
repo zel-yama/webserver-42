@@ -20,7 +20,7 @@ Server::Server(){
     outoIndex = false;
     port = 8080;
     this->allowedMethods.push_back("GET");
-    this->indexFile.push_back("index.html");
+  
     parser = new RequestParser();
     respone = new Response();
 
@@ -33,7 +33,7 @@ location::location(){
     this->upload = -1;
     this->returnCode = 0;
     this->allowedMethods.push_back("GET");
-    this->indexFile.push_back("index.hmtl");
+   
 
   
     this->ex = false;
@@ -62,7 +62,7 @@ Client Server::acceptClient(){
     if (newOne.fd < 0){
         ostringstream ss;
         
-        ss << "server failed to accept connection from address " << " Port : " << ntohs(newOne.ClientSock.sin_port);
+        ss << "server failed to accept connection from address " << convertIpAdder(addressServer.sin_addr.s_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);
         cerr << ss.str() << endl;
         return newOne ;
     }
@@ -86,21 +86,15 @@ void Server::listenFunction(){
 int Server::CreateServer(int port, string ipaddress){
     int opt = 1;
     fd =  socket(AF_INET, SOCK_STREAM, 0);
-    makeNonBlockingFD(fd);
+    fd = makeNonBlockingFD(fd);
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
         throw runtime_error("Error: to set socket to reusing mode ");
     if (fd == -1)
     {
         throw runtime_error("error in in create socket socket function");
     }
-    // if (!this->infoFull ){
-    //     addressServer.sin_family = AF_INET;
-    //     addressServer.sin_port = htons(port);
-    //     printf("useless\n");
-    //     addressServer.sin_addr.s_addr = inet_addr(ipaddress.c_str());
 
-    // }
-    if (bind(fd, reinterpret_cast<sockaddr *>(&addressServer),sizeof(addressServer)) < 0){
+    if (bind(fd, (sockaddr *)(&addressServer),sizeof(addressServer)) < 0){
         throw runtime_error("error in bind operatoin bind function ");
     }
     listenFunction();

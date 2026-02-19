@@ -11,7 +11,7 @@ Response::Response()
     : statusCode(200),
       statusMessage("OK"),
       protocol("HTTP"),
-      version("1.0"),
+      version("HTTP/1.0"),
       body("<h1>Hello World</h1>"),
       req(NULL),
       srv(NULL),
@@ -619,6 +619,7 @@ void Response::handleDirectory(const std::string &path,
     else
         sendError(403, "");
 }
+
 void Response::generateautoindex(const std::string &path)
 {
     if (!hasDirPermission(path))

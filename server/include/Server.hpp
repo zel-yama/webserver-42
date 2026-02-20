@@ -1,7 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 15
+#define TIMEOUT 62
+#define TIMEOUTCGI 30
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
@@ -9,8 +10,29 @@
 #include "include.hpp"
 class Client;
 
-struct location;
+// struct location;
 class Response;
+struct location {
+ 
+    location();
+    int                                 fdEp;
+    int                                  upload;
+    map<std::string, std::string>        CgiCofing;
+    std::string                          uploadPath;
+    std::string                          cgiPath;
+    std::string                          cgiExten;
+    int                                  cgiStatus;
+    std::vector<std::string>             allowedMethods;
+    std::string                          root;
+    std::string                          returnP;
+    int                                  returnCode;
+    std::string                          locationPath;
+    std::vector<std::string>             indexFile;
+    size_t                               bodyMaxByte;
+    int                                  outoIndex;
+    int                                  ex;
+    std::map<int, std::string >          D_ErrorPages;
+};
 
 struct MultipartPart {
     std::string name;
@@ -37,7 +59,7 @@ struct Request {
     bool complete;
     bool keepalive;
     std::string fullpath;
-    location *loc;
+    location loc;
 
     Request();
     ~Request();
@@ -78,6 +100,7 @@ class Server : public Config {
     public:
     
     Server();
+    ~Server();
     
     std::vector<std::string>                indexFile;
     unsigned int                            port;
@@ -102,7 +125,7 @@ class Server : public Config {
         std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
 
         // for me  (mohamed)
-        RequestParser               *parser;
+        RequestParser               parser;
         Response                    *respone;
         map<std::string, std::string>       cgiConfig;
         int                                 CreateServer(int port, std::string ipaddress );
@@ -111,31 +134,10 @@ class Server : public Config {
     };
     
 typedef std::vector<Server> servers;
-struct location {
- 
-    location();
-    int                                 fdEp;
-    int                                  upload;
-    map<std::string, std::string>        CgiCofing;
-    std::string                          uploadPath;
-    std::string                          cgiPath;
-    std::string                          cgiExten;
-    int                                  cgiStatus;
-    std::vector<std::string>             allowedMethods;
-    std::string                          root;
-    std::string                          returnP;
-    int                                  returnCode;
-    std::string                          locationPath;
-    std::vector<std::string>             indexFile;
-    size_t                               bodyMaxByte;
-    int                                  outoIndex;
-    int                                  ex;
-    std::map<int, std::string >          D_ErrorPages;
-};
 
 
 int makeNonBlockingFD(int socket);
-void eventLoop(maptype config );
+void eventLoop(maptype &config );
 int addSockettoEpoll(int fdEp, struct epoll_event  data);
 size_t countBuffersize(std::string buffer, Client &connect);
 
@@ -143,5 +145,8 @@ size_t countBuffersize(std::string buffer, Client &connect);
 Server*     getServerFromClient(maptype& config, Client& client);
 void        costumThrow(std::string des, std::string invalid);
 bool    checkTimeout(time_t prevTime, time_t timeout );
-void    handlingOFCGi(maptype &data, Server *srv, _Cgi *cg, Client *connect);
+void    handlingOFCGi(maptype &data, int fd, int flag);
+Config *returnElement(int fd, maptype &data);
+std::string findElement(maptype &config, int fd);
+std::string convertIpAdder( uint32_t ipaddres);
 #endif

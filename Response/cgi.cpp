@@ -159,7 +159,7 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
 
         close(inPipe[1]);
         close(outPipe[0]);
-
+        close(STDERR_FILENO);
         char *argv[] = {(char *)cgiPath.c_str(), (char *)scriptPath.c_str(), NULL};
 
         execve(cgiPath.c_str(), argv, envp);

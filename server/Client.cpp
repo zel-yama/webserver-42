@@ -20,6 +20,6 @@ Client::Client(){
     fdFile = -1;
     is_cgi = false;
     // mine ..... mohamed
-    parsedRequest = Request();
+    
     // respons = Response();
 }

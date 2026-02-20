@@ -1,5 +1,5 @@
 
-NAME = webserver
+NAME = webserv
 FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/tools/tools.cpp  server/tools/tools1.cpp server/serverSetup/Server.cpp \
  		server/serverSetup/sendResponse.cpp server/serverSetup/eventLoopt.cpp \
@@ -12,9 +12,9 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ -I./include  #-fsanitize=address,undefined -g  #-std=c++98 
-FLAGS = #-Werror -Wextra -Wall  -std=c++98
-headers = server/include/tools.hpp  server/include/Server.hpp \
+CC = c++ -I./include  #-fsanitize=address  #std=c++98 
+FLAGS = #-Werror -Wextra -Wall # -std=c++98
+headers = #server/include/tools.hpp  server/include/Server.hpp \
 server/include/parsing.hpp server/include/include.hpp server/include/Config.hpp \
  server/include/Client.hpp Response/cgi.hpp Response/Response.hpp
 

@@ -162,7 +162,6 @@ int convertString(std::string &str){
     return value;
 }
 
-// resolve error page 505 504 7848 /eror.html
 void methodsIntKey(std::map<int, std::string> &v, std::string str){
     
     int key; 

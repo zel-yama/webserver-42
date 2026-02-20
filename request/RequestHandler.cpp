@@ -92,18 +92,20 @@ void validateRequest(Request& req, Server* srv) {
     if (req.status != 200)
         return;
 
-    req.loc = findLocation(srv, req.path);
+    location *loc;
+    loc = findLocation(srv, req.path); //fix if there is not location in config ?
+    req.loc = *loc;
     
-    if (!req.loc) {
+    if (!loc) {
         req.status = 404;
         return;
     }
-    req.fullpath = joinPathWithLocation(srv, req.loc, req.path);
+    req.fullpath = joinPathWithLocation(srv, loc, req.path);
 
-    if (req.loc && !req.loc->returnP.empty()) {
-        int code = (req.loc->returnCode > 0) ? req.loc->returnCode : 301;
+    if (loc && !loc->returnP.empty()) {
+        int code = (loc->returnCode > 0) ? loc->returnCode : 301;
         req.status = code;
-        req.headers["location"] = req.loc->returnP;
+        req.headers["location"] = loc->returnP;
         return;
     }
 
@@ -114,13 +116,13 @@ void validateRequest(Request& req, Server* srv) {
         return;
     }
     
-    if (!isMethodAllowed(req.method, req.loc->allowedMethods)) {
+    if (!isMethodAllowed(req.method, loc->allowedMethods)) {
         req.status = 405;
         return;
     }
 
     if ((req.method == "POST" || req.method == "DELETE")) {
-        size_t maxSize = (req.loc->bodyMaxByte > 0) ? req.loc->bodyMaxByte : srv->bodyMaxByte;
+        size_t maxSize = (loc->bodyMaxByte > 0) ? loc->bodyMaxByte : srv->bodyMaxByte;
         
         if (req.body.size() > maxSize) {
             req.status = 413;

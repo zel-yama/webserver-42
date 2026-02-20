@@ -11,10 +11,10 @@ Response::Response()
     : statusCode(200),
       statusMessage("OK"),
       protocol("HTTP"),
-      version("1.0"),
+      version("HTTP/1.0"),
       body("<h1>Hello World</h1>"),
-      srv(NULL),
       req(NULL),
+      srv(NULL),
       LargeFile(false)      
 {
     statusMap[200] = "OK";
@@ -368,12 +368,12 @@ void Response::processRequest(Request &req, Server &ser)
     setVersion(req.version);
     std::cout << "+++++++++++++++++++++++++++++" << std::endl;
     std::cout << req.method << std::endl;
-    std::cout << req.loc->root << std::endl;
-    std::cout << req.loc->outoIndex << std::endl;
+    std::cout << req.loc.root << std::endl;
+    std::cout << req.loc.outoIndex << std::endl;
     std::cout << ser.outoIndex << std::endl;
-    std::cout << req.loc->locationPath << std::endl;
+    std::cout << req.loc.locationPath << std::endl;
     std::cout << ser.D_ErrorPages[404] << std::endl;
-    std::cout << req.loc->D_ErrorPages[404] << std::endl;
+    std::cout << req.loc.D_ErrorPages[404] << std::endl;
     std::cout << req.fullpath << std::endl;
     std::cout << req.status << std::endl;
     std::cout << req.version << std::endl;
@@ -408,8 +408,8 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
     }
 
     std::string uploadPath = srv.uploadPath;
-    if (req.loc && !req.loc->uploadPath.empty())
-        uploadPath = req.loc->uploadPath;
+    if (!req.loc.uploadPath.empty())
+        uploadPath = req.loc.uploadPath;
 
     if (!isDirectory(uploadPath.c_str()))
     {
@@ -503,18 +503,18 @@ void Response::handlePost(const std::string &path,
         int cgiEnabled = srv.cgiStatus;
         std::map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
-        if (req.loc && req.loc->cgiStatus != -1)
-            cgiEnabled = req.loc->cgiStatus;
-        if (req.loc && !req.loc->CgiCofing.empty())
-            cgiConfig = req.loc->CgiCofing;
+        if (req.loc.cgiStatus != -1)
+            cgiEnabled = req.loc.cgiStatus;
+        if (!req.loc.CgiCofing.empty())
+            cgiConfig = req.loc.CgiCofing;
 
         if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
 
             std::string uploadPath = srv.uploadPath;
-            if (req.loc && !req.loc->uploadPath.empty())
-                uploadPath = req.loc->uploadPath;
+            if (!req.loc.uploadPath.empty())
+                uploadPath = req.loc.uploadPath;
 
             std::string cgiPath = cgiConfig[ext];
             Cgihandle  handle = cgi.execute(cgiPath, path);
@@ -584,8 +584,8 @@ void Response::handleDirectory(const std::string &path,
 
     const std::vector<std::string> *indexList = NULL;
 
-    if (req.loc && !req.loc->indexFile.empty())
-        indexList = &req.loc->indexFile;
+    if (!req.loc.indexFile.empty())
+        indexList = &req.loc.indexFile;
     else if (!srv.indexFile.empty())
         indexList = &srv.indexFile;
 
@@ -602,9 +602,9 @@ void Response::handleDirectory(const std::string &path,
         }
     }
 
-    if (req.loc->ex)
+    if (req.loc.ex)
     {
-        if (req.loc->outoIndex)
+        if (req.loc.outoIndex)
             generateautoindex(path);
         else
             sendError(403, "");
@@ -619,6 +619,7 @@ void Response::handleDirectory(const std::string &path,
     else
         sendError(403, "");
 }
+
 void Response::generateautoindex(const std::string &path)
 {
     if (!hasDirPermission(path))
@@ -684,18 +685,18 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
         int cgiEnabled = srv.cgiStatus;
         std::map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
-        if (req.loc && req.loc->cgiStatus != -1)
-            cgiEnabled = req.loc->cgiStatus;
-        if (req.loc && !req.loc->CgiCofing.empty())
-            cgiConfig = req.loc->CgiCofing;
+        if (req.loc.cgiStatus != -1)
+            cgiEnabled = req.loc.cgiStatus;
+        if (!req.loc.CgiCofing.empty())
+            cgiConfig = req.loc.CgiCofing;
 
         if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
 
             std::string uploadPath = srv.uploadPath;
-            if (req.loc && !req.loc->uploadPath.empty())
-                uploadPath = req.loc->uploadPath;
+            if (!req.loc.uploadPath.empty())
+                uploadPath = req.loc.uploadPath;
 
             std::string cgiPath = cgiConfig[ext];
             Cgihandle  handle = cgi.execute(cgiPath, path);
@@ -764,14 +765,14 @@ void Response::sendError(int code, const std::string &message)
 {
     setStatus(code, message);
 
-    if (req && req->loc)
+    if (req)
     {
         std::map<int, std::string>::iterator it =
-            req->loc->D_ErrorPages.find(code);
+            req->loc.D_ErrorPages.find(code);
 
-        if (it != req->loc->D_ErrorPages.end())
+        if (it != req->loc.D_ErrorPages.end())
         {
-            std::string path = req->loc->root + it->second;
+            std::string path = req->loc.root + it->second;
             // std::cout << path << std::endl;
             if (existFile(path.c_str()))
             {
@@ -823,6 +824,8 @@ void Response::handleDelete(const std::string &path,
                             const Request &req,
                             const Server &srv)
 {
+    (void)req;
+    (void)srv;
     if (!existFile(path.c_str()))
     {
         sendError(404, "");
@@ -847,18 +850,18 @@ void Response::handleDelete(const std::string &path,
     int cgiEnabled = srv.cgiStatus;
     std::map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
-    if(req.loc && req.loc->cgiStatus != -1)
-        cgiEnabled = req.loc->cgiStatus;
-    if (req.loc && !req.loc->CgiCofing.empty())
-        cgiConfig = req.loc->CgiCofing;
+    if(req.loc.cgiStatus != -1)
+        cgiEnabled = req.loc.cgiStatus;
+    if (!req.loc.CgiCofing.empty())
+        cgiConfig = req.loc.CgiCofing;
 
     if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
     {
         Cgi cgi(req);
 
         std::string UploadPath = srv.uploadPath;
-        if (req.loc && !req.loc->uploadPath.empty())
-            UploadPath = req.loc->uploadPath;
+        if (!req.loc.uploadPath.empty())
+            UploadPath = req.loc.uploadPath;
         
         std::string cgiPath = cgiConfig[ext];
         Cgihandle handle = cgi.execute(cgiPath, path);
@@ -888,7 +891,7 @@ std::string Response::build()
 {
     std::ostringstream response;
 
-    response << req->version << " "
+    response << version << " "
              << statusCode << " " << statusMessage << "\r\n";
 
     if (headers.find("Date") == headers.end())

@@ -112,7 +112,7 @@ class Server : public Config {
     std::string                             uploadPath;
     std::string                             cgiPath;
     std::string                             cgiExten;
-    bool                                    infoFull;
+ 
     int                                     cgiStatus;
         std::vector<std::string>            allowedMethods;
         int                                  outoIndex;
@@ -136,17 +136,17 @@ class Server : public Config {
 typedef std::vector<Server> servers;
 
 
-int makeNonBlockingFD(int socket);
-void eventLoop(maptype &config );
-int addSockettoEpoll(int fdEp, struct epoll_event  data);
-size_t countBuffersize(std::string buffer, Client &connect);
 
 // Helper to get server from client (me again)
-Server*     getServerFromClient(maptype& config, Client& client);
-void        costumThrow(std::string des, std::string invalid);
-bool    checkTimeout(time_t prevTime, time_t timeout );
-void    handlingOFCGi(maptype &data, int fd, int flag);
-Config *returnElement(int fd, maptype &data);
-std::string findElement(maptype &config, int fd);
-std::string convertIpAdder( uint32_t ipaddres);
+int             makeNonBlockingFD(int socket);
+void            eventLoop(maptype &config );
+int             addSockettoEpoll(int fdEp, struct epoll_event  data);
+size_t          countBuffersize(std::string buffer, Client &connect);
+Server*         getServerFromClient(maptype& config, Client& client);
+void            costumThrow(std::string des, std::string invalid);
+bool             checkTimeout(time_t prevTime, time_t timeout );
+void            handlingOFCGi(maptype &data, int fd, int flag);
+Config          *returnElement(int fd, maptype &data);
+std::string     findElement(maptype &config, int fd);
+std::string     convertIpAdder( uint32_t ipaddres);
 #endif

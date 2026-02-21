@@ -60,6 +60,7 @@ servers setUpServers(std::vector<tockens> &v){
             else    
                 break;
         }
+        printf("out of socp of server%s\n", it->val.c_str());
         it++;
     }
     printf("------");

@@ -78,7 +78,7 @@ Config *returnElement(int fd, maptype &data){
 }
 
 void eventLoop(maptype &config ){
-    
+    puts("sss");
     int fdEp;
     Client *Cli = NULL;
     Client*  newClient;

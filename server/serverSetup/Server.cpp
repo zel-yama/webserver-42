@@ -12,7 +12,7 @@ Server::Server(){
     this->outoIndex = 0;
     this->serverId = 0;
     this->returnCode = 0;
-    infoFull = false;
+    
     name = "Server";
     root = "./";
     bodyMaxByte = 1e8;

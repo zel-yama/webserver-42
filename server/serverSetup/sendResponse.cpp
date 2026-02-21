@@ -134,7 +134,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     printf("reset flags to  \n ");
     connect.currentTime = time(NULL);
     connect.requestFinish = false;
-    connect.headersOnly = false;
+  
     connect.bodysize = 0;
     connect.byteSent = 0;
     connect.bodySizeStatus = false;

@@ -1,1 +1,6 @@
-name=John+Doe&message=Hello+from+POST+request%21
+<?php
+$name = "John";
+$age = 25;
+
+echo "My name is " . $name . " and I am " . $age . " years old.";
+?>

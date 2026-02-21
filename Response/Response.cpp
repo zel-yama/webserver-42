@@ -48,6 +48,7 @@ void Response::setHeader(const std::string &key, const std::string &value)
 {
     headers[key] = value;
 }
+
 static std::string toString(size_t n)
 {
     std::ostringstream oss;
@@ -317,9 +318,9 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
             if (toLower(key) == "status")
             {
-                std::istringstream statusStream(value);
+                std::istringstream status(value);
                 int code;
-                if (statusStream >> code)
+                if (status >> code)
                     parsedStatus = code;
                 continue;
             }

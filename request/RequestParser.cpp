@@ -1,5 +1,4 @@
-#include "RequestParser.hpp"
-#include "../server/include/Server.hpp"
+#include "../server/include/Client.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -9,7 +8,7 @@
 
 
 Request::Request() : complete(false), status(200), keepalive(false), headersParsed(false) {
-    loc = new location();
+    // loc = new location();
 }
 
 Request::~Request() {
@@ -282,13 +281,11 @@ bool RequestParser::parseBody(std::string& b, Request& req)
 }
 
 
-Request RequestParser::parse(int fd, std::string& data)
+Request RequestParser::parse(int fd)
 {
     Request& req = requests[fd];
     std::string& b = buffer[fd];
 
-
-    b += data;
     if (!req.headersParsed) {
         if (!parseHeaders(b, req))
             return req;

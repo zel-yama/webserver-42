@@ -1,4 +1,4 @@
-#include "RequestParser.hpp"
+#include "../server/include/Client.hpp"
 
 std::string setCookie(std::string key, std::string value)
 {

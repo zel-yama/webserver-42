@@ -2,7 +2,7 @@
 
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
-#include "../../request/RequestParser.hpp"
+// #include "../../request/RequestParser.hpp"
 #include "../../Response/Response.hpp"
 
  ///should allawyz theck is connection timeout indeed  not just when u send response  
@@ -51,15 +51,6 @@ void cleanUP(maptype &config){
                 }
                 if (it->second->name == "Server"){
                     s  = (Server *) it->second;
-                    std::map<int , Request>::iterator it  = s->parser->requests.begin();
-                    while (it != s->parser->requests.end())
-                    {
-                        Request ptr = it->second; 
-                        delete ptr.loc;
-                        it++;
-                    }
-                    
-                    delete s->parser;
         
                     delete s->respone;
             
@@ -165,7 +156,7 @@ void eventLoop(maptype &config ){
                         
                         std::cout << " fd cleint  "<< Cli->fd << std::endl;
                         if (!Cli->requestFinish)
-                            readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
+                            readRequest(config, events[i].data.fd, *Cli, &clientServer->parser);
                         if (Cli->requestFinish)
                             setClientSend(fdEp, *Cli);
                         // if  (Cli->requestFinish)

@@ -72,10 +72,7 @@ doubleStr convertVector( std::vector<std::string> &v){
     }
     return newV;
 }
-//////count bracket and end server marker 
 
-
-/// cases {{}} {{aefifaenfawf ewaffef}} eaff}efaw " } " 
 void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
 
     tockens tock;
@@ -116,8 +113,8 @@ servers parsing(std::string FileName){
     store = stripSpaces(store);
     
     v = convertVector(store);
-    
-    tockV = tokeniezer(v);
+   
+    tockV = tokeniezer(v);  
     bracketValidtion(tockV);
     
     servs =  setUpServers(tockV);

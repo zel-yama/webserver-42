@@ -30,7 +30,7 @@ class Server : public Config {
     int upload;
     std::string                             uploadPath;
     std::string                             cgiPath;
-    std::string                             cgiExten;
+  
  
     int                                     cgiStatus;
         std::vector<std::string>            allowedMethods;
@@ -61,7 +61,7 @@ struct location {
     map<std::string, std::string>        CgiCofing;
     std::string                          uploadPath;
     std::string                          cgiPath;
-    std::string                          cgiExten;
+
     int                                  cgiStatus;
     std::vector<std::string>             allowedMethods;
     std::string                          root;
@@ -81,7 +81,7 @@ struct location {
 int             makeNonBlockingFD(int socket);
 void            eventLoop(maptype &config );
 int             addSockettoEpoll(int fdEp, struct epoll_event  data);
-size_t          countBuffersize(std::string buffer, Client &connect);
+void            myThrow();
 Server*         getServerFromClient(maptype& config, Client& client);
 void            costumThrow(std::string des, std::string invalid);
 bool             checkTimeout(time_t prevTime, time_t timeout );

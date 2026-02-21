@@ -7,7 +7,7 @@ void checkTockens(tockens &tockn){
 	if (tockn.val.empty() || tockn.val.size() == 0)
 		return;
 	
-	if (!tockn.val.compare("server_name"))
+	if (!tockn.val.compare("server_name") )
 		tockn.mytocken = SERVERNAME;
 	else if (!tockn.val.compare("root"))
 		tockn.mytocken = ROOT;	
@@ -29,8 +29,6 @@ void checkTockens(tockens &tockn){
 		tockn.mytocken = ERRORPAGE;
 	else if (!tockn.val.compare("location"))
 		tockn.mytocken = LOCATION;
-	else if (!tockn.val.compare("cgiExten"))
-		tockn.mytocken = CGIEXTEN;
 	else if (!tockn.val.compare("CGI"))
 		tockn.mytocken = CGI;
 	else if (!tockn.val.compare("uploadPath"))
@@ -52,7 +50,7 @@ void serverCases(tockenIt &it, Server &serv){
         return ;
     switch (it->mytocken)
     {
-              case ROOT:
+            case ROOT:
             it++;
             variableSingleValue(it->val, serv.root);
             break;
@@ -91,10 +89,6 @@ void serverCases(tockenIt &it, Server &serv){
         case CGI:
             it++;
             outoIndexHandler(it->val, serv.cgiStatus);
-            break;
-        case CGIEXTEN:
-            it++;
-            variableSingleValue(it->val, serv.cgiExten);
             break;
         case CGIPATH:
             it++;
@@ -156,10 +150,6 @@ void locationCases(tockenIt &it, location &local){
         case CGI:
             it++;
             outoIndexHandler(it->val, local.cgiStatus);
-            break;
-        case CGIEXTEN:
-            it++;
-            variableSingleValue(it->val, local.cgiExten);
             break;
         case CGIPATH:
             it++;

@@ -12,14 +12,12 @@ Server::Server(){
     this->outoIndex = 0;
     this->serverId = 0;
     this->returnCode = 0;
-    
-    name = "Server";
-    root = "./";
-    bodyMaxByte = 1e8;
-    ipAdress = "0.0.0.0";
+    bodyMaxByte = -1;
+
+ 
     outoIndex = false;
-    port = 8080;
-    this->allowedMethods.push_back("GET");
+    port = -1;
+  
   
     parser = new RequestParser();
     respone = new Response();
@@ -28,11 +26,11 @@ Server::Server(){
 location::location(){
     this->outoIndex = -1;
 
-
+    bodyMaxByte = -1;
     this->cgiStatus = -1;
     this->upload = -1;
     this->returnCode = 0;
-    this->allowedMethods.push_back("GET");
+
    
 
   

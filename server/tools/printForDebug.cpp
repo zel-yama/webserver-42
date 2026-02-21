@@ -59,8 +59,7 @@ void printAttr(Server &Serv){
         printf("this cgi path string -> %s\n", Serv.cgiPath.c_str());
         printf("this upload -> %d\n", Serv.upload);
         printf("this upload path  -> %s\n", Serv.uploadPath.c_str());
-        printf("this cgiExten -> %s\n", Serv.cgiExten.c_str());
-        printf("this is cgi exten %s\n", Serv.cgiExten.c_str());
+     
         printvector(Serv.indexFile);
         printf("this is error page \n");
         printMapIntKey(Serv.D_ErrorPages);
@@ -88,8 +87,7 @@ void printlocation(location obj){
     printf("this cgi path string -> %s\n", obj.cgiPath.c_str());
     printf("this upload -> %d\n", obj.upload);
     printf("this upload path  -> %s\n", obj.uploadPath.c_str());
-    printf("this cgiExten -> %s\n", obj.cgiExten.c_str());
-    printf("this is cgi exten %s\n", obj.cgiExten.c_str());
+
     printf("this return code %d\n", obj.returnCode);
     printf("this is return path %s\n", obj.returnP.c_str());
     printf("this error page \n");

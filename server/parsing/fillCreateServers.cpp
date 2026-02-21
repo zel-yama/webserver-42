@@ -29,15 +29,26 @@ int serverHnding(tockenIt it, std::vector<Server> &servs){
     while(it->mytocken != ENDSERV){
         if (!it->val.compare("location")){
             local = locationHandling(it);
-           
+            if (local.allowedMethods.empty())
+                local.allowedMethods.push_back("GET");
             serv.objLocation.push_back(local);
-
+            
         }
         else
             serverCases(it, serv);
         i++;
         it++;
     }
+    
+    if (serv.ipAdress.empty()|| serv.port == -1)
+        myThrow();
+
+    if (serv.allowedMethods.empty())
+        serv.allowedMethods.push_back("GET");
+    if (serv.bodyMaxByte == -1)
+        serv.bodyMaxByte = 1e6;
+    if (serv.ServerName.empty())
+        serv.ServerName = "webServer";
     servs.push_back(serv);
     return i;
 }
@@ -53,6 +64,7 @@ servers setUpServers(std::vector<tockens> &v){
     while (it != v.end())
     {
       
+      
         if (!it->val.compare("server")){
             i = serverHnding(it,Servs);
             if (i <= v.size())
@@ -60,11 +72,11 @@ servers setUpServers(std::vector<tockens> &v){
             else    
                 break;
         }
-        printf("out of socp of server%s\n", it->val.c_str());
         it++;
+         
     }
-    printf("------");
-   printAllConfig (Servs);
+//     printf("------");
+//    printAllConfig (Servs);
 
 
     return Servs;

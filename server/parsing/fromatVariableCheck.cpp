@@ -59,13 +59,16 @@ void insertListenConfig(Server &serv, std::string &str){
     std::string por;
     int port;
     size_t pos = str.find(":");
+    if (!serv.ipAdress.empty() || str.find(" ") != std::string::npos)
+        costumThrow("", str);
     if (pos == std::string::npos)
     {
         if ((port = convertString(str)) == -1)
-            resolveIpName(str, serv);
+            myThrow();
         else {
 
             serv.port = port;
+            serv.ipAdress = "localhost";
             resolveIpName(serv.ipAdress, serv);
         }
     }
@@ -76,6 +79,8 @@ void insertListenConfig(Server &serv, std::string &str){
         serv.port = convertString(por);
         resolveIpName(serv.ipAdress, serv);
     }
+    if (serv.port > 65535)
+       throw  std::runtime_error("invalid port max is [65535..!]");    
 }
 int extractInt(std::string &s, std::string &c){
     int number = -1;
@@ -99,7 +104,7 @@ void bodySizeMax(size_t &val, std::string &str){
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    else if (!c.empty()) 
+    else if (!c.empty() || val != -1) 
         throw std::runtime_error("invalid value in max body size ");
     val = max;
 }
@@ -107,19 +112,32 @@ void bodySizeMax(size_t &val, std::string &str){
 void variableSingleValue(std::string str, std::string &buff){
     std::stringstream ss(str);
     std::string isEMpty;
+    std::string tmp = buff;
 
     ss >> buff;
     ss >> isEMpty;
-    if (!isEMpty.empty())
-        throw std::runtime_error("invalid  extra value -> {" + str + "}");
+    if (!isEMpty.empty() || !tmp.empty())
+        throw std::runtime_error("Error: Invalid token near   -> {" + str + "}");
 }
-/// now i handle limit methods like this methods get put after i handle {deny all}
+/// count of methods should 3 or less without no doblecate 
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods , int i){
     std::stringstream ss(methods);
+
+    if (!methdsV.empty())
+        myThrow();
     while(ss >> methods){
         if ((!methods.compare("GET") && !methods.compare("POST") && !methods.compare("DELETE")) && i == 1)
-            throw std::runtime_error("Error: invalid a method -> " + methods);
+            throw std::runtime_error("Error: Invalid token near  -> " + methods);
+        if ((i = 1 && methdsV.size() > 3) )
+            myThrow();
+       
         methdsV.push_back(methods);
+    }
+    if (i == 1 && methdsV.size() > 1){
+        if (methdsV.size() == 2 && (methdsV[0] == methdsV[1]))
+            myThrow();
+        else if (methdsV.size() == 3 && (methdsV[0] == methdsV[1] || methdsV[0] == methdsV[2] || methdsV[2] == methdsV[1] ))
+            myThrow();
     }
 }
 
@@ -138,6 +156,8 @@ void returnP(std::string token, std::string &path, int &exitCode){
 
     std::stringstream ss(token);
 
+    if (exitCode != 0 || !path.empty())
+        throw std::runtime_error("Error: Invalid token near < "+ token +" >");
     std::string s;
     ss >> s;
     exitCode = convertString(s);
@@ -175,17 +195,19 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
 
         key = convertString(*its);
         if (key == -1 || (key <= 299 || key > 599 ))
-            throw std::runtime_error("Error: invalid exit code > " );
+            throw std::runtime_error("Error: Invalid token near > " + str);
         its++;
         v.insert(make_pair(key, value));
     }
 
     if (value.empty())
-       throw std::runtime_error("invalid value [" + value + "] in error page");
+       throw std::runtime_error("Error: invalid value [" + value + "] in error page");
 }
 
 void outoIndexHandler(std::string val, int &cond){
     
+    if (cond == 1)
+        throw std::runtime_error("Error: Invalid token near \'" + val + "\'");
     if (!val.compare("on"))
         cond = 1;
     else 

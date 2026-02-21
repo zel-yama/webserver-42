@@ -17,6 +17,8 @@ void applyRules(std::vector<tockens> &tocknes){
                 accept(*(it +1), LOCATIONPATH);
             if (it->mytocken > 7)
                 accept(*(it + 1), VALUE);
+            if (it->mytocken  == ENDSERV )
+                accept(*(it+1), SERVER);
             it++;
     }
 }

@@ -13,6 +13,11 @@
 
 void    costumThrow(std::string des, std::string invalid){
 
-    throw std::runtime_error(des + " -> [" + invalid + "]");
+    (void) des;
+    throw std::runtime_error("Error: Invalid token near  + -> [" + invalid + "]");
+}
+
+void myThrow(){
+    throw std::runtime_error("ParserError: Invalid");
 }
 

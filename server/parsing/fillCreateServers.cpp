@@ -29,8 +29,8 @@ int serverHnding(tockenIt it, std::vector<Server> &servs){
     while(it->mytocken != ENDSERV){
         if (!it->val.compare("location")){
             local = locationHandling(it);
-            if (local.allowedMethods.empty())
-                local.allowedMethods.push_back("GET");
+            // if (local.allowedMethods.empty())
+            //     local.allowedMethods.push_back("GET");
             serv.objLocation.push_back(local);
             
         }
@@ -43,8 +43,8 @@ int serverHnding(tockenIt it, std::vector<Server> &servs){
     if (serv.ipAdress.empty()|| serv.port == -1)
         myThrow();
 
-    if (serv.allowedMethods.empty())
-        serv.allowedMethods.push_back("GET");
+    // if (serv.allowedMethods.empty())
+    //     serv.allowedMethods.push_back("GET");
     if (serv.bodyMaxByte == -1)
         serv.bodyMaxByte = 1e6;
     if (serv.ServerName.empty())

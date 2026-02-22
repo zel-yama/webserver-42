@@ -135,6 +135,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     connect.currentTime = time(NULL);
     connect.requestFinish = false;
   
+    connect.response.c_str();
     connect.bodysize = 0;
     connect.byteSent = 0;
     connect.bodySizeStatus = false;

@@ -59,6 +59,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
     printf("%s buffer \n",parser->buffer[fd].c_str() );
     if (readResult <= 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
+        connect.requestFinish = false;
         deleteClient(data, fd, connect.fdEp);
         return;
     }

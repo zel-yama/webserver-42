@@ -82,11 +82,14 @@ int             makeNonBlockingFD(int socket);
 void            eventLoop(maptype &config );
 int             addSockettoEpoll(int fdEp, struct epoll_event  data);
 void            myThrow();
+void            cleanUP(maptype &config);
 Server*         getServerFromClient(maptype& config, Client& client);
 void            costumThrow(std::string des, std::string invalid);
-bool             checkTimeout(time_t prevTime, time_t timeout );
+bool            checkTimeout(time_t prevTime, time_t timeout );
 void            handlingOFCGi(maptype &data, int fd, int flag);
 Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);
+
+void printLogs(std::string &ipadress, int port, std::string &des, std::string &info);
 #endif

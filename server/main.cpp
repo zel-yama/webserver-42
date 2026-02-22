@@ -27,15 +27,13 @@ int main(int av, char *argc[]){
 			config.insert(pair<int, Config *>(fd, Serv));
 			it++;
 		}
-		//eventLoop(config);
+		eventLoop(config);
 	}
 	catch (exception &e)
 	{
 		cout << e.what() << endl;
-	
-
 		
-		return 1;
+		cleanUP(config);
 	}
 
 	return 0;

@@ -13,12 +13,12 @@ Server::Server(){
     this->serverId = 0;
     this->returnCode = 0;
     bodyMaxByte = -1;
-
+    
  
     outoIndex = false;
     port = -1;
   
-  
+    name = "Server";
     parser = new RequestParser();
     respone = new Response();
 
@@ -85,6 +85,7 @@ int Server::CreateServer(int port, string ipaddress){
     int opt = 1;
     fd =  socket(AF_INET, SOCK_STREAM, 0);
     fd = makeNonBlockingFD(fd);
+    ipaddress = convertIpAdder(addressServer.sin_addr.s_addr);
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
         throw runtime_error("Error: to set socket to reusing mode ");
     if (fd == -1)

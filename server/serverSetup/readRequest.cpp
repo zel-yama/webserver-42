@@ -56,13 +56,13 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
 {
     int readResult = myread(connect, parser->buffer[fd]);
     
+    printf("%s buffer \n",parser->buffer[fd].c_str() );
     if (readResult <= 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         deleteClient(data, fd, connect.fdEp);
         return;
     }
-    if (readResult < 0 && connect.requestFinish) 
-        return ;
+
     Request req = parser->parse(connect.fd, connect.buffer);
 
     if (req.complete) {
@@ -79,18 +79,17 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
             connect.keepAlive = false;
         }
         cout << req.body.size() << endl;
-        std::cout << "  Method: " << req.method << std::endl;
-        std::cout << "  Path: " << req.path << std::endl;
-        std::cout << "Content-type" << req.headers["Content-Type"] << std::endl;
-        std::cout << "  Version: " << req.version << std::endl;
-        std::cout << "  Status: " << req.status << std::endl;
-        std::cout << "  Status: " << req.headers["content-length"] << std::endl;
-      
+        // std::cout << "  Method: " << req.method << std::endl;
+        // std::cout << "  Path: " << req.path << std::endl;
+        // std::cout << "Content-type" << req.headers["Content-Type"] << std::endl;
+        // std::cout << "  Version: " << req.version << std::endl;
+        // std::cout << "  Status: " << req.status << std::endl;
+        // std::cout << "  Status: " << req.headers["content-length"] << std::endl;
+
+        
 
    
 
-    } else {
-        std::cout << "Request incomplete, waiting for more data..." << std::endl;
-        return ;
-    }
+    } 
+    
 }

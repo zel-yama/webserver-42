@@ -2,6 +2,7 @@
 
 
 #include "../include/tools.hpp"
+#include "../include/Config.hpp"
 
 int makeNonBlockingFD(int socket){
     int flag = fcntl(socket, F_GETFL);
@@ -44,12 +45,13 @@ void  deleteClient(maptype& config, int fd, int fdEP){
     maptype::iterator it = config.find(fd);
     
     if (it != config.end()){
-        Client *c = (Client *) it->second;
+        Config *c = (Config *) it->second;
         delete c;
         config.erase(fd);
     }
    
 }
+
 int creatEpoll( maptype& config){
 
     int fdEp;
@@ -68,7 +70,7 @@ int creatEpoll( maptype& config){
        serv->fdEp = fdEp;
        serv->fdsBuffer.push_back(fdEp);
        serv->fdsBuffer.push_back(serv->fd);
-       printf("sss %d\n", serv->data.data.fd);
+       
         if (addSockettoEpoll(fdEp, serv->data) == -1)
             throw std::runtime_error("Error in add server to Epoll ");
    }

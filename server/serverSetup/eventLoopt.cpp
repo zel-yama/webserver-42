@@ -45,32 +45,10 @@ void cleanUP(maptype &config){
                 i++;
             }
             while(it != config.end()){
-                if (it->second->name == "cgi"){
-                    cg = (_Cgi *) it->second;
-                    delete  cg;
-                }
-                if (it->second->name == "Server"){
-                    s  = (Server *) it->second;
-                    std::map<int , Request>::iterator it  = s->parser->requests.begin();
-                    while (it != s->parser->requests.end())
-                    {
-                        Request ptr = it->second; 
-                        delete ptr.loc;
-                        it++;
-                    }
-                    
-                    delete s->parser;
-        
-                    delete s->respone;
-            
-                    
-                    
-                }
-                if (it->second->name == "Client"){
-                    c = (Client *) it->second;
-                    
-        
-                }
+           
+           
+                Config *c = it->second;
+                delete c;
                 it++;
             }
 
@@ -79,11 +57,15 @@ void cleanUP(maptype &config){
     std::cout << "CONTRL+C" << std::endl;
     exit(1);
 }
+
 Config *returnElement(int fd, maptype &data){
     if (data.count(fd) == 0)
         return NULL;
 
     return data.at(fd);
+}
+void printLogs(std::string &ipadress, int port, std::string &des, std::string &info){
+  std::cout << "[" << des << "]" << ipadress << ":" << port << " -> " << des << std::endl; 
 }
 
 void eventLoop(maptype &config ){
@@ -102,41 +84,37 @@ void eventLoop(maptype &config ){
     while(1){
         
         
-        
-        printf("----- epoll wait -----\n");
-        
-        printf("before EPOLL WAIT \n");
+       
 	    n = epoll_wait(fdEp, events, MAXEVENT,5000);
            if (function(0) == 1 || n == -1){
                cleanUP(config);
 
            }
-         
-            for(int i = 0; i < n; i++){
+           for(int i = 0; i < n; i++){
                
-                if (config.count(events[i].data.fd) == 0){ 
-                         
-                    continue;
+               if (config.count(events[i].data.fd) == 0){ 
+                   
+                   continue;
                 }
-
+                
                 else if (findElement(config, events[i].data.fd) == "Server"){
                     
-                
                     serv = (Server *)returnElement(events[i].data.fd, config);  
                     newClient =  new Client(serv->acceptClient());
                     config[newClient->fd] = newClient;
-                    cout << "Accept [client] [ " << newClient->fd << " ] from server " << serv->fd << endl; 
+                  
                     addSockettoEpoll(fdEp, newClient->data);               
-                   
+                    
                 }
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
-                                    findElement(config, events[i].data.fd)  == "client" ){
-               
-                  continue;
-
+                findElement(config, events[i].data.fd)  == "client" ){
+                    
+                    
+                    continue;
+                    
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
-                    
+                 
                     if (findElement(config, events[i].data.fd) == "cgi" ){
                         handlingOFCGi(config, events[i].data.fd, 1);
                         continue;
@@ -146,37 +124,37 @@ void eventLoop(maptype &config ){
                     deleteClient(config, events[i].data.fd, fdEp);    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){//new pwd 
-            
+                 
                     if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUTCGI))
-                        continue;
+                    continue;
                     if (events[i].events & EPOLLIN)
-                        handlingOFCGi(config, events[i].data.fd, 1);
+                    handlingOFCGi(config, events[i].data.fd, 1);
                     else if (events[i].events & EPOLLOUT)
-                        handlingOFCGi(config, events[i].data.fd, 2);
+                    handlingOFCGi(config, events[i].data.fd, 2);
                     
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {
+                    
                     Cli = (Client *)returnElement(events[i].data.fd ,config );
                     Server *clientServer = getServerFromClient(config, *Cli);
                     if (!clientServer)
-                        return ;
+                        continue;
                     if (events[i].events & EPOLLIN ){
                         
-                        std::cout << " fd cleint  "<< Cli->fd << std::endl;
+                        
                         if (!Cli->requestFinish)
                             readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
                         if (Cli->requestFinish)
                             setClientSend(fdEp, *Cli);
-                        // if  (Cli->requestFinish)
-                        //     sendResponse(config, *Cli);
-                        // else 
-                            continue;
+                    
+                        continue;
                     }
                     if (events[i].events & EPOLLOUT  ) {
                         Cli = (Client *) returnElement(events[i].data.fd, config);
                         sendResponse(config, *Cli);
                     }
+                 
                 }
             }
     

@@ -26,6 +26,8 @@ class Client: public Config{
         bool sending;
         bool bodySizeStatus;
 
+        int port;
+        std::string ip;
     
         long byteRead;
         long byteSent;

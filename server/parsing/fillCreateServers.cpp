@@ -64,7 +64,7 @@ servers setUpServers(std::vector<tockens> &v){
         it++;
     }
     printf("------");
-   printAllConfig (Servs);
+//    printAllConfig (Servs);
 
 
     return Servs;

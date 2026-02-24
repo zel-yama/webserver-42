@@ -28,6 +28,7 @@ private:
     std::map<std::string, std::string> headers;
     std::map<int, std::string> statusMap;
     bool LargeFile;
+    bool keepStatus;
     size_t fileSize;
     Server *srv;
     Request *req;

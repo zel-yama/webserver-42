@@ -14,7 +14,8 @@ Response::Response()
       body("<h1>Hello World</h1>"),
       req(NULL),
       srv(NULL),
-      LargeFile(false)      
+      LargeFile(false),
+      keepStatus(false)   
 {
     statusMap[200] = "OK";
     statusMap[201] = "Created";
@@ -27,6 +28,7 @@ Response::Response()
     statusMap[405] = "Method Not Allowed";
     statusMap[413] = "Payload Too Large";
     statusMap[415] = "Unsupported Media Type";
+    statusMap[414] = "URI too long";
     statusMap[500] = "Internal Server Error";
     statusMap[501] = "Not Implemented";
     statusMap[503] = "Service Unavailable";
@@ -427,12 +429,6 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
     for (size_t i = 0; i < req.multipartData.size(); ++i)
     {
         const MultipartPart &part = req.multipartData[i];
-        // cout << "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]" << endl;
-        // cout << part.filename << endl;
-        // cout << part.name << endl;
-        // cout << part.contentType << endl;
-        // cout << part.content << endl;
-        // cout << "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]" << endl;
         if (!part.filename.empty())
         {
             std::string filePath = uploadPath + "/" + part.filename;
@@ -511,10 +507,6 @@ void Response::handlePost(const std::string &path,
         if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
-
-            std::string uploadPath = srv.uploadPath;
-            if (!req.loc.uploadPath.empty())
-                uploadPath = req.loc.uploadPath;
 
             std::string cgiPath = cgiConfig[ext];
             Cgihandle  handle = cgi.execute(cgiPath, path);
@@ -694,10 +686,6 @@ void Response::handleGet(const std::string &path, const Request &req, const Serv
         {
             Cgi cgi(req);
 
-            std::string uploadPath = srv.uploadPath;
-            if (!req.loc.uploadPath.empty())
-                uploadPath = req.loc.uploadPath;
-
             std::string cgiPath = cgiConfig[ext];
             Cgihandle  handle = cgi.execute(cgiPath, path);
             if (handle.readFd == -1 || handle.pid == -1)
@@ -741,12 +729,11 @@ void Response::servFile(const std::string &path)
     }
 
     fileSize = st.st_size;
-    setStatus(200, "");
+    if (!keepStatus)
+        setStatus(200, "");
     setContentType(path);
 
     headers["Content-Length"] = toString(fileSize);
-    // setHeader("Cache-Control", "no-cache");
-    // setHeader("Accept-Ranges", "bytes");
 
     if (fileSize <= CHUNK_SIZE)
     {
@@ -761,6 +748,7 @@ void Response::servFile(const std::string &path)
         body.clear();
     }
 }
+
 void Response::sendError(int code, const std::string &message)
 {
     setStatus(code, message);
@@ -776,7 +764,9 @@ void Response::sendError(int code, const std::string &message)
             // std::cout << path << std::endl;
             if (existFile(path.c_str()))
             {
+                keepStatus = true;
                 servFile(path);
+                keepStatus = false;
                 return;
             }
         }
@@ -793,7 +783,9 @@ void Response::sendError(int code, const std::string &message)
             // std::cout << path << std::endl;
             if (existFile(path.c_str()))
             {
+                keepStatus = true;
                 servFile(path);
+                keepStatus = false;
                 return;
             }
         }
@@ -858,10 +850,6 @@ void Response::handleDelete(const std::string &path,
     if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
     {
         Cgi cgi(req);
-
-        std::string UploadPath = srv.uploadPath;
-        if (!req.loc.uploadPath.empty())
-            UploadPath = req.loc.uploadPath;
         
         std::string cgiPath = cgiConfig[ext];
         Cgihandle handle = cgi.execute(cgiPath, path);
@@ -890,7 +878,6 @@ void Response::handleDelete(const std::string &path,
 std::string Response::build()
 {
     std::ostringstream response;
-
     response << version << " "
              << statusCode << " " << statusMessage << "\r\n";
 

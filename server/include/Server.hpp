@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #define TIMEOUT 62
+#define MAX_URI 2048
 #define TIMEOUTCGI 30
 #define MAXEVENT 1000
 #define MAXCLIENT 1000

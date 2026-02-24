@@ -23,13 +23,12 @@ class Response
 private:
     int statusCode;
     std::string statusMessage;
-    std::string protocol;
     std::string version;
     std::string body;
-    std::string raw;
     std::map<std::string, std::string> headers;
     std::map<int, std::string> statusMap;
     bool LargeFile;
+    bool keepStatus;
     size_t fileSize;
     Server *srv;
     Request *req;

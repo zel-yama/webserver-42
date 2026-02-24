@@ -69,7 +69,7 @@ void printLogs(std::string &ipadress, int port, std::string &des, std::string &i
 }
 
 void eventLoop(maptype &config ){
-    
+    puts("sss");
     int fdEp;
     Client *Cli = NULL;
     Client*  newClient;

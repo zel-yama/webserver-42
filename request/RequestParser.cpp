@@ -45,7 +45,7 @@ bool RequestParser::isValidUriChar(char c) {
 }
 
 bool RequestParser::isValidUri(const std::string& uri) {
-    if (uri.empty() || uri[0] != '/' || uri.size() > 2048)
+    if (uri.empty() || uri[0] != '/')
         return false;
 
     for (size_t i = 0; i < uri.size(); i++) {
@@ -160,8 +160,13 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
         req.query = req.path.substr(q + 1);
         req.path = req.path.substr(0, q);
     }
-
+    if (req.path.size() > MAX_URI) {
+        req.status = 414;
+        req.complete = true;
+        return false;
+    }
     if (!isValidUri(req.path)) {
+
         req.status = 400;
         req.complete = true;
         return false;

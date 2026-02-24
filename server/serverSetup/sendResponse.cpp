@@ -39,7 +39,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
     int process = waitpid(cg->pid, &status, WNOHANG );
     if (process == -1){
         flag = -1;
-        connect->response = "Status:500 Inter Server Erorr  \r\n\r\n Error ";
+        connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
 
     }
     if (flag == 1){

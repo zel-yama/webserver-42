@@ -24,7 +24,7 @@ Server::Server(){
     respone = new Response();
 
 }
-Server::~Server(){ delete respone; };
+Server::~Server(){};
 
 location::location(){
     this->outoIndex = -1;

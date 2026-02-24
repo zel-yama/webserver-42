@@ -1,8 +1,8 @@
 <?php
 echo "<pre>";
-echo "   *\n";
-echo "  ***\n";
-echo " *****\n";
-echo "*******\n";
+echo "   *";
+echo "  ***";
+echo " *****";
+echo "*******";
 echo "</pre>";
 ?>

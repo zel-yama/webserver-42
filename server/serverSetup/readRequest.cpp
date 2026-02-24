@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
-#include "../../request/RequestParser.hpp"
+// #include "../../request/RequestParser.hpp"
 // you should read  request 
 /// now u have fd that contain data  
 // i should handle some case of reading body of request content length  
@@ -37,7 +37,7 @@ int myread(Client &connect, std::string& buffer) {
     return 1;
 }
 
-bool allowKeepAlive(Request req)
+bool allowKeepAlive(Request& req)
 {
     if (req.status >= 400)
         return false;
@@ -64,7 +64,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
         return;
     }
 
-    Request req = parser->parse(connect.fd, connect.buffer);
+    Request req = parser->parse(connect.fd);
 
     if (req.complete) {
         connect.parsedRequest = req;

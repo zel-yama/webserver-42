@@ -8,7 +8,7 @@
 #include <fstream>
 #include <ctime>
 #include <sys/stat.h>
-#include "../request/RequestParser.hpp"
+#include "../server/include/Client.hpp"
 // #include "../server/include/Server.hpp"
 // #include "../webserv.hpp"
 #include <dirent.h>
@@ -71,7 +71,7 @@ public:
     void generateautoindex(const std::string &path);
     std::string build();
     bool isLargeFile() const;
-    std::string& getFilePath() ;
+    std::string& getFilePath();
     size_t getFileSize() const;
     void setContext(Request *r, Server *s);
     bool hasReadPermission(const std::string &path) const;

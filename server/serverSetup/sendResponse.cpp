@@ -244,9 +244,4 @@ void sendResponse(maptype &config, Client &connect) {
     }
     connect.sending = true;
     checkClientConnection(config, connect);
-
-
-
-
-    
 }

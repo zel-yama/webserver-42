@@ -1,18 +1,98 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 30
-#define TIMEOUTCGI 22
+#define TIMEOUT 62
+#define TIMEOUTCGI 30
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
 
-#include "Client.hpp"
 #include "include.hpp"
+class Client;
 
-struct location;
+// struct location;
 class Response;
-class RequestParser;
+struct location {
+ 
+    location();
+    int                                 fdEp;
+    int                                  upload;
+    map<std::string, std::string>        CgiCofing;
+    std::string                          uploadPath;
+    std::string                          cgiPath;
+    std::string                          cgiExten;
+    int                                  cgiStatus;
+    std::vector<std::string>             allowedMethods;
+    std::string                          root;
+    std::string                          returnP;
+    int                                  returnCode;
+    std::string                          locationPath;
+    std::vector<std::string>             indexFile;
+    size_t                               bodyMaxByte;
+    int                                  outoIndex;
+    int                                  ex;
+    std::map<int, std::string >          D_ErrorPages;
+};
+
+struct MultipartPart {
+    std::string name;
+    std::string filename;
+    std::string contentType;
+    std::string content;
+};
+
+
+struct Request {
+    std::string method;
+    std::string path;
+    std::string query;
+    std::string version;
+    std::string body;
+    int status;
+    
+    std::map<std::string, std::string> headers;
+    std::vector<MultipartPart> multipartData;
+    std::map<std::string, std::string> cookies;
+
+    bool headersParsed;
+    
+    bool complete;
+    bool keepalive;
+    std::string fullpath;
+    location loc;
+
+    Request();
+    ~Request();
+};
+
+class RequestParser {
+    public:
+        Request parse(int fd);
+        std::map<int, std::string> buffer;
+        std::map<int, Request> requests;
+    private:
+
+        std::string trim(const std::string& s);
+        std::string toLower(const std::string& s);
+
+        bool isValidMethod(const std::string& m);
+        bool isValidVersion(const std::string& v);
+
+        bool isValidUriChar(char c);
+        bool isValidUri(const std::string& uri);
+        std::string normalizePath(const std::string& path);
+
+        size_t parseContentLength(const std::string& v);
+        bool decodeChunked(std::string& buf, std::string& out);
+        bool parseBody(std::string& b, Request& req);
+        bool parseHeaders(std::string& b, Request& req);
+        
+        std::string extractBoundary(std::string& contentType);
+        bool parseMultipart(std::string& body, std::string& boundary, Request& req);
+        void parseCookies(Request& req);
+};
+std::string setCookie(std::string key, std::string value);
+
 
 typedef map<string, string>::iterator iter;
 class Server : public Config {
@@ -20,6 +100,7 @@ class Server : public Config {
     public:
     
     Server();
+    ~Server();
     
     std::vector<std::string>                indexFile;
     unsigned int                            port;
@@ -44,7 +125,7 @@ class Server : public Config {
         std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
 
         // for me  (mohamed)
-        RequestParser               *parser;
+        RequestParser               parser;
         Response                    *respone;
         map<std::string, std::string>       cgiConfig;
         int                                 CreateServer(int port, std::string ipaddress );
@@ -53,27 +134,6 @@ class Server : public Config {
     };
     
 typedef std::vector<Server> servers;
-struct location {
- 
-    location();
-    int                                 fdEp;
-    int                                  upload;
-    map<std::string, std::string>        CgiCofing;
-    std::string                          uploadPath;
-    std::string                          cgiPath;
-
-    int                                  cgiStatus;
-    std::vector<std::string>             allowedMethods;
-    std::string                          root;
-    std::string                          returnP;
-    int                                  returnCode;
-    std::string                          locationPath;
-    std::vector<std::string>             indexFile;
-    size_t                               bodyMaxByte;
-    int                                  outoIndex;
-    int                                  ex;
-    std::map<int, std::string >          D_ErrorPages;
-};
 
 
 

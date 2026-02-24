@@ -2,7 +2,7 @@
 
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
-#include "../../request/RequestParser.hpp"
+// #include "../../request/RequestParser.hpp"
 #include "../../Response/Response.hpp"
 
  ///should allawyz theck is connection timeout indeed  not just when u send response  
@@ -144,7 +144,7 @@ void eventLoop(maptype &config ){
                         
                         
                         if (!Cli->requestFinish)
-                            readRequest(config, events[i].data.fd, *Cli, clientServer->parser);
+                            readRequest(config, events[i].data.fd, *Cli, &clientServer->parser);
                         if (Cli->requestFinish)
                             setClientSend(fdEp, *Cli);
                     

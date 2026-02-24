@@ -2,7 +2,7 @@
 
 
 #include "../include/Server.hpp"
-#include "../../request/RequestParser.hpp"
+#include "../include/Client.hpp"
 #include "../../Response/Response.hpp"
 
 std::vector<int>  Config::fdsBuffer;
@@ -19,10 +19,13 @@ Server::Server(){
     port = -1;
   
     name = "Server";
-    parser = new RequestParser();
+   
+    // parser = new RequestParser();
     respone = new Response();
 
 }
+Server::~Server(){ delete respone; };
+
 location::location(){
     this->outoIndex = -1;
 

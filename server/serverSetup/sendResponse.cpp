@@ -37,8 +37,11 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
     }
     int status;
     int process = waitpid(cg->pid, &status, WNOHANG );
+    if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
+        process = -1;
     if (process == -1){
         flag = -1;
+        printf("flagr");
         connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
 
     }
@@ -46,6 +49,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
 
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
         if (i < 0 || process < 0 ) {
+            printf("read error ");
             kill(cg->pid, SIGTERM);
             printf("invalid data socket or erro in cgi ");
             deleteClient(data, cg->fd_in, cg->fdEp);
@@ -203,7 +207,7 @@ void sendResponse(maptype &config, Client &connect) {
 
     if (!connect.response.empty()){
 
-        printf("send  %s fd %d \n ", connect.response.c_str(), connect.fd);
+        //printf("send  %s fd %d \n ", connect.response.c_str(), connect.fd);
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {

@@ -20,19 +20,18 @@ void location_handle(Server &serv, std::string path)//extra
     serv.ServerName = path;
 }
 
-
-
 int serverHnding(tockenIt it, std::vector<Server> &servs){
     int i  = 0;
     location local;
+    
     Server serv;
     while(it->mytocken != ENDSERV){
         if (!it->val.compare("location")){
             local = locationHandling(it);
-            // if (local.allowedMethods.empty())
-            //     local.allowedMethods.push_back("GET");
-            serv.objLocation.push_back(local);
             
+            serv.objLocation.push_back(local);
+            if (serv.objLocation.size() > 100)
+                costumThrow("many locatoin", "");
         }
         else
             serverCases(it, serv);
@@ -43,17 +42,15 @@ int serverHnding(tockenIt it, std::vector<Server> &servs){
     if (serv.ipAdress.empty()|| serv.port == -1)
         myThrow();
 
-    // if (serv.allowedMethods.empty())
-    //     serv.allowedMethods.push_back("GET");
-    if (serv.bodyMaxByte == -1)
+   
+    if (serv.bodyMaxByte == 0)
         serv.bodyMaxByte = 1e6;
     if (serv.ServerName.empty())
         serv.ServerName = "webServer";
     servs.push_back(serv);
     return i;
 }
-///////////////////// insert servers Vector in to config Map 
-///fill server and set init process statrt here in while 
+
 servers setUpServers(std::vector<tockens> &v){
 
     std::vector<Server> Servs;
@@ -75,8 +72,9 @@ servers setUpServers(std::vector<tockens> &v){
         it++;
          
     }
-//     printf("------");
-//    printAllConfig (Servs);
+    
+   printAllConfig (Servs);
+
 
 
     return Servs;

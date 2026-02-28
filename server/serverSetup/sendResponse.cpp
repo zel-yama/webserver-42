@@ -125,7 +125,7 @@ void checkClientConnection(maptype &config, Client &connect) {
  
 
 
-    // Check if connection should close (from parsed request)
+    
 
     if (!connect.keepAlive) {
         printf("keep alive \n");
@@ -133,9 +133,9 @@ void checkClientConnection(maptype &config, Client &connect) {
         return;
     }
     
-    // Keep-alive: reset for next request
+    
     connect.buildDone = false;
-    printf("reset flags to  \n ");
+    
     connect.currentTime = time(NULL);
     connect.requestFinish = false;
   

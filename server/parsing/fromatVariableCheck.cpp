@@ -14,8 +14,6 @@ void HandleMapstrings(std::string &str, map<std::string, std::string> &MapString
         MapStrings[*it]= *(it + 1);
         it++;
     }
-
-
 }
 
 void resolveIpName(std::string &Str , Server &serv){
@@ -37,23 +35,17 @@ void resolveIpName(std::string &Str , Server &serv){
         while (tmp != NULL)
         {
             if (tmp->ai_family == AF_INET && tmp->ai_socktype == SOCK_STREAM){
-             
-                 
                 
                 serv.addressServer.sin_family = tmp->ai_family;
                 memcpy(&serv.addressServer.sin_addr, &tmp->ai_addr->sa_data[2], 4);
                 serv.addressServer.sin_port = htons(serv.port);
-            
-     
             }
             tmp = tmp->ai_next;
         }
     }
-
-    
     freeaddrinfo(result);
 }
-// no : means if str string ip address if number port check max 1 → 65535
+
 void insertListenConfig(Server &serv, std::string &str){
 
     std::string por;
@@ -96,7 +88,8 @@ void bodySizeMax(size_t &val, std::string &str){
     std::string c;
     max =  extractInt(str, c );
 
-    if (c.size() > 1 || max < 0)
+   
+    if (c.size() > 1 )
         throw std::runtime_error("invalid value in max body size ");
     if (c[0] == 'M')
         max = max * 1e6;
@@ -104,7 +97,7 @@ void bodySizeMax(size_t &val, std::string &str){
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    else if (!c.empty() || val != -1) 
+    else if (!c.empty() || val != 0) 
         throw std::runtime_error("invalid value in max body size ");
     val = max;
 }
@@ -119,7 +112,7 @@ void variableSingleValue(std::string str, std::string &buff){
     if (!isEMpty.empty() || !tmp.empty())
         throw std::runtime_error("Error: Invalid token near   -> {" + str + "}");
 }
-/// count of methods should 3 or less without no doblecate 
+
 void methodesHandler(std::vector<std::string> &methdsV, std::string methods , int i){
     std::stringstream ss(methods);
 

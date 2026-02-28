@@ -12,15 +12,12 @@ Server::Server(){
     this->outoIndex = 0;
     this->serverId = 0;
     this->returnCode = 0;
-    bodyMaxByte = -1;
-    
- 
+    bodyMaxByte = 0;
     outoIndex = false;
     port = -1;
-  
     name = "Server";
-   
-    // parser = new RequestParser();
+
+    
     respone = new Response();
 
 }
@@ -29,14 +26,10 @@ Server::~Server(){};
 location::location(){
     this->outoIndex = -1;
 
-    bodyMaxByte = -1;
+    bodyMaxByte = 0;
     this->cgiStatus = -1;
     this->upload = -1;
     this->returnCode = 0;
-
-   
-
-  
     this->ex = false;
     
 }
@@ -69,7 +62,7 @@ Client Server::acceptClient(){
     }
     newOne.fd = makeNonBlockingFD(newOne.fd);
     newOne.data.events = EPOLLIN | EPOLLHUP  | EPOLLERR;
-    /// socket buffer input output 
+    
     newOne.data.data.fd = newOne.fd;
     newOne.currentTime = time(NULL);
     fdsBuffer.push_back(newOne.fd);

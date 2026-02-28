@@ -9,6 +9,8 @@ void applyRules(std::vector<tockens> &tocknes){
 
     tockenIt it = tocknes.begin();
     while ((it + 1) != tocknes.end()){
+            if (it == tocknes.begin())
+                accept(*it , SERVER);
             if (it->mytocken == SERVER)
                 accept(*(it + 1), OPENED_PRACKET);
             if (it->mytocken == LOCATIONPATH)

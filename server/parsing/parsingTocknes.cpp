@@ -25,9 +25,9 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 		if (var.compare("location"))
 			enumValue = LOCATIONPATH;
 		val = it->second;
-		if (!val.empty())//?? just check empty case
+		if (!val.empty())
 			pushTockens(VARIABLE, tockenV, var);
-		if (it->second.empty())//  if second empty it means val is var case { firt things in line it means it var i handl it using this case 
+		if (it->second.empty())
 			val = var;
 		tockenValue(val, tockenV, enumValue);
 		it++;
@@ -35,7 +35,7 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 	return tockenV;
 }
 
-// validtion of tocknes format 
+
 void validatoinVarFormat( tockens &mytockens){
 	mytockens.val =  removeSpaces(mytockens.val);
 	if (!mytockens.val.empty() && mytockens.mytocken == 0){

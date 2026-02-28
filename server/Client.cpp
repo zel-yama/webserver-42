@@ -6,7 +6,7 @@
 
 Client::Client(){
     name = "client";
-    requestFinish = false;// if request finish i should watch it to reading request ;
+    requestFinish = false;
     bodySizeStatus = false;
     byteSent = 0;
 
@@ -17,7 +17,5 @@ Client::Client(){
     buildDone = false;
     fdFile = -1;
 
-    // mine ..... mohamed
-    
-    // respons = Response();
+
 }

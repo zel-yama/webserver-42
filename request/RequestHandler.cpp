@@ -3,37 +3,46 @@
 #include <sys/stat.h>
 // #include "RequestParser.hpp"
 
-Server* getServerFromClient(maptype& config, Client& client) {
-    if (config.find(client.serverId) != config.end()) {
-        Config* cfg = config[client.serverId];
-        if (cfg->name == "Server") {
-            return dynamic_cast<Server*>(cfg);
+Server *getServerFromClient(maptype &config, Client &client)
+{
+    if (config.find(client.serverId) != config.end())
+    {
+        Config *cfg = config[client.serverId];
+        if (cfg->name == "Server")
+        {
+            return dynamic_cast<Server *>(cfg);
         }
     }
     return NULL;
 }
 
-
-Server* getServerForClient(maptype& config, int serverId) {
-    if (config.find(serverId) != config.end()) {
-        Config* cfg = config[serverId];
-        if (cfg->name == "Server") {
-            return dynamic_cast<Server*>(cfg);
+Server *getServerForClient(maptype &config, int serverId)
+{
+    if (config.find(serverId) != config.end())
+    {
+        Config *cfg = config[serverId];
+        if (cfg->name == "Server")
+        {
+            return dynamic_cast<Server *>(cfg);
         }
     }
     return NULL;
 }
 
-location* findLocation(Server* srv, std::string& path) {
-    location* bestMatch = NULL;
+location *findLocation(Server *srv, const std::string &path)
+{
+    location *bestMatch = NULL;
     size_t longestMatch = 0;
 
-    for (size_t i = 0; i < srv->objLocation.size(); ++i) {
-        location& loc = srv->objLocation[i];
+    for (size_t i = 0; i < srv->objLocation.size(); ++i)
+    {
+        location &loc = srv->objLocation[i];
         size_t locLen = loc.locationPath.length();
 
-        if (loc.locationPath == "/") {                                                                                                                                                                                  
-            if (locLen > longestMatch) {
+        if (loc.locationPath == "/")
+        {
+            if (locLen > longestMatch)
+            {
                 bestMatch = &loc;
                 longestMatch = locLen;
             }
@@ -41,8 +50,10 @@ location* findLocation(Server* srv, std::string& path) {
         }
 
         if (path.compare(0, locLen, loc.locationPath) == 0 &&
-            (path.length() == locLen || path[locLen] == '/')) {
-            if (locLen > longestMatch) {
+            (path.length() == locLen || path[locLen] == '/'))
+        {
+            if (locLen > longestMatch)
+            {
                 bestMatch = &loc;
                 longestMatch = locLen;
             }
@@ -52,7 +63,8 @@ location* findLocation(Server* srv, std::string& path) {
     return bestMatch;
 }
 
-std::string joinPathWithLocation(Server* srv, location *loc, std::string& reqPath) {
+std::string joinPathWithLocation(Server *srv, location *loc, const std::string &reqPath)
+{
     std::string root;
     if (loc->root.empty())
         root = srv->root;
@@ -60,10 +72,13 @@ std::string joinPathWithLocation(Server* srv, location *loc, std::string& reqPat
         root = loc->root;
     std::string suffix;
 
-    if (loc->locationPath != "/") {
+    if (loc->locationPath != "/")
+    {
         if (reqPath.compare(0, loc->locationPath.length(), loc->locationPath) == 0)
             suffix = reqPath.substr(loc->locationPath.length());
-    } else {
+    }
+    else
+    {
         suffix = reqPath;
     }
 
@@ -78,24 +93,30 @@ std::string joinPathWithLocation(Server* srv, location *loc, std::string& reqPat
     return fullpath;
 }
 
-
-bool isMethodAllowed(std::string& method, std::vector<std::string>& allowed) {
-    for (size_t i = 0; i < allowed.size(); i++) {
-        if (allowed[i] == method) {
+bool isMethodAllowed(const std::string &method, const std::vector<std::string> &allowed)
+{
+    for (size_t i = 0; i < allowed.size(); i++)
+    {
+        if (allowed[i] == method)
+        {
             return true;
         }
     }
     return false;
 }
 
-void validateRequest(Request& req, Server* srv) {
+void validateRequest(Request &req, Server *srv)
+{
 
     if (req.status != 200)
         return;
 
     location *loc;
-    loc = findLocation(srv, req.path); //fix if there is not location in config ?
-    if (!loc) {
+    loc = findLocation(srv, req.path); // fix if there is not location in config ?
+    req.loc = *loc;
+
+    if (!loc)
+    {
         req.status = 404;
         return;
     }
@@ -104,32 +125,46 @@ void validateRequest(Request& req, Server* srv) {
 
     req.fullpath = joinPathWithLocation(srv, loc, req.path);
 
-    if (loc && !loc->returnP.empty()) {
-        int code = (loc->returnCode > 0) ? loc->returnCode : 301;
+    if (loc && !loc->returnP.empty())
+    {
+        int code;
+        if (loc->returnCode > 0)
+            code = loc->returnCode;
+        else
+            code = 301;
+
         req.status = code;
-        req.headers["location"] = loc->returnP;
+        req.headers["Location"] = loc->returnP;
         return;
     }
 
-    if (!srv->returnP.empty()) {
-        int code = (srv->returnCode > 0) ? srv->returnCode : 301;
+    if (!srv->returnP.empty())
+    {
+        int code;
+        if (srv->returnCode > 0)
+            code = srv->returnCode;
+        else
+            code = 301;
+
         req.status = code;
-        req.headers["location"] = srv->returnP;
+        req.headers["Location"] = srv->returnP;
         return;
     }
-    
-    if (!isMethodAllowed(req.method, loc->allowedMethods)) {
+
+    if (!isMethodAllowed(req.method, loc->allowedMethods))
+    {
         req.status = 405;
         return;
     }
 
-    if ((req.method == "POST" || req.method == "DELETE")) {
+    if ((req.method == "POST" || req.method == "DELETE"))
+    {
         size_t maxSize = (loc->bodyMaxByte > 0) ? loc->bodyMaxByte : srv->bodyMaxByte;
-        
-        if (req.body.size() > maxSize) {
+
+        if (req.body.size() > maxSize)
+        {
             req.status = 413;
             return;
         }
     }
 }
-

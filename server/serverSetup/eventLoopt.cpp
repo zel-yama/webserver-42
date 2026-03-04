@@ -78,7 +78,7 @@ Config *returnElement(int fd, maptype &data){
 }
 
 void eventLoop(maptype &config ){
-    
+    puts("sss");
     int fdEp;
     Client *Cli = NULL;
     Client*  newClient;
@@ -94,7 +94,7 @@ void eventLoop(maptype &config ){
         
         
         
-        printf("----- epoll wait -----\n");
+        // printf("----- epoll wait -----\n");
         
         printf("before EPOLL WAIT \n");
 	    n = epoll_wait(fdEp, events, MAXEVENT,5000);

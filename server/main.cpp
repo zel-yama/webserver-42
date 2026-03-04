@@ -32,8 +32,9 @@ int main(int av, char *argc[]){
 	catch (exception &e)
 	{
 		cout << e.what() << endl;
-	
+		
 		close(Serv->fd);
+		cout << "hereeeeeeeeee" << endl;
 		
 		return 1;
 	}

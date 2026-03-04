@@ -39,7 +39,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
     int process = waitpid(cg->pid, &status, WNOHANG );
     if (process == -1){
         flag = -1;
-        connect->response = "Status:500 Inter Server Erorr  \r\n\r\n Error ";
+        connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
 
     }
     if (flag == 1){
@@ -138,7 +138,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     printf("reset flags to  \n ");
     connect.currentTime = time(NULL);
     connect.requestFinish = false;
-    connect.headersOnly = false;
+  
     connect.bodysize = 0;
     connect.byteSent = 0;
     connect.bodySizeStatus = false;

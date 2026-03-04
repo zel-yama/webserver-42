@@ -546,7 +546,8 @@ void Response::handlePost(const std::string &path,
 
     if (isDirectory(path.c_str()))
     {
-        sendError(405, "");
+        cout << "here\n";
+        sendError(405, ""); // why ?
         return;
     }
 

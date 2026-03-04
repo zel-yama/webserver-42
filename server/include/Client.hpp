@@ -35,6 +35,8 @@ class Client: public Config{
         int fdFile;
         bool is_cgi;
         // i add this
+        std::string sessionCookie;
+
         Request parsedRequest;
         // Response respons;
 };

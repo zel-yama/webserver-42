@@ -53,6 +53,7 @@ struct Request {
     std::map<std::string, std::string> headers;
     std::vector<MultipartPart> multipartData;
     std::map<std::string, std::string> cookies;
+    std::string     sessionId;
 
     bool headersParsed;
     
@@ -70,6 +71,7 @@ class RequestParser {
         Request parse(int fd);
         std::map<int, std::string> buffer;
         std::map<int, Request> requests;
+        std::string resolveSession(Request& req);
     private:
 
         std::string trim(const std::string& s);
@@ -100,7 +102,6 @@ class Server : public Config {
     public:
     
     Server();
-    ~Server();
     
     std::vector<std::string>                indexFile;
     unsigned int                            port;

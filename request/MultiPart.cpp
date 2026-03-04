@@ -72,15 +72,16 @@ bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Req
         std::string content = part.substr(headersEnd + sepLen);
 
         // trim end CRLF
-        while (!content.empty() && (content.back() == '\n' || content.back() == '\r'))
-            content.pop_back(); // std c++ 98
+        while (!content.empty() && (content[content.size()-1] == '\n' || content[content.size()-1] == '\r')) {
+            content.resize(content.size() - 1);
+        }
 
         MultipartPart mp;
         std::istringstream hs(headersSection);
         std::string line;
 
         while (std::getline(hs, line)) {
-            if (!line.empty() && line.back() == '\r') line.pop_back();
+            if (!line.empty() && line[line.size()-1] == '\r') line.resize(line.size()-1);
             std::string lower = toLower(line);
 
             if (lower.find("content-disposition:") == 0) {

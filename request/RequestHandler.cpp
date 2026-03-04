@@ -1,5 +1,6 @@
 // #include "../server/include/Server.hpp"
 #include "../server/include/Client.hpp"
+#include <sys/stat.h>
 // #include "RequestParser.hpp"
 
 Server* getServerFromClient(maptype& config, Client& client) {
@@ -23,7 +24,7 @@ Server* getServerForClient(maptype& config, int serverId) {
     return NULL;
 }
 
-location* findLocation(Server* srv, const std::string& path) {
+location* findLocation(Server* srv, std::string& path) {
     location* bestMatch = NULL;
     size_t longestMatch = 0;
 
@@ -51,7 +52,7 @@ location* findLocation(Server* srv, const std::string& path) {
     return bestMatch;
 }
 
-std::string joinPathWithLocation(Server* srv, location *loc, const std::string& reqPath) {
+std::string joinPathWithLocation(Server* srv, location *loc, std::string& reqPath) {
     std::string root;
     if (loc->root.empty())
         root = srv->root;
@@ -78,7 +79,7 @@ std::string joinPathWithLocation(Server* srv, location *loc, const std::string& 
 }
 
 
-bool isMethodAllowed(const std::string& method, const std::vector<std::string>& allowed) {
+bool isMethodAllowed(std::string& method, std::vector<std::string>& allowed) {
     for (size_t i = 0; i < allowed.size(); i++) {
         if (allowed[i] == method) {
             return true;
@@ -94,12 +95,13 @@ void validateRequest(Request& req, Server* srv) {
 
     location *loc;
     loc = findLocation(srv, req.path); //fix if there is not location in config ?
-    req.loc = *loc;
-    
     if (!loc) {
         req.status = 404;
         return;
     }
+    req.loc = *loc;
+    
+
     req.fullpath = joinPathWithLocation(srv, loc, req.path);
 
     if (loc && !loc->returnP.empty()) {

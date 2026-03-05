@@ -626,7 +626,7 @@ void Response::generateautoindex(const std::string &path)
 
         if (access(path.c_str(), F_OK) != 0)
         {
-            sendError(404, "");
+            sendError(404, ""); 
         }
         else if (access(path.c_str(), R_OK) != 0)
         {

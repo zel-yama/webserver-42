@@ -1,6 +1,5 @@
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
-// #include "../../request/RequestParser.hpp"
 // you should read  request 
 /// now u have fd that contain data  
 // i should handle some case of reading body of request content length  
@@ -13,6 +12,7 @@
 // body without length in http u wait untill EOF or time end 
 // body can so big so can't read in one time 
 // close is will depend on time or not 
+
 int myread(Client &connect, std::string& buffer) {
     
     char tmp[MAXSIZEBYTE];
@@ -55,6 +55,8 @@ bool allowKeepAlive(Request& req)
 void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser)
 {
     int readResult = myread(connect, parser->buffer[fd]);
+
+    cout << parser->buffer[fd] << endl;
     
     printf("[%s] buffer \n",parser->buffer[fd].c_str() );
     if (readResult <= 0) {
@@ -68,6 +70,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
 
     if (req.complete) {
         connect.parsedRequest = req;
+        connect.sessionCookie = parser->resolveSession(req);
         connect.requestFinish = true;
     
         if (allowKeepAlive(req)) {

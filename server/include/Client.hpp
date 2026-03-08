@@ -37,6 +37,8 @@ class Client: public Config{
         int fdFile;
 
         // i add this
+        std::string sessionCookie;
+
         Request parsedRequest;
         // Response respons;
 };

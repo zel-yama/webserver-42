@@ -67,6 +67,10 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
     if (flag == 0)
         connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
     srv->respone->applyCgiResponse(connect->response);
+    if (!connect->sessionCookie.empty()) {
+        srv->respone->setHeader("Set-Cookie", connect->sessionCookie);
+        connect->sessionCookie.clear();
+    }
     connect->response =   srv->respone->build();
 
     
@@ -186,6 +190,10 @@ void sendResponse(maptype &config, Client &connect) {
     if (!connect.buildDone){
         Server* srv = getServerForClient(config, connect.serverId);
         srv->respone->processRequest(connect.parsedRequest, *srv);
+        if (!connect.sessionCookie.empty()) {
+            srv->respone->setHeader("Set-Cookie", connect.sessionCookie);;
+            connect.sessionCookie.clear();
+        }
         connect.response = srv->respone->build();
         connect.buildDone = true;
         if (srv->respone->isCgipending()){

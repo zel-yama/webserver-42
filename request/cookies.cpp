@@ -2,7 +2,7 @@
 
 std::string setCookie(std::string key, std::string value)
 {
-    return "Set-Cookie: " + key + "=" + value + "; Path=/; HttpOnly\r\n";
+    return key + "=" + value + "; Path=/; HttpOnly";
 }
 
 void RequestParser::parseCookies(Request& req)

@@ -21,7 +21,7 @@ Server::Server(){
     respone = new Response();
 
 }
-Server::~Server(){};
+// Server::~Server(){};
 
 location::location(){
     this->outoIndex = -1;

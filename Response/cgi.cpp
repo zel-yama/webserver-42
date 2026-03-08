@@ -24,9 +24,14 @@ void Cgi::buildEnv(const Request &req)
     oss << body.size();
     env["CONTENT_LENGTH"] = oss.str();
 
-    std::map<std::string, std::string>::const_iterator it = req.headers.find("content-type");
+    std::map<std::string, std::string>::const_iterator it;
+    it = req.headers.find("content-type");
     if (it != req.headers.end())
         env["CONTENT_TYPE"] = it->second;
+    
+    it = req.headers.find("cookie");
+    if (it != req.headers.end())
+        env["HTTP_COOKIE"] = it->second;
 
     env["SERVER_PROTOCOL"] = "HTTP/1.0";
 }
@@ -82,8 +87,11 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
 
     if (pid == 0)
     {
-        dup2(inPipe[0], STDIN_FILENO);
-        dup2(outPipe[1], STDOUT_FILENO);
+        if (dup2(inPipe[0], STDIN_FILENO) == -1)
+            exit(1);
+
+        if (dup2(outPipe[1], STDOUT_FILENO) == -1)
+            exit(1);
 
         close(inPipe[0]);
         close(outPipe[1]);

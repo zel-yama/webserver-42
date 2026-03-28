@@ -16,12 +16,12 @@ Server::Server(){
     outoIndex = false;
     port = -1;
     name = "Server";
-
-    
     respone = new Response();
-
 }
-Server::~Server(){};
+
+Server::~Server(){
+
+};
 
 location::location(){
     this->outoIndex = -1;
@@ -33,6 +33,7 @@ location::location(){
     this->ex = false;
     
 }
+
 std::string convertIpAdder( uint32_t ipaddres){
 
 
@@ -55,7 +56,6 @@ Client Server::acceptClient(){
     
     if (newOne.fd < 0){
         ostringstream ss;
-        
         ss << "server failed to accept connection from address " << convertIpAdder(addressServer.sin_addr.s_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);
         cerr << ss.str() << endl;
         return newOne ;
@@ -71,7 +71,7 @@ Client Server::acceptClient(){
 void Server::listenFunction(){
    
     if (listen(fd, 30) < 0){
-       throw runtime_error("error in to listen that port ");}
+       throw runtime_error("Error in to listen that port ");}
     ostringstream ss;
     convertIpAdder(addressServer.sin_addr.s_addr);
     ss << "\n ** server IP address " << convertIpAdder(addressServer.sin_addr.s_addr) <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
@@ -86,11 +86,11 @@ int Server::CreateServer(int port, string ipaddress){
         throw runtime_error("Error: to set socket to reusing mode ");
     if (fd == -1)
     {
-        throw runtime_error("error in in create socket socket function");
+        throw runtime_error("Error in in create socket socket function");
     }
 
     if (bind(fd, (sockaddr *)(&addressServer),sizeof(addressServer)) < 0){
-        throw runtime_error("error in bind operatoin bind function ");
+        throw runtime_error("Error in bind operatoin bind function ");
     }
     listenFunction();
     data.events = EPOLLIN;

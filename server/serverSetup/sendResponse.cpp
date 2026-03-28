@@ -41,7 +41,6 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
         process = -1;
     if (process == -1){
         flag = -1;
-        printf("flagr");
         connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
 
     }
@@ -49,9 +48,9 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
 
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
         if (i < 0 || process < 0 ) {
-            printf("read error ");
+        
             kill(cg->pid, SIGTERM);
-            printf("invalid data socket or erro in cgi ");
+            
             deleteClient(data, cg->fd_in, cg->fdEp);
             return ;
         }
@@ -78,7 +77,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
         kill(cg->pid, SIGTERM);
         waitpid(cg->pid, NULL, WNOHANG );
     }
-    printf("%s\n", connect->response.c_str());
+    
     sendResponse(data, *connect);
     deleteClient(data, cg->fd_in, connect->fdEp);
 }
@@ -123,9 +122,6 @@ void checkClientsTimeout(maptype& config, int fdEp)
 
 void checkClientConnection(maptype &config, Client &connect) {
  
-
-
-    
 
     if (!connect.keepAlive) {
         printf("keep alive \n");
@@ -207,7 +203,7 @@ void sendResponse(maptype &config, Client &connect) {
 
     if (!connect.response.empty()){
 
-        //printf("send  %s fd %d \n ", connect.response.c_str(), connect.fd);
+      
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {

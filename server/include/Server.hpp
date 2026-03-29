@@ -129,7 +129,7 @@ class Server : public Config {
         RequestParser               parser;
         Response                    *respone;
         map<std::string, std::string>       cgiConfig;
-        int                                 CreateServer(int port, std::string ipaddress );
+        int                                 CreateServer( std::string ipaddress );
         void                                listenFunction();
         Client                              acceptClient();
     };
@@ -151,6 +151,7 @@ void            handlingOFCGi(maptype &data, int fd, int flag);
 Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);
+void            __displayTime();
+void printStrings(std::string str1, std::string str2, std::string str3, int str4);
 
-void printLogs(std::string &ipadress, int port, std::string &des, std::string &info);
 #endif

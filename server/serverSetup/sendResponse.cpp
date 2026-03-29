@@ -28,7 +28,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
             return;
     int n = 0;  
     if (flag ==  2){
-        if (cg->writeB < connect->parsedRequest.body.size())
+        if (cg->writeB < (int)connect->parsedRequest.body.size())
          n = write(cg->fdOUT, connect->parsedRequest.body.c_str() + cg->writeB, connect->parsedRequest.body.size() - cg->writeB);
         if (n > 0){
             cg->writeB += n;
@@ -161,7 +161,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->pid = pip;
     obj->fdOUT = fdOUT;
     obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
-    if (obj->writeB != connect.parsedRequest.body.size()){
+    if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
         obj->OUT.data.fd = fdOUT;
         addSockettoEpoll(connect.fdEp, obj->OUT);
@@ -175,6 +175,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
 void sendResponse(maptype &config, Client &connect) {
     
     // Get the server configuration
+
     int n = 1 ;
  
     char buff[MAXSIZEBYTE];

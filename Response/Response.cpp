@@ -380,6 +380,8 @@ void Response::processRequest(Request &req, Server &ser)
     std::cout << req.status << std::endl;
     std::cout << req.version << std::endl;
     std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+   
+    
 
     if (req.method == "GET")
     {

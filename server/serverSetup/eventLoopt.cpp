@@ -34,9 +34,8 @@ std::string findElement(maptype &config, int fd){
 }
 void cleanUP(maptype &config){
     
-    _Cgi *cg;
-    Server *s;
-    Client *c;
+
+    
     ConfigIter it = config.begin();
     size_t i = 0;
     if (it != config.end()){
@@ -64,9 +63,7 @@ Config *returnElement(int fd, maptype &data){
 
     return data.at(fd);
 }
-void printLogs(std::string &ipadress, int port, std::string &des, std::string &info){
-  std::cout << "[" << des << "]" << ipadress << ":" << port << " -> " << des << std::endl; 
-}
+
 
 void eventLoop(maptype &config ){
  
@@ -74,11 +71,11 @@ void eventLoop(maptype &config ){
     Client *Cli = NULL;
     Client*  newClient;
     Server *serv = NULL;
-    _Cgi    *cgI = NULL;
+ 
     int n;
     function(0);
     fdEp = creatEpoll(config);
-    
+    std::string info;
     struct epoll_event events[MAXEVENT];
     signal(SIGINT, signalhandler);
     while(1){
@@ -107,11 +104,8 @@ void eventLoop(maptype &config ){
                     
                 }
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
-                findElement(config, events[i].data.fd)  == "client" ){
-                    
-                    
-                    continue;
-                    
+                    findElement(config, events[i].data.fd)  == "client" ){
+                        continue; 
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
                  
@@ -145,8 +139,13 @@ void eventLoop(maptype &config ){
                         
                         if (!Cli->requestFinish)
                             readRequest(config, events[i].data.fd, *Cli, &clientServer->parser);
-                        if (Cli->requestFinish)
+                        if (Cli->requestFinish){
+                            info = Cli->parsedRequest.method + "  " + Cli->parsedRequest.path + "  " + 
+                            Cli->parsedRequest.version + " " + Cli->parsedRequest.headers["content-length"] ;
+                            printStrings( Cli->ipAddress ,
+                                  info, Cli->parsedRequest.version, Cli->parsedRequest.status );
                             setClientSend(fdEp, *Cli);
+                        }
                     
                         continue;
                     }

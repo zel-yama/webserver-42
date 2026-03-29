@@ -20,7 +20,7 @@ int main(int av, char *argc[]){
 		it = serv.begin();
 		while(it != serv.end()){
 			Serv = new Server(*it);
-			fd = Serv->CreateServer(Serv->port, Serv->ipAdress);
+			fd = Serv->CreateServer( Serv->ipAdress);
 			
 			Serv->serverId = fd;
 			Serv->fd = fd;

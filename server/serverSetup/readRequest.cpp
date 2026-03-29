@@ -16,7 +16,7 @@
 int myread(Client &connect, std::string& buffer) {
     
     char tmp[MAXSIZEBYTE];
-    int byte = 0;
+
     int n = 0;
 
     n = read(connect.fd, tmp, MAXSIZEBYTE);
@@ -56,7 +56,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
 {
     int readResult = myread(connect, parser->buffer[fd]);
     
-    printf("[%s] buffer \n",parser->buffer[fd].c_str() );
+   
     if (readResult <= 0) {
         std::cout << "Client " << fd << " closed connection (read 0 bytes)" << std::endl;
         connect.requestFinish = false;

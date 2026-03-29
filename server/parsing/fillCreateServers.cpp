@@ -23,15 +23,18 @@ void location_handle(Server &serv, std::string path)//extra
 int serverHnding(tockenIt it, std::vector<Server> &servs){
     int i  = 0;
     location local;
-    
+    std::map<std::string, std::string> mapLoca;
     Server serv;
     while(it->mytocken != ENDSERV){
         if (!it->val.compare("location")){
             local = locationHandling(it);
-            
+            if (mapLoca.count(local.locationPath) == 0)
+                mapLoca[local.locationPath] = local.locationPath;
+            else    
+                costumThrow("the locations has the same name ", "");
             serv.objLocation.push_back(local);
             if (serv.objLocation.size() > 100)
-                costumThrow("many locatoin", "");
+                costumThrow("many location", "");
         }
         else
             serverCases(it, serv);
@@ -39,7 +42,7 @@ int serverHnding(tockenIt it, std::vector<Server> &servs){
         it++;
     }
     
-    if (serv.ipAdress.empty()|| serv.port == -1)
+    if (serv.ipAdress.empty()|| serv.port == 0)
         myThrow();
 
    

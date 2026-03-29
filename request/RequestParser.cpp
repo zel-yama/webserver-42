@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 
-Request::Request() : complete(false), status(200), keepalive(false), headersParsed(false) {
+Request::Request() :   status(200),  headersParsed(false),  complete(false), keepalive(false) {
     // loc = new location();
 }
 

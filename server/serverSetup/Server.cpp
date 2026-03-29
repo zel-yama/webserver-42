@@ -53,7 +53,7 @@ Client Server::acceptClient(){
     newOne.fdEp = fdEp;
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
-    
+    newOne.ipAddress = ipAdress ;
     if (newOne.fd < 0){
         ostringstream ss;
         ss << "server failed to accept connection from address " << convertIpAdder(addressServer.sin_addr.s_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);
@@ -73,15 +73,16 @@ void Server::listenFunction(){
     if (listen(fd, 30) < 0){
        throw runtime_error("Error in to listen that port ");}
     ostringstream ss;
-    convertIpAdder(addressServer.sin_addr.s_addr);
+    // convertIpAdder(addressServer.sin_addr.s_addr);
     ss << "\n ** server IP address " << convertIpAdder(addressServer.sin_addr.s_addr) <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
     cout << ss.str() << endl;
 }
-int Server::CreateServer(int port, string ipaddress){
+int Server::CreateServer( string ipaddress){
     int opt = 1;
     fd =  socket(AF_INET, SOCK_STREAM, 0);
     fd = makeNonBlockingFD(fd);
-    ipaddress = convertIpAdder(addressServer.sin_addr.s_addr);
+    port = 0;
+    ipAdress = convertIpAdder(addressServer.sin_addr.s_addr);
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
         throw runtime_error("Error: to set socket to reusing mode ");
     if (fd == -1)

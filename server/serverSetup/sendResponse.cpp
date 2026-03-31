@@ -201,6 +201,7 @@ void sendResponse(maptype &config, Client &connect) {
         }
 
     }
+    std::cout << "response " << connect.response<<  std::endl;
 
     if (!connect.response.empty()){
 

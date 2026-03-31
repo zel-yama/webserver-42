@@ -150,6 +150,7 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
     }
 
     if (!isValidMethod(req.method) || !isValidVersion(req.version)) {
+        //501 not impelmented 
         req.status = 400;
         req.complete = true;
         return false;

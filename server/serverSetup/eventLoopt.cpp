@@ -141,9 +141,9 @@ void eventLoop(maptype &config ){
                             readRequest(config, events[i].data.fd, *Cli, &clientServer->parser);
                         if (Cli->requestFinish){
                             info = Cli->parsedRequest.method + "  " + Cli->parsedRequest.path + "  " + 
-                            Cli->parsedRequest.version + " " + Cli->parsedRequest.headers["content-length"] ;
+                            Cli->parsedRequest.version + " " + Cli->parsedRequest.headers["content-length"] + " " ;
                             printStrings( Cli->ipAddress ,
-                                  info, Cli->parsedRequest.version, Cli->parsedRequest.status );
+                                  info, Cli->parsedRequest.body, Cli->parsedRequest.status );
                             setClientSend(fdEp, *Cli);
                         }
                     

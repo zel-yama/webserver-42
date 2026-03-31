@@ -368,18 +368,18 @@ void Response::processRequest(Request &req, Server &ser)
         return;
     }
     setVersion(req.version);
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
-    std::cout << req.method << std::endl;
-    std::cout << req.loc.root << std::endl;
-    std::cout << req.loc.outoIndex << std::endl;
-    std::cout << ser.outoIndex << std::endl;
-    std::cout << req.loc.locationPath << std::endl;
-    std::cout << ser.D_ErrorPages[404] << std::endl;
-    std::cout << req.loc.D_ErrorPages[404] << std::endl;
-    std::cout << req.fullpath << std::endl;
-    std::cout << req.status << std::endl;
-    std::cout << req.version << std::endl;
-    std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    // std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+    // std::cout << req.method << std::endl;
+    // std::cout << req.loc.root << std::endl;
+    // std::cout << req.loc.outoIndex << std::endl;
+    // std::cout << ser.outoIndex << std::endl;
+    // std::cout << req.loc.locationPath << std::endl;
+    // std::cout << ser.D_ErrorPages[404] << std::endl;
+    // std::cout << req.loc.D_ErrorPages[404] << std::endl;
+    // std::cout << req.fullpath << std::endl;
+    // std::cout << req.status << std::endl;
+    // std::cout << req.version << std::endl;
+    // std::cout << "+++++++++++++++++++++++++++++" << std::endl;
    
     
 
@@ -399,6 +399,7 @@ void Response::processRequest(Request &req, Server &ser)
     {
         sendError(405, "");
     }
+
 }
 
 void Response::handleMultipartUpload(const Request &req, const Server &srv)
@@ -897,5 +898,6 @@ std::string Response::build()
     {
         response << body;
     }
+   
     return response.str();
 }

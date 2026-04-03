@@ -113,8 +113,6 @@ void validateRequest(Request &req, Server *srv)
 
     location *loc;
     loc = findLocation(srv, req.path); // fix if there is not location in config ?
-    req.loc = *loc;
-
     if (!loc)
     {
         req.status = 404;

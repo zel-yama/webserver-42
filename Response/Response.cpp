@@ -22,16 +22,14 @@ Response::Response()
     statusMap[204] = "No Content";
     statusMap[301] = "Moved Permanently";
     statusMap[302] = "Found";
+    statusMap[304] = "Not Modified";
     statusMap[400] = "Bad Request";
     statusMap[403] = "Forbidden";
     statusMap[404] = "Not Found";
     statusMap[405] = "Method Not Allowed";
     statusMap[413] = "Payload Too Large";
-    statusMap[415] = "Unsupported Media Type";
     statusMap[414] = "URI too long";
     statusMap[500] = "Internal Server Error";
-    statusMap[501] = "Not Implemented";
-    statusMap[503] = "Service Unavailable";
     statusMap[504] = "Gateway Timeout";
 }
 
@@ -80,17 +78,6 @@ void Response::setContext(Request *r, Server *s)
     srv = s;
 }
 
-std::string Response::getDateHeader() const
-{
-    time_t now = time(0);
-    struct tm tm;
-    gmtime_r(&now, &tm);
-    
-    char buf[100];
-    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &tm);
-    return std::string(buf);
-}
-
 bool Response::hasReadPermission(const std::string &path) const
 {
     if (access(path.c_str(), F_OK) != 0)
@@ -113,7 +100,6 @@ void Response::setBody(const std::string &body)
 {
     this->body = body;
     headers["Content-Length"] = toString(body.size());
-    // std::cout << "=====> " << headers["Content-Length"] << " <===\n";
 }
 
 void Response::setVersion(const std::string &version)
@@ -195,8 +181,6 @@ std::string Response::getMimeType(const std::string &extension) const
         return "text/plain";
     if (extension == "csv")
         return "text/csv";
-    if (extension == "md")
-        return "text/markdown";
     if (extension == "jpg" || extension == "jpeg")
         return "image/jpeg";
     if (extension == "png")
@@ -205,34 +189,18 @@ std::string Response::getMimeType(const std::string &extension) const
         return "image/gif";
     if (extension == "ico")
         return "image/x-icon";
-    if (extension == "svg")
-        return "image/svg+xml";
-    if (extension == "bmp")
-        return "image/bmp";
     if (extension == "webp")
         return "image/webp";
     if (extension == "mp3")
         return "audio/mpeg";
-    if (extension == "wav")
-        return "audio/wav";
-    if (extension == "ogg")
-        return "audio/ogg";
     if (extension == "mp4")
         return "video/mp4";
-    if (extension == "webm")
-        return "video/webm";
-    if (extension == "avi")
-        return "video/x-msvideo";
     if (extension == "pdf")
         return "application/pdf";
     if (extension == "zip")
         return "application/zip";
     if (extension == "tar")
         return "application/x-tar";
-    if (extension == "gz")
-        return "application/gzip";
-    if (extension == "7z")
-        return "application/x-7z-compressed";
     if (extension == "php")
         return "application/x-httpd-php";
     if (extension == "py")
@@ -249,8 +217,6 @@ std::string Response::getMimeType(const std::string &extension) const
         return "text/x-ruby";
     if (extension == "sh")
         return "application/x-sh";
-    if (extension == "jsonld")
-        return "application/ld+json";
 
     return "application/octet-stream";
 }
@@ -356,10 +322,10 @@ void Response::processRequest(Request &req, Server &ser)
     validateRequest(req, &ser);
     if (req.status != 200)
     {
-        if (req.status >= 300 && req.status < 400 && req.headers.find("location") != req.headers.end())
+        if (req.status >= 300 && req.status < 400 && req.headers.find("Location") != req.headers.end())
         {
             setStatus(req.status, "");
-            setHeader("Location", req.headers["location"]);
+            setHeader("Location", req.headers["Location"]);
             setHeader("Content-Length", "0");
             body.clear();
             return;
@@ -367,21 +333,8 @@ void Response::processRequest(Request &req, Server &ser)
         sendError(req.status, "");
         return;
     }
+
     setVersion(req.version);
-    // std::cout << "+++++++++++++++++++++++++++++" << std::endl;
-    // std::cout << req.method << std::endl;
-    // std::cout << req.loc.root << std::endl;
-    // std::cout << req.loc.outoIndex << std::endl;
-    // std::cout << ser.outoIndex << std::endl;
-    // std::cout << req.loc.locationPath << std::endl;
-    // std::cout << ser.D_ErrorPages[404] << std::endl;
-    // std::cout << req.loc.D_ErrorPages[404] << std::endl;
-    // std::cout << req.fullpath << std::endl;
-    // std::cout << req.status << std::endl;
-    // std::cout << req.version << std::endl;
-    // std::cout << "+++++++++++++++++++++++++++++" << std::endl;
-   
-    
 
     if (req.method == "GET")
     {
@@ -629,7 +582,7 @@ void Response::generateautoindex(const std::string &path)
 
         if (access(path.c_str(), F_OK) != 0)
         {
-            sendError(404, "");
+            sendError(404, ""); 
         }
         else if (access(path.c_str(), R_OK) != 0)
         {
@@ -883,9 +836,6 @@ std::string Response::build()
     std::ostringstream response;
     response << version << " "
              << statusCode << " " << statusMessage << "\r\n";
-
-    if (headers.find("Date") == headers.end())
-        response << "Date: " << getDateHeader() << "\r\n";
 
     for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
     {

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webserv — Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 48px 40px;
+            width: 380px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .logo p {
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        label {
+            display: block;
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+            margin-bottom: 20px;
+        }
+
+        input:focus {
+            border-color: #a78bfa;
+            background: rgba(167,139,250,0.08);
+        }
+
+        input::placeholder { color: rgba(255,255,255,0.2); }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s, transform 0.1s;
+            margin-top: 4px;
+        }
+
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: #a78bfa;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <h1>WEBSERV</h1>
+            <p>HTTP Server from scratch</p>
+            <span class="badge">42 Project</span>
+        </div>
+
+        <form action="./login.py" method="POST">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enter your username" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter your password" required>
+
+            <button type="submit">Sign In →</button>
+        </form>
+
+        <div class="footer">
+            No account? <a href="#">Just type anything</a> — it'll work.
+        </div>
+    </div>
+</body>
+</html>

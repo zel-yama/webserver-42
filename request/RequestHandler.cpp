@@ -1,5 +1,6 @@
 // #include "../server/include/Server.hpp"
 #include "../server/include/Client.hpp"
+#include <sys/stat.h>
 // #include "RequestParser.hpp"
 
 Server *getServerFromClient(maptype &config, Client &client)
@@ -112,13 +113,14 @@ void validateRequest(Request &req, Server *srv)
 
     location *loc;
     loc = findLocation(srv, req.path); // fix if there is not location in config ?
-    req.loc = *loc;
-
     if (!loc)
     {
         req.status = 404;
         return;
     }
+    req.loc = *loc;
+    
+
     req.fullpath = joinPathWithLocation(srv, loc, req.path);
 
     if (loc && !loc->returnP.empty())

@@ -1,4 +1,5 @@
 #include "../server/include/Client.hpp"
+#include "SessionManager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -13,6 +14,22 @@ Request::Request() :   status(200),  headersParsed(false),  complete(false), kee
 
 Request::~Request() {
     // delete loc;
+}
+
+std::string RequestParser::resolveSession(Request& req)
+{
+    if (req.cookies.count("WEBSERV_SID"))
+    {
+        std::string sid = req.cookies["WEBSERV_SID"];
+        Session* s = SessionManager::get(sid);
+        if (s)
+        {
+            req.sessionId = sid;
+            return "";
+        }
+    }
+    req.sessionId = SessionManager::create();
+    return setCookie("WEBSERV_SID", req.sessionId);
 }
 
 std::string RequestParser::trim(const std::string& s) {
@@ -74,7 +91,7 @@ std::string RequestParser::normalizePath(const std::string& path) {
             continue;
         if (item == "..") {
             if (!parts.empty())
-                parts.pop_back();
+                parts.resize(parts.size() -1);
         } else {
             parts.push_back(item);
         }
@@ -172,9 +189,8 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
         req.complete = true;
         return false;
     }
-
+    
     req.path = normalizePath(req.path);
-
     while (std::getline(hs, line)) {
         if (!line.empty() && line[line.size() - 1] == '\r')
             line.erase(line.size() - 1);

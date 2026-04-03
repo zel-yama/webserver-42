@@ -32,15 +32,16 @@ return -> return 333 "string" remove qoute
 ------------------------------------------
 return -> check return code is should be valid value 
 --------------------------------------------------
-turn vector to maps to find value fast 
+turn vector to maps to find value fast ><
 -------------------------
-first ->  i should check is methods is valid not GETS and else check format of values of all variable | ->  done without tests 
+first ->  i should check is methods is valid not GETS and else check format of values
+ of all variable | ->  done without tests => still 
 -----------------------------------------------------
  senting more than body we should in resoponse 
  --------------------------------------------------------
- if cgi body should send through pipe 
+ if cgi body should send through pipe \/
  body end read return 0 or reaquest  has endof body 
- buffer should be more 1434
+ buffer should be more 1434 -> still 
  who take processing he should take length N byets when 
  in vlaid file error happnes webserver check sanitize
  this not c++ 98 
@@ -48,12 +49,13 @@ first ->  i should check is methods is valid not GETS and else check format of v
  inet_ntoa
 ----------------
 IO handling 
-sending utill socket blocked  -1 
-save fd cuz should check else to send other cuz event came one time in adge triggering requering u to save fd and complet sending and readin late 
+sending utill socket blocked  -1 -> done 
+save fd cuz should check else to send other cuz event came one time in adge triggering 
+requering u to save fd and complet sending and readin late | 
 reading file reading file body size max should
  handle  parsing after -1 return in while  so or just and handle socket size cuz 
 -----------------------------------------------------
-return -> check return code is should be valid value| done without test 
+return -> check return code is should be valid value| done 
 ----------------------------------------------------
 turn vector to maps to find value fast  still          | still later 
 ---------------------------------------------------

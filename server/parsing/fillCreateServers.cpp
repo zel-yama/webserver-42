@@ -75,12 +75,7 @@ servers setUpServers(std::vector<tockens> &v){
         it++;
          
     }
-    
-   printAllConfig (Servs);
-
-
-
+    if (Servs.size() > 200)
+        costumThrow(" many servers", "In config File ");
     return Servs;
-    
-
 }

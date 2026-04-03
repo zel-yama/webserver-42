@@ -53,8 +53,8 @@ void cleanUP(maptype &config){
 
 
     }
-    std::cout << "CONTRL+C" << std::endl;
-    exit(1);
+    
+    exit(0);
 }
 
 Config *returnElement(int fd, maptype &data){

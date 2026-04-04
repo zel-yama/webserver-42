@@ -7,12 +7,13 @@
 
 std::vector<int>  Config::fdsBuffer;
 Server::Server(){
-    this->cgiStatus = 0;
-    this->upload = 0;
-    this->outoIndex = 0;
-    this->serverId = 0;
-    this->returnCode = 0;
+    cgiStatus = 0;
+    upload = 0;
+
+    serverId = 0;
+    returnCode = 0;
     bodyMaxByte = 0;
+    
     outoIndex = false;
     port = -1;
     name = "Server";
@@ -20,7 +21,10 @@ Server::Server(){
 }
 
 Server::~Server(){
-
+    
+        // delete  respone;
+    
+    
 };
 
 location::location(){
@@ -49,7 +53,7 @@ std::string convertIpAdder( uint32_t ipaddres){
 
 Client Server::acceptClient(){
     Client newOne;
-    newOne.serverId = this->fd; // i change this to fd?
+    newOne.serverId = this->fd;
     newOne.fdEp = fdEp;
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
@@ -73,7 +77,6 @@ void Server::listenFunction(){
     if (listen(fd, 30) < 0){
        throw runtime_error("Error in to listen that port ");}
     ostringstream ss;
-    // convertIpAdder(addressServer.sin_addr.s_addr);
     ss << "\n ** server IP address " << convertIpAdder(addressServer.sin_addr.s_addr) <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
     cout << ss.str() << endl;
 }

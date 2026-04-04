@@ -4,11 +4,7 @@
 
 Server* getServerForClient(maptype& config, int serverId);
 
-// check is if client exists ok 
-// check process still contune runing if rading 
-///  timeout return bad get way 
-// no output what should return like empyt file  string 
-// reading 
+
 void handlingOFCGi(maptype &data, int fd, int flag ){
     
     
@@ -18,7 +14,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
     return ;
     Client *connect = (Client *) returnElement(cg->fd_client, data);
     if (!connect){
-        printf("cgi handil\n");
+      
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
@@ -104,7 +100,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
             connect = dynamic_cast<Client*>(i->second);
 
             if (checkTimeout(connect->currentTime, TIMEOUT)) {
-                printf("this client is timeout ");
+                
                 ve.push_back(connect->fd);
             }
         }
@@ -128,7 +124,7 @@ void checkClientConnection(maptype &config, Client &connect) {
  
 
     if (!connect.keepAlive) {
-        printf("keep alive \n");
+       
         deleteClient(config, connect.fd, connect.fdEp);
         return;
     }
@@ -178,7 +174,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
 
 void sendResponse(maptype &config, Client &connect) {
     
-    // Get the server configuration
+
 
     int n = 1 ;
  
@@ -209,7 +205,7 @@ void sendResponse(maptype &config, Client &connect) {
         }
 
     }
-    std::cout << "response " << connect.response<<  std::endl;
+  
 
     if (!connect.response.empty()){
 
@@ -217,7 +213,7 @@ void sendResponse(maptype &config, Client &connect) {
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {
-            printf("sending close clonnection");
+           
             deleteClient(config, connect.fd, connect.fdEp);
             return ;
         }

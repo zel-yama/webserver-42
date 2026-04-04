@@ -102,20 +102,20 @@ class Server : public Config {
     
     public:
     
-    Server();
-    ~Server();
-    std::vector<std::string>                indexFile;
-    unsigned int                            port;
-    std::string                             ipAdress;
-    std::string                             returnP;
-    size_t                                  bodyMaxByte;
-    std::string                              root;
-    int upload;
-    std::string                             uploadPath;
-    std::string                             cgiPath;
-  
+        Server();
+        ~Server();
+        std::vector<std::string>                indexFile;
+        unsigned int                            port;
+        std::string                             ipAdress;
+        std::string                             returnP;
+        size_t                                  bodyMaxByte;
+        std::string                              root;
+        int upload;
+        std::string                             uploadPath;
+        std::string                             cgiPath;
+
  
-    int                                     cgiStatus;
+        int                                  cgiStatus;
         std::vector<std::string>            allowedMethods;
         int                                  outoIndex;
         int                                 fd;
@@ -127,8 +127,8 @@ class Server : public Config {
         std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
 
         // for me  (mohamed)
-        RequestParser               parser;
-        Response                    *respone;
+        RequestParser                       parser;
+        Response                            *respone;
         map<std::string, std::string>       cgiConfig;
         int                                 CreateServer( std::string ipaddress );
         void                                listenFunction();

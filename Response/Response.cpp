@@ -33,7 +33,9 @@ Response::Response()
     statusMap[504] = "Gateway Timeout";
 }
 
-Response::~Response() {}
+Response::~Response() {
+    printf("here how are you\n");
+}
 
 void Response::setStatus(int code, const std::string &message)
 {

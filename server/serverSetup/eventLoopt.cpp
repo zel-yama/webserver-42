@@ -2,13 +2,10 @@
 
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
-// #include "../../request/RequestParser.hpp"
+
 #include "../../Response/Response.hpp"
 
- ///should allawyz theck is connection timeout indeed  not just when u send response  
-// allawyz check client for timeout in case timeout and close mod and i should 
-// conclusesion now is monitor all  connection and i should disconnecte or rest  all expir ones  
-//note all clients should know his server to get info from std
+ 
 int function(int va){
   static int var; 
     if (va == 0)
@@ -114,7 +111,7 @@ void eventLoop(maptype &config ){
                         continue;
                     }
                     
-                    printf("close connection due to Error happens in client side ");
+                    
                     deleteClient(config, events[i].data.fd, fdEp);    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){//new pwd 

@@ -1,5 +1,3 @@
-/// the check var format and cause may variable and ever one have format he probaly check his format i should create for every varilble function to check to 
-// 
 
 
 #include "../include/parsing.hpp"
@@ -132,7 +130,7 @@ void methodesHandler(std::vector<std::string> &methdsV, std::string methods , in
         methdsV.push_back(methods);
     }
     if (i == 1 && methdsV.size() > 1){
-        if (methdsV[0].compare(methdsV[1]))
+        if (!methdsV[0].compare(methdsV[1]))
             costumThrow("the methdos have the same name => ", methdsV[0]);
         else if (methdsV.size() == 3 &&
          (!methdsV[0].compare(methdsV[1]) || !methdsV[0].compare(methdsV[2]) || !methdsV[2].compare(methdsV[1]) ))
@@ -161,7 +159,7 @@ void returnP(std::string token, std::string &path, int &exitCode){
     ss >> s;
     exitCode = convertString(s);
     if (exitCode == -1 || (exitCode < 300 || exitCode > 599))
-        costumThrow("invalid number of arguments", token);
+        costumThrow("invalid number of arguments ", token);
     if (!ss.eof())
         ss >> path;
 }

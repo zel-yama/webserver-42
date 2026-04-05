@@ -18,13 +18,6 @@ void Session::touch() {
     lastAccess = time(NULL);
 }
 
-void SessionManager::init() {
-    static bool seeded = false;
-    if (!seeded) {
-        srand(static_cast<unsigned>(time(NULL)));
-        seeded = true;
-    }
-}
 
 std::string SessionManager::generateId() {
     std::ostringstream ss;
@@ -61,22 +54,4 @@ Session* SessionManager::get(const std::string& id) {
 
     it->second.touch();
     return &it->second;
-}
-
-void SessionManager::destroy(const std::string& id) {
-    _sessions.erase(id);
-}
-
-void SessionManager::evictExpired() {
-    std::map<std::string, Session>::iterator it = _sessions.begin();
-    while (it != _sessions.end()) {
-        if (it->second.isExpired())
-            _sessions.erase(it++);
-        else
-            ++it;
-    }
-}
-
-size_t SessionManager::count() {
-    return _sessions.size();
 }

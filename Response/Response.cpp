@@ -1,5 +1,6 @@
 // #include "../request/RequestParser.hpp"
 #include "../server/include/Server.hpp"
+#include "../server/include/tools.hpp"
 #include "Response.hpp"
 #include "cgi.hpp"
 #include <cctype>
@@ -27,8 +28,10 @@ Response::Response()
     statusMap[403] = "Forbidden";
     statusMap[404] = "Not Found";
     statusMap[405] = "Method Not Allowed";
+    statusMap[409] = "Conflict";
     statusMap[413] = "Payload Too Large";
     statusMap[414] = "URI too long";
+    statusMap[502] = "Bad Gateway";
     statusMap[500] = "Internal Server Error";
     statusMap[504] = "Gateway Timeout";
 }
@@ -252,13 +255,14 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     if (pos == std::string::npos)
     {
-        setBody(cgiOutput);
+        sendError(502, "");
         return;
     }
 
     std::string headersPart = cgiOutput.substr(0, pos);
     size_t offset;
     int parsedStatus = -1;
+    bool hasRequiredCgiField = false;
 
     if (cgiOutput[pos + 1] == '\r')
         offset = 4;
@@ -284,17 +288,30 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
             while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
                 value = value.substr(0, value.size() - 1);
 
-            if (toLower(key) == "status")
+            std::string lowerKey = toLower(key);
+            if (lowerKey == "status")
             {
                 std::istringstream status(value);
                 int code;
                 if (status >> code)
+                {
                     parsedStatus = code;
+                    hasRequiredCgiField = true;
+                }
                 continue;
             }
 
+            if (lowerKey == "content-type" || lowerKey == "location")
+                hasRequiredCgiField = true;
+
             setHeader(key, value);
         }
+    }
+
+    if (!hasRequiredCgiField)
+    {
+        sendError(502, "");
+        return;
     }
 
     if (parsedStatus >= 400)
@@ -847,5 +864,8 @@ std::string Response::build()
     {
         response << body;
     }
+    std::cout <<  srv->ipAdress << " ";
+    __displayTime();
+    std::cout << " " << req->method << " " << req->path << " " << version << " " << statusCode << " " << req->headers["user-agent"] << std::endl; 
     return response.str();
 }

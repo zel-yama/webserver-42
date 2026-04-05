@@ -1,3 +1,5 @@
+print("Content-Type: text/plain\n")
+
 height = 1000
 weight = 9000
 

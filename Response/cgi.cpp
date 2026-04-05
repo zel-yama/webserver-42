@@ -35,6 +35,7 @@ void Cgi::buildEnv(const Request &req)
 
     env["SERVER_PROTOCOL"] = "HTTP/1.0";
 }
+
 char **Cgi::envto2Darray() const
 {
     char **envp = new char *[env.size() + 1];

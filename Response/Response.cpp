@@ -11,12 +11,12 @@ void validateRequest(Request &req, Server *srv);
 Response::Response()
     : statusCode(200),
       statusMessage("OK"),
+      LargeFile(false),
+      keepStatus(false),  
       version("HTTP/1.0"),
       body("<h1>Hello World</h1>"),
       req(NULL),
-      srv(NULL),
-      LargeFile(false),
-      keepStatus(false)   
+      srv(NULL)
 {
     statusMap[200] = "OK";
     statusMap[201] = "Created";
@@ -864,8 +864,8 @@ std::string Response::build()
     {
         response << body;
     }
-    std::cout <<  srv->ipAdress << " ";
+    std::cout <<  srv->ipAdress << "--";
     __displayTime();
-    std::cout << " " << req->method << " " << req->path << " " << version << " " << statusCode << " " << req->headers["user-agent"] << std::endl; 
+    std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
     return response.str();
 }

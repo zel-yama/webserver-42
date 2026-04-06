@@ -30,9 +30,9 @@ private:
     bool LargeFile;
     bool keepStatus;
     size_t fileSize;
+    std::string filePath;
     Server *srv;
     Request *req;
-    std::string filePath;
     // for detect fd of cgi by epool;
     bool cgiPending;
     int  cgiReadFd;

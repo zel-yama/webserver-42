@@ -13,8 +13,8 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
 CC = c++ -g -I./include  #-fsanitize=address,undefined -g  #-std=c++98 
-FLAGS = #-Werror -Wextra -Wall  -std=c++98
-FLAGS =  -std=c++98 #-Werror -Wextra -Wall #
+FLAGS = -Werror -Wextra -Wall  -std=c++98
+FLAGS =  -std=c++98 -Werror -Wextra -Wall #
 headers = server/include/tools.hpp  server/include/Server.hpp \
 server/include/parsing.hpp server/include/include.hpp server/include/Config.hpp \
  server/include/Client.hpp Response/cgi.hpp Response/Response.hpp

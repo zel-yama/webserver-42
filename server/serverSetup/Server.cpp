@@ -82,6 +82,7 @@ void Server::listenFunction(){
 }
 int Server::CreateServer( string ipaddress){
     int opt = 1;
+    (void)ipaddress;
     fd =  socket(AF_INET, SOCK_STREAM, 0);
     fd = makeNonBlockingFD(fd);
     port = 0;

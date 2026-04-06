@@ -200,7 +200,7 @@ void sendResponse(maptype &config, Client &connect) {
             connect.response.clear();
            
             addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
-            connect.currentTime = time(NULL); 
+            connect.currentTime = time(NULL);
             return ;
         }
         if (srv->respone->isLargeFile()){

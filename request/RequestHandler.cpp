@@ -132,7 +132,7 @@ void validateRequest(Request &req, Server *srv)
             code = 301;
 
         req.status = code;
-        req.headers["Location"] = loc->returnP;
+        req.headers["location"] = loc->returnP;
         return;
     }
 
@@ -145,7 +145,7 @@ void validateRequest(Request &req, Server *srv)
             code = 301;
 
         req.status = code;
-        req.headers["Location"] = srv->returnP;
+        req.headers["location"] = srv->returnP;
         return;
     }
 

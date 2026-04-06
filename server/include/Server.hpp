@@ -126,7 +126,6 @@ class Server : public Config {
         std::vector<location>               objLocation;
         std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
 
-        // for me  (mohamed)
         RequestParser               parser;
         Response                    *respone;
         map<std::string, std::string>       cgiConfig;

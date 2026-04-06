@@ -34,6 +34,7 @@ void cleanUP(maptype &config){
 
     
     ConfigIter it = config.begin();
+    Server* serv;
     size_t i = 0;
     if (it != config.end()){
             while( i < it->second->fdsBuffer.size()){
@@ -42,9 +43,11 @@ void cleanUP(maptype &config){
             }
             while(it != config.end()){
            
-           
                 Config *c = it->second;
-                delete c;
+          
+            
+                    delete c;
+
                 it++;
             }
 
@@ -68,6 +71,7 @@ void eventLoop(maptype &config ){
     Client *Cli = NULL;
     Client*  newClient;
     Server *serv = NULL;
+    Response *res = new Response();
  
     int n;
     function(0);
@@ -75,11 +79,9 @@ void eventLoop(maptype &config ){
     std::string info;
     struct epoll_event events[MAXEVENT];
     signal(SIGINT, signalhandler);
+
     while(1){
-        
-        
-       
-	    n = epoll_wait(fdEp, events, MAXEVENT,5000);
+	    n = epoll_wait(fdEp, events, MAXEVENT, 5000);
            if (function(0) == 1 || n == -1){
                cleanUP(config);
 
@@ -90,39 +92,31 @@ void eventLoop(maptype &config ){
                    
                    continue;
                 }
-                
                 else if (findElement(config, events[i].data.fd) == "Server"){
-                    
                     serv = (Server *)returnElement(events[i].data.fd, config);  
                     newClient =  new Client(serv->acceptClient());
                     config[newClient->fd] = newClient;
-                  
-                    addSockettoEpoll(fdEp, newClient->data);               
-                    
+                    addSockettoEpoll(fdEp, newClient->data);                 
                 }
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
                     findElement(config, events[i].data.fd)  == "client" ){
                         continue; 
                 }
                 else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
-                 
                     if (findElement(config, events[i].data.fd) == "cgi" ){
-                        handlingOFCGi(config, events[i].data.fd, 1);
+                        handlingOFCGi(config, events[i].data.fd, 1, *res);
                         continue;
-                    }
-                    
-                    
+                    }          
                     deleteClient(config, events[i].data.fd, fdEp);    
                 }
-                else if (findElement(config, events[i].data.fd) == "cgi"){//new pwd 
+                else if (findElement(config, events[i].data.fd) == "cgi"){
                  
                     if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUTCGI))
-                    continue;
+                        continue;
                     if (events[i].events & EPOLLIN)
-                    handlingOFCGi(config, events[i].data.fd, 1);
+                        handlingOFCGi(config, events[i].data.fd, 1, *res);
                     else if (events[i].events & EPOLLOUT)
-                    handlingOFCGi(config, events[i].data.fd, 2);
-                    
+                        handlingOFCGi(config, events[i].data.fd, 2, *res);
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {
@@ -132,23 +126,13 @@ void eventLoop(maptype &config ){
                     if (!clientServer)
                         continue;
                     if (events[i].events & EPOLLIN ){
-                        
-                        
                         if (!Cli->requestFinish)
                             readRequest(config, events[i].data.fd, *Cli, &clientServer->parser);
-                        if (Cli->requestFinish){
-                            info = Cli->parsedRequest.method + "  " + Cli->parsedRequest.path + "  " + 
-                            Cli->parsedRequest.version + " " + Cli->parsedRequest.headers["content-length"] + " " ;
-                            printStrings( Cli->ipAddress ,
-                                  info, Cli->parsedRequest.body, Cli->parsedRequest.status );
-                            setClientSend(fdEp, *Cli);
-                        }
-                    
                         continue;
                     }
                     if (events[i].events & EPOLLOUT  ) {
                         Cli = (Client *) returnElement(events[i].data.fd, config);
-                        sendResponse(config, *Cli);
+                        sendResponse(config, *Cli, *res);
                     }
                  
                 }

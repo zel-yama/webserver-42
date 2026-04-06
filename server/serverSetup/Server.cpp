@@ -17,13 +17,10 @@ Server::Server(){
     outoIndex = false;
     port = -1;
     name = "Server";
-    respone = new Response();
+
 }
 
 Server::~Server(){
-    
-        // delete  respone;
-    
     
 };
 
@@ -35,7 +32,6 @@ location::location(){
     this->upload = -1;
     this->returnCode = 0;
     this->ex = false;
-    
 }
 
 std::string convertIpAdder( uint32_t ipaddres){

@@ -6,6 +6,7 @@
 #include "Server.hpp"
 #include "Config.hpp"
 
+
 class Client: public Config{
 
     public:

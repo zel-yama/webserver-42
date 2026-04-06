@@ -1,5 +1,6 @@
 // #include "../request/RequestParser.hpp"
 #include "../server/include/Server.hpp"
+#include "../server/include/tools.hpp"
 #include "Response.hpp"
 #include "cgi.hpp"
 #include <cctype>
@@ -10,13 +11,14 @@ void validateRequest(Request &req, Server *srv);
 Response::Response()
     : statusCode(200),
       statusMessage("OK"),
+      LargeFile(false),
+      keepStatus(false),  
       version("HTTP/1.0"),
       body("<h1>Hello World</h1>"),
       req(NULL),
-      srv(NULL),
-      LargeFile(false),
-      keepStatus(false)   
+      srv(NULL)
 {
+    printf("constructor\n");
     statusMap[200] = "OK";
     statusMap[201] = "Created";
     statusMap[204] = "No Content";
@@ -27,14 +29,16 @@ Response::Response()
     statusMap[403] = "Forbidden";
     statusMap[404] = "Not Found";
     statusMap[405] = "Method Not Allowed";
+    statusMap[409] = "Conflict";
     statusMap[413] = "Payload Too Large";
     statusMap[414] = "URI too long";
+    statusMap[502] = "Bad Gateway";
     statusMap[500] = "Internal Server Error";
     statusMap[504] = "Gateway Timeout";
 }
 
 Response::~Response() {
-    printf("here how are you\n");
+    printf("destructor");
 }
 
 void Response::setStatus(int code, const std::string &message)
@@ -254,13 +258,14 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     if (pos == std::string::npos)
     {
-        setBody(cgiOutput);
+        sendError(502, "");
         return;
     }
 
     std::string headersPart = cgiOutput.substr(0, pos);
     size_t offset;
     int parsedStatus = -1;
+    bool hasRequiredCgiField = false;
 
     if (cgiOutput[pos + 1] == '\r')
         offset = 4;
@@ -286,17 +291,30 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
             while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
                 value = value.substr(0, value.size() - 1);
 
-            if (toLower(key) == "status")
+            std::string lowerKey = toLower(key);
+            if (lowerKey == "status")
             {
                 std::istringstream status(value);
                 int code;
                 if (status >> code)
+                {
                     parsedStatus = code;
+                    hasRequiredCgiField = true;
+                }
                 continue;
             }
 
+            if (lowerKey == "content-type" || lowerKey == "location")
+                hasRequiredCgiField = true;
+
             setHeader(key, value);
         }
+    }
+
+    if (!hasRequiredCgiField)
+    {
+        sendError(502, "");
+        return;
     }
 
     if (parsedStatus >= 400)
@@ -324,10 +342,10 @@ void Response::processRequest(Request &req, Server &ser)
     validateRequest(req, &ser);
     if (req.status != 200)
     {
-        if (req.status >= 300 && req.status < 400 && req.headers.find("Location") != req.headers.end())
+        if (req.status >= 300 && req.status < 400 && req.headers.find("location") != req.headers.end())
         {
             setStatus(req.status, "");
-            setHeader("Location", req.headers["Location"]);
+            setHeader("Location", req.headers["location"]);
             setHeader("Content-Length", "0");
             body.clear();
             return;
@@ -850,6 +868,8 @@ std::string Response::build()
     {
         response << body;
     }
-   
+    std::cout <<  srv->ipAdress << "--";
+    __displayTime();
+    std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
     return response.str();
 }

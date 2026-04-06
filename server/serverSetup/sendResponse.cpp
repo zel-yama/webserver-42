@@ -5,7 +5,7 @@
 Server* getServerForClient(maptype& config, int serverId);
 
 
-void handlingOFCGi(maptype &data, int fd, int flag ){
+void handlingOFCGi(maptype &data, int fd, int flag, Response& respone ){
     
     
     char buffer[MAXSIZEBYTE];
@@ -44,29 +44,23 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
 
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
         if (i < 0 || process < 0 ) {
-        
             kill(cg->pid, SIGTERM);
-            
             deleteClient(data, cg->fd_in, cg->fdEp);
             return ;
         }
-        
-        
         if (i > 0 ){
             connect->response.append(buffer, i);
             return ;
-      
         }
-
     }
     if (flag == 0)
         connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
-    srv->respone->applyCgiResponse(connect->response);
+    respone.applyCgiResponse(connect->response);
     if (!connect->sessionCookie.empty()) {
-        srv->respone->setHeader("Set-Cookie", connect->sessionCookie);
+        respone.setHeader("Set-Cookie", connect->sessionCookie);
         connect->sessionCookie.clear();
     }
-    connect->response =   srv->respone->build();
+    connect->response =  respone.build();
 
     
     deleteClient(data, cg->fdOUT, connect->fdEp);
@@ -78,7 +72,7 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
         waitpid(cg->pid, NULL, WNOHANG );
     }
     
-    sendResponse(data, *connect);
+    sendResponse(data, *connect, respone);
     deleteClient(data, cg->fd_in, connect->fdEp);
 }
 
@@ -93,7 +87,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
 {
     Client *connect = NULL;
     std::vector<int> ve;
-   
+    Response res;
     
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
         if (i->second->name == "client") {
@@ -114,7 +108,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
     for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
       
         if (findElement(config, *it) == "cgi") 
-            handlingOFCGi(config, *it, 0);
+            handlingOFCGi(config, *it, 0, res);
         else
             deleteClient(config, *it, fdEp);
     }
@@ -171,41 +165,38 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     addSockettoEpoll(connect.fdEp, obj->data);
     data[fdIN] = obj;
 }
-
-void sendResponse(maptype &config, Client &connect) {
+void sendResponse(maptype &config, Client &connect, Response &respone ) {
     
-
-
     int n = 1 ;
  
     char buff[MAXSIZEBYTE];
-   
-    if (!connect.buildDone){
+    std::cout << "ssss\n";
+    if (!connect.buildDone ){
         Server* srv = getServerForClient(config, connect.serverId);
-        srv->respone->processRequest(connect.parsedRequest, *srv);
+        respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
-            srv->respone->setHeader("Set-Cookie", connect.sessionCookie);;
+            respone.setHeader("Set-Cookie", connect.sessionCookie);;
             connect.sessionCookie.clear();
         }
-        connect.response = srv->respone->build();
+        connect.response = respone.build();
         connect.buildDone = true;
-        if (srv->respone->isCgipending()){
+        if (respone.isCgipending()){
             connect.response.clear();
            
-            addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
-            connect.currentTime = time(NULL); 
+            addCgi(config, connect, respone.getcgiPid(), respone.getcgiReadFd(), respone.getcgiWriteFd() );
+            connect.currentTime = time(NULL);
             return ;
         }
-        if (srv->respone->isLargeFile()){
+        if (respone.isLargeFile()){
            
-            connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
+            connect.fdFile = open(respone.getFilePath().c_str(), O_RDONLY);
             connect.fdsBuffer.push_back(connect.fdFile);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
-            srv->respone->getFilePath() = "";
+            respone.getFilePath() = "";
         }
 
     }
-  
+  printf("response {%s}", connect.response.c_str());
 
     if (!connect.response.empty()){
 

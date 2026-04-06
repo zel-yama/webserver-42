@@ -45,12 +45,13 @@ int serverHnding(tockenIt it, std::vector<Server> &servs){
     if (serv.ipAdress.empty()|| serv.port == 0)
         myThrow();
 
-   
+    
     if (serv.bodyMaxByte == 0)
         serv.bodyMaxByte = 1e6;
     if (serv.ServerName.empty())
         serv.ServerName = "webServer";
     servs.push_back(serv);
+
     return i;
 }
 

@@ -9,8 +9,7 @@
 #include <ctime>
 #include <sys/stat.h>
 #include "../server/include/Client.hpp"
-// #include "../server/include/Server.hpp"
-// #include "../webserv.hpp"
+
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -30,10 +29,10 @@ private:
     bool LargeFile;
     bool keepStatus;
     size_t fileSize;
+    std::string filePath;
     Server *srv;
     Request *req;
-    std::string filePath;
-    // for detect fd of cgi by epool;
+
     bool cgiPending;
     int  cgiReadFd;
     int  cgiWriteFd;

@@ -9,6 +9,7 @@
 #define MAXSIZEBYTE 165000
 
 #include "include.hpp"
+
 class Client;
 
 // struct location;
@@ -126,9 +127,8 @@ class Server : public Config {
         std::vector<location>               objLocation;
         std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
 
-        // for me  (mohamed)
         RequestParser                       parser;
-        Response                            *respone;
+       // Response                            *respone;
         map<std::string, std::string>       cgiConfig;
         int                                 CreateServer( std::string ipaddress );
         void                                listenFunction();
@@ -148,7 +148,7 @@ void            cleanUP(maptype &config);
 Server*         getServerFromClient(maptype& config, Client& client);
 void            costumThrow(std::string des, std::string invalid);
 bool            checkTimeout(time_t prevTime, time_t timeout );
-void            handlingOFCGi(maptype &data, int fd, int flag);
+void            handlingOFCGi(maptype &data, int fd, int flag, Response &respone );
 Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);

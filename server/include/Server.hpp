@@ -1,9 +1,9 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 62
+#define TIMEOUT 30
 #define MAX_URI 2048
-#define TIMEOUTCGI 30
+#define TIMEOUTCGI 15
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
@@ -148,7 +148,7 @@ void            cleanUP(maptype &config);
 Server*         getServerFromClient(maptype& config, Client& client);
 void            costumThrow(std::string des, std::string invalid);
 bool            checkTimeout(time_t prevTime, time_t timeout );
-void            handlingOFCGi(maptype &data, int fd, int flag, Response &respone );
+void            handlingOfCgi(maptype &data, int fd, int flag, Response &respone );
 Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);

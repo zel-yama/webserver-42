@@ -2,7 +2,7 @@
 
 #include "../include/parsing.hpp"
 
-void HandleMapstrings(std::string &str, map<std::string, std::string> &MapStrings){
+void handleMapString(std::string &str, map<std::string, std::string> &MapStrings){
     std::vector<string> v = splitV(str);
     std::vector<std::string>::iterator it = v.begin();
     if (v.size() == 1 || v.size() > 2)
@@ -115,7 +115,7 @@ void variableSingleValue(std::string str, std::string &buff){
         throw std::runtime_error("Error: Invalid token near   -> {" + str + "}");
 }
 
-void methodesHandler(std::vector<std::string> &methdsV, std::string methods , int i){
+void methodsHandler(std::vector<std::string> &methdsV, std::string methods , int i){
     std::stringstream ss(methods);
 
     if (!methdsV.empty())
@@ -201,7 +201,7 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
        throw std::runtime_error("Error: invalid value [" + value + "] in error page");
 }
 
-void outoIndexHandler(std::string val, int &cond){
+void autoIndexHandler(std::string val, int &cond){
     
     if (cond == 1)
         throw std::runtime_error("Error: Invalid token near \'" + val + "\'");

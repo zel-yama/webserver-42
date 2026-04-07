@@ -8,11 +8,11 @@ void tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value){
 	std::string buff  = "";
 	while(i < val.size()){
 		if (val[i] == '{'){
-			pushTockens(OPENED_PRACKET, tockV, "{");
+			pushTokens(OPENED_PRACKET, tockV, "{");
 			i++;
 		}
 		if (val[i] == '}'){
-			pushTockens(CLOSED_PRACKET, tockV, "}");
+			pushTokens(CLOSED_PRACKET, tockV, "}");
 			i++;
 		}
 		while(i < val.size())
@@ -27,7 +27,7 @@ void tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value){
 				if (!buff.empty())
 				{
 	
-					pushTockens(value, tockV, buff);
+					pushTokens(value, tockV, buff);
 					buff.clear();
 					break;
 				}
@@ -36,6 +36,6 @@ void tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value){
 			}   
 		}
 		if (!buff.empty())
-			pushTockens(VALUE, tockV, buff);
+			pushTokens(VALUE, tockV, buff);
 	}
 }

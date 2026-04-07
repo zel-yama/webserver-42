@@ -20,7 +20,7 @@ void location_handle(Server &serv, std::string path)//extra
     serv.ServerName = path;
 }
 
-int serverHnding(tockenIt it, std::vector<Server> &servs){
+int serverHandling(tockenIt it, std::vector<Server> &servs){
     int i  = 0;
     location local;
     std::map<std::string, std::string> mapLoca;
@@ -67,7 +67,7 @@ servers setUpServers(std::vector<tockens> &v){
       
       
         if (!it->val.compare("server")){
-            i = serverHnding(it,Servs);
+            i = serverHandling(it,Servs);
             if (i <= v.size())
                 it += i;
             else    

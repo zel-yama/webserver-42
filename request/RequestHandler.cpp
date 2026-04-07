@@ -129,8 +129,9 @@ void validateRequest(Request &req, Server *srv)
     }
     req.loc = *loc;
     
-
+    cout << "test2 ---> " << req.path << endl;
     req.fullpath = joinPathWithLocation(srv, loc, req.path);
+    req.path.clear();
 
     if (loc && !loc->returnP.empty())
     {

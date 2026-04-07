@@ -57,7 +57,7 @@ public:
     std::string getMimeType(const std::string &extension) const;
     std::string getFileExtention(const std::string &path) const;
     void processRequest(Request &req, Server &ser);
-    void handleGet(const std::string &path, const Request &req, const Server &srv);
+    void handleGet(std::string &path, const Request &req, const Server &srv);
 
     void sendError(int code, const std::string &message);
     void servErrorPage(int code);
@@ -65,7 +65,7 @@ public:
     std::string readFile(const std::string &path) const;
     bool existFile(const char *path) const;
     bool isDirectory(const char *path) const;
-    void handleDirectory(const std::string &path, const Request &req, const Server &srv);
+    void handleDirectory(std::string &path, const Request &req, const Server &srv);
     void generateautoindex(const std::string &path);
     std::string build();
     bool isLargeFile() const;

@@ -26,7 +26,7 @@ void applyRules(std::vector<tockens> &tocknes){
 }
 
 
-void bracketValidtion(std::vector<tockens> &tockens){
+void bracketValidation(std::vector<tockens> &tockens){
     int count_closed = 0;
     int count_opened = 0;
     tockenIt it = tockens.begin();

@@ -73,12 +73,12 @@ doubleStr convertVector( std::vector<std::string> &v){
     return newV;
 }
 
-void pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s){
+void pushTokens(TYPE tockensType, std::vector<tockens> &v, std::string s){
 
     tockens tock;
     tock.mytocken = tockensType;
     tock.val = s; 
-    validatoinVarFormat(tock);
+    validationVarFormat(tock);
 
     if (!tock.val.empty())
         v.push_back(tock);
@@ -114,8 +114,8 @@ servers parsing(std::string FileName){
     
     v = convertVector(store);
    
-    tockV = tokeniezer(v);  
-    bracketValidtion(tockV);
+    tockV = tokenizer(v);  
+    bracketValidation(tockV);
     
     servs =  setUpServers(tockV);
   

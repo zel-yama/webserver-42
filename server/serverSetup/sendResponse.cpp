@@ -5,20 +5,20 @@
 Server* getServerForClient(maptype& config, int serverId);
 
 
-void handlingOFCGi(maptype &data, int fd, int flag, Response& respone ){
+void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     
     
     char buffer[MAXSIZEBYTE];
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
-    return ;
+        return ;
     Client *connect = (Client *) returnElement(cg->fd_client, data);
     if (!connect){
       
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
-    }
+    };
     Server *srv = (Server *) returnElement(connect->serverId, data);
         if (!srv)
             return;
@@ -38,10 +38,10 @@ void handlingOFCGi(maptype &data, int fd, int flag, Response& respone ){
     if (process == -1){
         flag = -1;
         connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
-
+        std::cerr << "500 daly\n";
     }
+    
     if (flag == 1){
-
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
         if (i < 0 || process < 0 ) {
             kill(cg->pid, SIGTERM);
@@ -53,8 +53,8 @@ void handlingOFCGi(maptype &data, int fd, int flag, Response& respone ){
             return ;
         }
     }
-    if (flag == 0)
-        connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
+    // if (flag == 0)
+    //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
     respone.applyCgiResponse(connect->response);
     if (!connect->sessionCookie.empty()) {
         respone.setHeader("Set-Cookie", connect->sessionCookie);
@@ -108,7 +108,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
     for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
       
         if (findElement(config, *it) == "cgi") 
-            handlingOFCGi(config, *it, 0, res);
+            handlingOfCgi(config, *it, 0, res);
         else
             deleteClient(config, *it, fdEp);
     }
@@ -170,7 +170,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
     int n = 1 ;
  
     char buff[MAXSIZEBYTE];
-    std::cout << "ssss\n";
+  
     if (!connect.buildDone ){
         Server* srv = getServerForClient(config, connect.serverId);
         respone.processRequest(connect.parsedRequest, *srv);
@@ -182,9 +182,9 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
         connect.buildDone = true;
         if (respone.isCgipending()){
             connect.response.clear();
-           
             addCgi(config, connect, respone.getcgiPid(), respone.getcgiReadFd(), respone.getcgiWriteFd() );
             connect.currentTime = time(NULL);
+            std::cout << "ssss\n";
             return ;
         }
         if (respone.isLargeFile()){
@@ -196,12 +196,14 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
         }
 
     }
-  printf("response {%s}", connect.response.c_str());
+     std::cout << "ssseeeaeas\n";
+       printf("response {%s}\n", connect.response.c_str());
 
     if (!connect.response.empty()){
 
       
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
+
         
         if (n <= 0) {
            

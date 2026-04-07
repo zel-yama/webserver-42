@@ -74,6 +74,7 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
             connect.keepAlive = false;
         }
         cout << req.body.size() << endl;
+        cout << req.status << endl;
     } 
     
 }

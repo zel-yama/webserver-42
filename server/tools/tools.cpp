@@ -45,7 +45,7 @@ void  deleteClient(maptype& config, int fd, int fdEP){
     
     if (it != config.end()){
         Config *c = (Config *) it->second;
-        delete c;
+       // delete c;
         config.erase(fd);
     }
    

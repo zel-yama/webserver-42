@@ -18,7 +18,7 @@ Response::Response()
       req(NULL),
       srv(NULL)
 {
-    printf("constructor\n");
+    // printf("constructor\n");
     statusMap[200] = "OK";
     statusMap[201] = "Created";
     statusMap[204] = "No Content";
@@ -38,7 +38,7 @@ Response::Response()
 }
 
 Response::~Response() {
-    printf("destructor");
+    // printf("destructor");
 }
 
 void Response::setStatus(int code, const std::string &message)
@@ -258,7 +258,7 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     if (pos == std::string::npos)
     {
-        sendError(502, "");
+        // sendError(502, "");//check
         return;
     }
 
@@ -299,23 +299,23 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
                 if (status >> code)
                 {
                     parsedStatus = code;
-                    hasRequiredCgiField = true;
+                    // hasRequiredCgiField = true;
                 }
                 continue;
             }
 
-            if (lowerKey == "content-type" || lowerKey == "location")
-                hasRequiredCgiField = true;
+            // if (lowerKey == "content-type" || lowerKey == "location")
+            //     hasRequiredCgiField = true;
 
             setHeader(key, value);
         }
     }
 
-    if (!hasRequiredCgiField)
-    {
-        sendError(502, "");
-        return;
-    }
+    // if (!hasRequiredCgiField)
+    // {
+    //     sendError(502, "");
+    //     return;
+    // }
 
     if (parsedStatus >= 400)
     {
@@ -531,7 +531,7 @@ void Response::handlePost(const std::string &path,
     setBody("<h1>Data saved successfully</h1>");
 }
 
-void Response::handleDirectory(const std::string &path,
+void Response::handleDirectory(std::string &path,
                                const Request &req,
                                const Server &srv)
 {
@@ -540,11 +540,12 @@ void Response::handleDirectory(const std::string &path,
         sendError(403, "");
         return;
     }
+    cout << "here--> " <<  req.loc.locationPath << endl;
 
     if (path[path.size() - 1] != '/')
     {
         setStatus(301, "");
-        headers["Location"] = path + "/";
+        headers["Location"] = req.path + "/";
         headers["Content-Length"] = "0";
         body.clear();
         return;
@@ -611,6 +612,7 @@ void Response::generateautoindex(const std::string &path)
         else
         {
             sendError(500, "");
+
         }
         return;
     }
@@ -642,8 +644,9 @@ void Response::generateautoindex(const std::string &path)
 }
 
 
-void Response::handleGet(const std::string &path, const Request &req, const Server &srv)
+void Response::handleGet(std::string &path, const Request &req, const Server &srv)
 {
+
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
@@ -868,8 +871,8 @@ std::string Response::build()
     {
         response << body;
     }
-    std::cout <<  srv->ipAdress << "--";
-    __displayTime();
-    std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
+    // std::cout <<  srv->ipAdress << "--";   //
+    // __displayTime();
+    // std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
     return response.str();
 }

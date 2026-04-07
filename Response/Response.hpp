@@ -50,7 +50,6 @@ public:
     void setContentType(const std::string &path);
     void setVersion(const std::string &version);
     int getStatusCode() const;
-    std::string getDateHeader() const;
 
     const std::string &getStatusMessage() const;
     const std::string &getBody() const;

@@ -1,0 +1,24 @@
+socket => endpoint (api)
+parametre 
+domain => ipv4 ipv6
+type => realeble connection , chi haja 5ra 
+sock-dgram 0 udp
+domain => 0 default tcp 
+bind => give socket an ip and a port
+listen => back log 
+
+passive socket vs active socket
+
+accept ()
+
+non blocking   
+io multiplexing
+fcntl
+
+poll or epoll 
+
+poll errors or epoll error epollHung egc ...
+how to know to client close the connection
+
+
+python3 -m http.server

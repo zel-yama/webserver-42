@@ -16,7 +16,7 @@ Server *getServerFromClient(maptype &config, Client &client)
     return NULL;
 }
 
-Server *getServerForClient(maptype &config, int serverId)
+Server *getServerForClient(maptype &config, int serverId) // remove this function and use the above one instead
 {
     if (config.find(serverId) != config.end())
     {
@@ -112,11 +112,20 @@ void validateRequest(Request &req, Server *srv)
         return;
 
     location *loc;
-    loc = findLocation(srv, req.path); // fix if there is not location in config ?
+    loc = findLocation(srv, req.path);
+
+    // If no location found, create a default location using server's root
+    location defaultLoc;
     if (!loc)
     {
-        req.status = 404;
-        return;
+        defaultLoc.locationPath = "/";
+        defaultLoc.root = srv->root;
+        defaultLoc.indexFile = srv->indexFile;
+        defaultLoc.allowedMethods = {"GET", "POST", "DELETE"};
+        defaultLoc.bodyMaxByte = srv->bodyMaxByte;
+        defaultLoc.outoIndex = srv->outoIndex;
+        defaultLoc.returnCode = 0;
+        loc = &defaultLoc;
     }
     req.loc = *loc;
     
@@ -132,7 +141,7 @@ void validateRequest(Request &req, Server *srv)
             code = 301;
 
         req.status = code;
-        req.headers["Location"] = loc->returnP;
+        req.headers["location"] = loc->returnP;
         return;
     }
 
@@ -145,7 +154,7 @@ void validateRequest(Request &req, Server *srv)
             code = 301;
 
         req.status = code;
-        req.headers["Location"] = srv->returnP;
+        req.headers["location"] = srv->returnP;
         return;
     }
 
@@ -157,7 +166,11 @@ void validateRequest(Request &req, Server *srv)
 
     if ((req.method == "POST" || req.method == "DELETE"))
     {
-        size_t maxSize = (loc->bodyMaxByte > 0) ? loc->bodyMaxByte : srv->bodyMaxByte;
+        size_t maxSize;
+        if (loc->bodyMaxByte > 0)
+            maxSize = loc->bodyMaxByte;
+        else
+            maxSize = srv->bodyMaxByte;
 
         if (req.body.size() > maxSize)
         {

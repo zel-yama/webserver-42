@@ -18,6 +18,7 @@ Response::Response()
       req(NULL),
       srv(NULL)
 {
+    // printf("constructor\n");
     statusMap[200] = "OK";
     statusMap[201] = "Created";
     statusMap[204] = "No Content";
@@ -36,7 +37,9 @@ Response::Response()
     statusMap[504] = "Gateway Timeout";
 }
 
-Response::~Response() {}
+Response::~Response() {
+    // printf("destructor");
+}
 
 void Response::setStatus(int code, const std::string &message)
 {
@@ -255,7 +258,7 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     if (pos == std::string::npos)
     {
-        sendError(502, "");
+        // sendError(502, "");//check
         return;
     }
 
@@ -296,23 +299,23 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
                 if (status >> code)
                 {
                     parsedStatus = code;
-                    hasRequiredCgiField = true;
+                    // hasRequiredCgiField = true;
                 }
                 continue;
             }
 
-            if (lowerKey == "content-type" || lowerKey == "location")
-                hasRequiredCgiField = true;
+            // if (lowerKey == "content-type" || lowerKey == "location")
+            //     hasRequiredCgiField = true;
 
             setHeader(key, value);
         }
     }
 
-    if (!hasRequiredCgiField)
-    {
-        sendError(502, "");
-        return;
-    }
+    // if (!hasRequiredCgiField)
+    // {
+    //     sendError(502, "");
+    //     return;
+    // }
 
     if (parsedStatus >= 400)
     {
@@ -369,6 +372,7 @@ void Response::processRequest(Request &req, Server &ser)
     {
         sendError(405, "");
     }
+
 }
 
 void Response::handleMultipartUpload(const Request &req, const Server &srv)
@@ -443,8 +447,8 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
         }
     }
 
-    response << "</ul>";
-    response << "<p>All files uploaded successfully!</p>";
+    // response << "</ul>";
+    // response << "<p>All files uploaded successfully!</p>";
 
     setStatus(201, "");
     headers["Content-Type"] = "text/html";
@@ -504,7 +508,7 @@ void Response::handlePost(const std::string &path,
         file.close();
 
         setStatus(201, "");
-        setBody("<h1>Data saved successfully</h1>");
+        // setBody("<h1>Data saved successfully</h1>");
         return;
     }
 
@@ -527,7 +531,7 @@ void Response::handlePost(const std::string &path,
     setBody("<h1>Data saved successfully</h1>");
 }
 
-void Response::handleDirectory(const std::string &path,
+void Response::handleDirectory(std::string &path,
                                const Request &req,
                                const Server &srv)
 {
@@ -537,32 +541,49 @@ void Response::handleDirectory(const std::string &path,
         return;
     }
 
-    if (path[path.size() - 1] != '/')
-    {
-        setStatus(301, "");
-        headers["Location"] = path + "/";
-        headers["Content-Length"] = "0";
-        body.clear();
-        return;
-    }
-
+    // if (path[path.size() - 1] != '/')
+    // {
+    //     setStatus(301, "");
+    //     headers["Location"] = req.path + "/";
+    //     headers["Content-Length"] = "0";
+    //     body.clear();
+    //     return;
+    // }
+    
     const std::vector<std::string> *indexList = NULL;
+    bool has_index = false;
 
     if (!req.loc.indexFile.empty())
+    {
         indexList = &req.loc.indexFile;
+        has_index = true;
+    }
     else if (!srv.indexFile.empty())
+    {
         indexList = &srv.indexFile;
+        has_index = true;
+    }
 
     if (indexList)
     {
+        std::string directoryPath = path;
+        if (!directoryPath.empty() && directoryPath[directoryPath.size() - 1] != '/')
+            directoryPath += "/";
+
         for (size_t i = 0; i < indexList->size(); ++i)
         {
-            std::string fullPath = path + (*indexList)[i];
+            std::string fullPath = directoryPath + (*indexList)[i];
             if (existFile(fullPath.c_str()))
             {
                 servFile(fullPath);
                 return;
             }
+        }
+
+        if (has_index)
+        {
+            sendError(404, "");
+            return;
         }
     }
 
@@ -607,6 +628,7 @@ void Response::generateautoindex(const std::string &path)
         else
         {
             sendError(500, "");
+
         }
         return;
     }
@@ -638,8 +660,9 @@ void Response::generateautoindex(const std::string &path)
 }
 
 
-void Response::handleGet(const std::string &path, const Request &req, const Server &srv)
+void Response::handleGet(std::string &path, const Request &req, const Server &srv)
 {
+
     if (existFile(path.c_str()))
     {
         std::string ext = getFileExtention(path);
@@ -864,8 +887,8 @@ std::string Response::build()
     {
         response << body;
     }
-    std::cout <<  srv->ipAdress << "--";
-    __displayTime();
-    std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
+    // std::cout <<  srv->ipAdress << "--";   //
+    // __displayTime();
+    // std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
     return response.str();
 }

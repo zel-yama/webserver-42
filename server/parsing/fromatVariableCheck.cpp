@@ -1,10 +1,8 @@
-/// the check var format and cause may variable and ever one have format he probaly check his format i should create for every varilble function to check to 
-// 
 
 
 #include "../include/parsing.hpp"
 
-void HandleMapstrings(std::string &str, map<std::string, std::string> &MapStrings){
+void handleMapString(std::string &str, map<std::string, std::string> &MapStrings){
     std::vector<string> v = splitV(str);
     std::vector<std::string>::iterator it = v.begin();
     if (v.size() == 1 || v.size() > 2)
@@ -84,12 +82,13 @@ int extractInt(std::string &s, std::string &c){
 
 void bodySizeMax(size_t &val, std::string &str){
     
-    size_t max ;
+    long long max ;
     std::string c;
+    
     max =  extractInt(str, c );
-
+    
    
-    if (c.size() > 1 )
+    if (c.size() > 1 || str.size() > 8 || max < 0 || max > 1e10 )
         throw std::runtime_error("invalid value in max body size ");
     if (c[0] == 'M')
         max = max * 1e6;
@@ -97,7 +96,10 @@ void bodySizeMax(size_t &val, std::string &str){
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    else if (!c.empty() || val != 0) 
+    else if (!c.empty() || val != 0 || max < 0 || max  > 1e10 ) 
+        throw std::runtime_error("invalid value in max body size ");
+   
+    if (max < 0 || max > 1e10)
         throw std::runtime_error("invalid value in max body size ");
     val = max;
 }
@@ -113,23 +115,25 @@ void variableSingleValue(std::string str, std::string &buff){
         throw std::runtime_error("Error: Invalid token near   -> {" + str + "}");
 }
 
-void methodesHandler(std::vector<std::string> &methdsV, std::string methods , int i){
+void methodsHandler(std::vector<std::string> &methdsV, std::string methods , int i){
     std::stringstream ss(methods);
 
     if (!methdsV.empty())
         myThrow();
+
     while(ss >> methods){
-        if ((!methods.compare("GET") && !methods.compare("POST") && !methods.compare("DELETE")) && i == 1)
+        if ((methods.compare("GET") && methods.compare("POST") && methods.compare("DELETE")) && i == 1)
             throw std::runtime_error("Error: Invalid token near  -> " + methods);
-        if ((i = 1 && methdsV.size() > 3) )
+        if ((i == 1 && methdsV.size() > 3) )
             myThrow();
-       
+   
         methdsV.push_back(methods);
     }
     if (i == 1 && methdsV.size() > 1){
-        if (methdsV.size() == 2 && (methdsV[0] == methdsV[1]))
-            myThrow();
-        else if (methdsV.size() == 3 && (methdsV[0] == methdsV[1] || methdsV[0] == methdsV[2] || methdsV[2] == methdsV[1] ))
+        if (!methdsV[0].compare(methdsV[1]))
+            costumThrow("the methdos have the same name => ", methdsV[0]);
+        else if (methdsV.size() == 3 &&
+         (!methdsV[0].compare(methdsV[1]) || !methdsV[0].compare(methdsV[2]) || !methdsV[2].compare(methdsV[1]) ))
             myThrow();
     }
 }
@@ -155,7 +159,7 @@ void returnP(std::string token, std::string &path, int &exitCode){
     ss >> s;
     exitCode = convertString(s);
     if (exitCode == -1 || (exitCode < 300 || exitCode > 599))
-        costumThrow("invalid number of arguments", token);
+        costumThrow("invalid number of arguments ", token);
     if (!ss.eof())
         ss >> path;
 }
@@ -197,7 +201,7 @@ void methodsIntKey(std::map<int, std::string> &v, std::string str){
        throw std::runtime_error("Error: invalid value [" + value + "] in error page");
 }
 
-void outoIndexHandler(std::string val, int &cond){
+void autoIndexHandler(std::string val, int &cond){
     
     if (cond == 1)
         throw std::runtime_error("Error: Invalid token near \'" + val + "\'");

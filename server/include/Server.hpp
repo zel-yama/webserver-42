@@ -1,14 +1,15 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 62
+#define TIMEOUT 300
 #define MAX_URI 2048
-#define TIMEOUTCGI 30
+#define TIMEOUTCGI 15
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
 
 #include "include.hpp"
+
 class Client;
 
 // struct location;
@@ -102,20 +103,20 @@ class Server : public Config {
     
     public:
     
-    Server();
-    
-    std::vector<std::string>                indexFile;
-    unsigned int                            port;
-    std::string                             ipAdress;
-    std::string                             returnP;
-    size_t                                  bodyMaxByte;
-    std::string                              root;
-    int upload;
-    std::string                             uploadPath;
-    std::string                             cgiPath;
-  
+        Server();
+        ~Server();
+        std::vector<std::string>                indexFile;
+        unsigned int                            port;
+        std::string                             ipAdress;
+        std::string                             returnP;
+        size_t                                  bodyMaxByte;
+        std::string                              root;
+        int upload;
+        std::string                             uploadPath;
+        std::string                             cgiPath;
+
  
-    int                                     cgiStatus;
+        int                                  cgiStatus;
         std::vector<std::string>            allowedMethods;
         int                                  outoIndex;
         int                                 fd;
@@ -126,10 +127,10 @@ class Server : public Config {
         std::vector<location>               objLocation;
         std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
 
-        RequestParser               parser;
-        Response                    *respone;
+        RequestParser                       parser;
+       // Response                            *respone;
         map<std::string, std::string>       cgiConfig;
-        int                                 CreateServer(int port, std::string ipaddress );
+        int                                 CreateServer( std::string ipaddress );
         void                                listenFunction();
         Client                              acceptClient();
     };
@@ -147,10 +148,11 @@ void            cleanUP(maptype &config);
 Server*         getServerFromClient(maptype& config, Client& client);
 void            costumThrow(std::string des, std::string invalid);
 bool            checkTimeout(time_t prevTime, time_t timeout );
-void            handlingOFCGi(maptype &data, int fd, int flag);
+void            handlingOfCgi(maptype &data, int fd, int flag, Response &respone );
 Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);
+void            __displayTime();
+void printStrings(std::string str1, std::string str2, std::string str3, int str4);
 
-void printLogs(std::string &ipadress, int port, std::string &des, std::string &info);
 #endif

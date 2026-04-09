@@ -13,7 +13,7 @@ std::string removeSpaces(std::string &str){
 	return str.substr(start, (end - start));
 }
 
-std::vector<tockens> tokeniezer(doubleStr &v){
+std::vector<tockens> tokenizer(doubleStr &v){
 	std::vector<tockens> tockenV;
 	tockens tock;
 	doubleIter it = v.begin();
@@ -26,7 +26,7 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 			enumValue = LOCATIONPATH;
 		val = it->second;
 		if (!val.empty())
-			pushTockens(VARIABLE, tockenV, var);
+			pushTokens(VARIABLE, tockenV, var);
 		if (it->second.empty())
 			val = var;
 		tockenValue(val, tockenV, enumValue);
@@ -36,7 +36,7 @@ std::vector<tockens> tokeniezer(doubleStr &v){
 }
 
 
-void validatoinVarFormat( tockens &mytockens){
+void validationVarFormat( tockens &mytockens){
 	mytockens.val =  removeSpaces(mytockens.val);
 	if (!mytockens.val.empty() && mytockens.mytocken == 0){
 		if (mytockens.val[mytockens.val.size()- 1] == ';'){
@@ -52,7 +52,7 @@ void validatoinVarFormat( tockens &mytockens){
 	
 	if (mytockens.mytocken == 1){
 		
-	    checkTockens(mytockens);
+	    checkTokens(mytockens);
 	}
 
 }

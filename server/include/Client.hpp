@@ -2,13 +2,11 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-// #include <iostream>
-// #include <vector>
-// #include <sys/socket.h>
-// #include <sys/epoll.h>
+
 #include "Server.hpp"
 #include "Config.hpp"
-// #include <arpa/inet.h>
+
+
 class Client: public Config{
 
     public:
@@ -35,7 +33,7 @@ class Client: public Config{
         long bodysizeRequest;
         bool buildDone;
         int fdFile;
-
+        std::string ipAddress;
         // i add this
         std::string sessionCookie;
 

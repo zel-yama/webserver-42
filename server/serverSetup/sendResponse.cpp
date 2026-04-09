@@ -4,31 +4,27 @@
 
 Server* getServerForClient(maptype& config, int serverId);
 
-// check is if client exists ok 
-// check process still contune runing if rading 
-///  timeout return bad get way 
-// no output what should return like empyt file  string 
-// reading 
-void handlingOFCGi(maptype &data, int fd, int flag ){
+
+void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     
     
     char buffer[MAXSIZEBYTE];
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
-    return ;
+        return ;
     Client *connect = (Client *) returnElement(cg->fd_client, data);
     if (!connect){
-        printf("cgi handil\n");
+      
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fd_in, cg->fdEp);
         return ;
-    }
+    };
     Server *srv = (Server *) returnElement(connect->serverId, data);
         if (!srv)
             return;
     int n = 0;  
     if (flag ==  2){
-        if (cg->writeB < connect->parsedRequest.body.size())
+        if (cg->writeB < (int)connect->parsedRequest.body.size())
          n = write(cg->fdOUT, connect->parsedRequest.body.c_str() + cg->writeB, connect->parsedRequest.body.size() - cg->writeB);
         if (n > 0){
             cg->writeB += n;
@@ -41,37 +37,30 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
         process = -1;
     if (process == -1){
         flag = -1;
-        printf("flagr");
         connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
-
+        std::cerr << "500 daly\n";
     }
+    
     if (flag == 1){
-
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
         if (i < 0 || process < 0 ) {
-            printf("read error ");
             kill(cg->pid, SIGTERM);
-            printf("invalid data socket or erro in cgi ");
             deleteClient(data, cg->fd_in, cg->fdEp);
             return ;
         }
-        
-        
         if (i > 0 ){
             connect->response.append(buffer, i);
             return ;
-      
         }
-
     }
-    if (flag == 0)
-        connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
-    srv->respone->applyCgiResponse(connect->response);
+    // if (flag == 0)
+    //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
+    respone.applyCgiResponse(connect->response);
     if (!connect->sessionCookie.empty()) {
-        srv->respone->setHeader("Set-Cookie", connect->sessionCookie);
+        respone.setHeader("Set-Cookie", connect->sessionCookie);
         connect->sessionCookie.clear();
     }
-    connect->response =   srv->respone->build();
+    connect->response =  respone.build();
 
     
     deleteClient(data, cg->fdOUT, connect->fdEp);
@@ -82,8 +71,8 @@ void handlingOFCGi(maptype &data, int fd, int flag ){
         kill(cg->pid, SIGTERM);
         waitpid(cg->pid, NULL, WNOHANG );
     }
-    printf("%s\n", connect->response.c_str());
-    sendResponse(data, *connect);
+    
+    sendResponse(data, *connect, respone);
     deleteClient(data, cg->fd_in, connect->fdEp);
 }
 
@@ -98,14 +87,14 @@ void checkClientsTimeout(maptype& config, int fdEp)
 {
     Client *connect = NULL;
     std::vector<int> ve;
-   
+    Response res;
     
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
         if (i->second->name == "client") {
             connect = dynamic_cast<Client*>(i->second);
 
             if (checkTimeout(connect->currentTime, TIMEOUT)) {
-                printf("this client is timeout ");
+                
                 ve.push_back(connect->fd);
             }
         }
@@ -119,7 +108,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
     for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
       
         if (findElement(config, *it) == "cgi") 
-            handlingOFCGi(config, *it, 0);
+            handlingOfCgi(config, *it, 0, res);
         else
             deleteClient(config, *it, fdEp);
     }
@@ -128,11 +117,8 @@ void checkClientsTimeout(maptype& config, int fdEp)
 void checkClientConnection(maptype &config, Client &connect) {
  
 
-
-    
-
     if (!connect.keepAlive) {
-        printf("keep alive \n");
+       
         deleteClient(config, connect.fd, connect.fdEp);
         return;
     }
@@ -169,7 +155,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->pid = pip;
     obj->fdOUT = fdOUT;
     obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
-    if (obj->writeB != connect.parsedRequest.body.size()){
+    if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
         obj->OUT.data.fd = fdOUT;
         addSockettoEpoll(connect.fdEp, obj->OUT);
@@ -179,47 +165,48 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     addSockettoEpoll(connect.fdEp, obj->data);
     data[fdIN] = obj;
 }
-
-void sendResponse(maptype &config, Client &connect) {
+void sendResponse(maptype &config, Client &connect, Response &respone ) {
     
-    // Get the server configuration
     int n = 1 ;
  
     char buff[MAXSIZEBYTE];
-   
-    if (!connect.buildDone){
+  
+    if (!connect.buildDone ){
         Server* srv = getServerForClient(config, connect.serverId);
-        srv->respone->processRequest(connect.parsedRequest, *srv);
+        respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
-            srv->respone->setHeader("Set-Cookie", connect.sessionCookie);;
+            respone.setHeader("Set-Cookie", connect.sessionCookie);;
             connect.sessionCookie.clear();
         }
-        connect.response = srv->respone->build();
+        connect.response = respone.build();
         connect.buildDone = true;
-        if (srv->respone->isCgipending()){
+        if (respone.isCgipending()){
             connect.response.clear();
-           
-            addCgi(config, connect, srv->respone->getcgiPid(), srv->respone->getcgiReadFd(), srv->respone->getcgiWriteFd() );
+            addCgi(config, connect, respone.getcgiPid(), respone.getcgiReadFd(), respone.getcgiWriteFd() );
             connect.currentTime = time(NULL);
+            std::cout << "ssss\n";
             return ;
         }
-        if (srv->respone->isLargeFile()){
+        if (respone.isLargeFile()){
            
-            connect.fdFile = open(srv->respone->getFilePath().c_str(), O_RDONLY);
+            connect.fdFile = open(respone.getFilePath().c_str(), O_RDONLY);
             connect.fdsBuffer.push_back(connect.fdFile);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
-            srv->respone->getFilePath() = "";
+            respone.getFilePath() = "";
         }
 
     }
+     std::cout << "ssseeeaeas\n";
+       printf("response {%s}\n", connect.response.c_str());
 
     if (!connect.response.empty()){
 
-        //printf("send  %s fd %d \n ", connect.response.c_str(), connect.fd);
+      
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
+
         
         if (n <= 0) {
-            printf("sending close clonnection");
+           
             deleteClient(config, connect.fd, connect.fdEp);
             return ;
         }

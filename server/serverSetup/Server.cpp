@@ -7,21 +7,22 @@
 
 std::vector<int>  Config::fdsBuffer;
 Server::Server(){
-    this->cgiStatus = 0;
-    this->upload = 0;
-    this->outoIndex = 0;
-    this->serverId = 0;
-    this->returnCode = 0;
+    cgiStatus = 0;
+    upload = 0;
+
+    serverId = 0;
+    returnCode = 0;
     bodyMaxByte = 0;
+    
     outoIndex = false;
     port = -1;
     name = "Server";
 
-    
-    respone = new Response();
-
 }
-// Server::~Server(){};
+
+Server::~Server(){
+    
+};
 
 location::location(){
     this->outoIndex = -1;
@@ -31,8 +32,8 @@ location::location(){
     this->upload = -1;
     this->returnCode = 0;
     this->ex = false;
-    
 }
+
 std::string convertIpAdder( uint32_t ipaddres){
 
 
@@ -48,14 +49,13 @@ std::string convertIpAdder( uint32_t ipaddres){
 
 Client Server::acceptClient(){
     Client newOne;
-    newOne.serverId = this->fd; // i change this to fd?
+    newOne.serverId = this->fd;
     newOne.fdEp = fdEp;
     unsigned int len = sizeof(newOne.ClientSock);
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
-    
+    newOne.ipAddress = ipAdress ;
     if (newOne.fd < 0){
         ostringstream ss;
-        
         ss << "server failed to accept connection from address " << convertIpAdder(addressServer.sin_addr.s_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);
         cerr << ss.str() << endl;
         return newOne ;
@@ -71,26 +71,27 @@ Client Server::acceptClient(){
 void Server::listenFunction(){
    
     if (listen(fd, 30) < 0){
-       throw runtime_error("error in to listen that port ");}
+       throw runtime_error("Error in to listen that port ");}
     ostringstream ss;
-    convertIpAdder(addressServer.sin_addr.s_addr);
     ss << "\n ** server IP address " << convertIpAdder(addressServer.sin_addr.s_addr) <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
     cout << ss.str() << endl;
 }
-int Server::CreateServer(int port, string ipaddress){
+int Server::CreateServer( string ipaddress){
     int opt = 1;
+    (void)ipaddress;
     fd =  socket(AF_INET, SOCK_STREAM, 0);
     fd = makeNonBlockingFD(fd);
-    ipaddress = convertIpAdder(addressServer.sin_addr.s_addr);
+    port = 0;
+    ipAdress = convertIpAdder(addressServer.sin_addr.s_addr);
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
         throw runtime_error("Error: to set socket to reusing mode ");
     if (fd == -1)
     {
-        throw runtime_error("error in in create socket socket function");
+        throw runtime_error("Error in in create socket socket function");
     }
 
     if (bind(fd, (sockaddr *)(&addressServer),sizeof(addressServer)) < 0){
-        throw runtime_error("error in bind operatoin bind function ");
+        throw runtime_error("Error in bind operatoin bind function ");
     }
     listenFunction();
     data.events = EPOLLIN;

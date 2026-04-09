@@ -128,8 +128,7 @@ void validateRequest(Request &req, Server *srv)
         loc = &defaultLoc;
     }
     req.loc = *loc;
-    
-
+   
     req.fullpath = joinPathWithLocation(srv, loc, req.path);
 
     if (loc && !loc->returnP.empty())

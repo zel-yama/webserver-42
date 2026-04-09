@@ -2,8 +2,6 @@
 #include "../include/tools.hpp"
 #include "../../Response/Response.hpp"
 
-Server* getServerForClient(maptype& config, int serverId);
-
 // check is if client exists ok 
 // check process still contune runing if rading 
 ///  timeout return bad get way 
@@ -188,7 +186,7 @@ void sendResponse(maptype &config, Client &connect) {
     char buff[MAXSIZEBYTE];
    
     if (!connect.buildDone){
-        Server* srv = getServerForClient(config, connect.serverId);
+        Server* srv = getServerFromClient(config, connect);
         srv->respone->processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
             srv->respone->setHeader("Set-Cookie", connect.sessionCookie);;

@@ -20,7 +20,6 @@ public:
     static std::string generateId();
     static std::string create();
     static Session* get(const std::string& id);
-    static size_t count();
 
 private:
     static std::map<std::string, Session> _sessions;

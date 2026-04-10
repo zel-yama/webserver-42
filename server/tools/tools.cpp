@@ -45,7 +45,7 @@ void  deleteClient(maptype& config, int fd, int fdEP){
     
     if (it != config.end()){
         Config *c = (Config *) it->second;
-       // delete c;
+        delete c;
         config.erase(fd);
     }
    
@@ -79,6 +79,6 @@ void __displayTime(){
     
     time_t current = time(NULL);
     struct tm local = *localtime(&current);
-    printf("[%d-%d-%d %d:%d:%d]",local.tm_year, local.tm_mon, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
+    printf("[%d-%d-%d %d:%d:%d]",local.tm_year + 1900  , local.tm_mon + 1, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
 
 }

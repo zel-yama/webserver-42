@@ -62,16 +62,14 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     }
     connect->response =  respone.build();
 
-    
     deleteClient(data, cg->fdOUT, connect->fdEp);
-
     connect->buildDone = true;
     connect->requestFinish = true;
     if (flag == 0 || flag == -1 ){
         kill(cg->pid, SIGTERM);
         waitpid(cg->pid, NULL, WNOHANG );
     }
-    
+
     sendResponse(data, *connect, respone);
     deleteClient(data, cg->fd_in, connect->fdEp);
 }

@@ -31,8 +31,6 @@ std::string findElement(maptype &config, int fd){
 }
 void cleanUP(maptype &config){
     
-
-    
     ConfigIter it = config.begin();
     Server* serv;
     size_t i = 0;
@@ -44,16 +42,10 @@ void cleanUP(maptype &config){
             while(it != config.end()){
            
                 Config *c = it->second;
-          
-            
-                    delete c;
-
+                delete c;
                 it++;
             }
-
-
     }
-    
     exit(0);
 }
 
@@ -83,7 +75,6 @@ void eventLoop(maptype &config ){
 	    n = epoll_wait(fdEp, events, MAXEVENT, 5000);
            if (function(0) == 1 || n == -1){
                cleanUP(config);
-
            }
            for(int i = 0; i < n; i++){
                
@@ -125,8 +116,11 @@ void eventLoop(maptype &config ){
                     if (!clientServer)
                         continue;
                     if (events[i].events & EPOLLIN ){
-                        if (!Cli->requestFinish)
-                            readRequest(config, events[i].data.fd, *Cli, &clientServer->parser);
+                        if (!Cli->requestFinish){
+                            if(readRequest(config, events[i].data.fd, *Cli, &clientServer->parser) == -1)
+                                continue;
+                            
+                        }
                         if (Cli->requestFinish)
                             setClientSend(fdEp, *Cli );
                         continue;
@@ -137,7 +131,6 @@ void eventLoop(maptype &config ){
                     }
                 }
             }
-    
             checkClientsTimeout(config, fdEp);
         }
         

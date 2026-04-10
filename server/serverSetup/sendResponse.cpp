@@ -169,7 +169,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
     int n = 1 ;
  
     char buff[MAXSIZEBYTE];
-  
+   
     if (!connect.buildDone ){
         Server* srv = getServerForClient(config, connect.serverId);
         respone.processRequest(connect.parsedRequest, *srv);
@@ -195,7 +195,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
         }
 
     }
-
+ printf("[%s]", connect.response.c_str());
     if (!connect.response.empty()){
 
       

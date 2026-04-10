@@ -135,7 +135,6 @@ void eventLoop(maptype &config ){
                         Cli = (Client *) returnElement(events[i].data.fd, config);
                         sendResponse(config, *Cli, res);
                     }
-                 
                 }
             }
     

@@ -73,7 +73,9 @@ void Server::listenFunction(){
     if (listen(fd, 30) < 0){
        throw runtime_error("Error in to listen that port ");}
     ostringstream ss;
-    ss << "\n ** server IP address " << convertIpAdder(addressServer.sin_addr.s_addr) <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
+    ss << "\n*** server IP address "
+     << convertIpAdder(addressServer.sin_addr.s_addr)
+      <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
     cout << ss.str() << endl;
 }
 int Server::CreateServer( string ipaddress){

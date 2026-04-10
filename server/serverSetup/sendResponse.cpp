@@ -38,7 +38,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     if (process == -1){
         flag = -1;
         connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
-        std::cerr << "500 daly\n";
+
     }
     
     if (flag == 1){
@@ -153,7 +153,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->currentTime = time(NULL);
     obj->fd_in = fdIN;
     obj->pid = pip;
-    obj->fdOUT = fdOUT;
+    obj->fdOUT = fdOUT;/// leaks 
     obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
@@ -161,6 +161,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
         addSockettoEpoll(connect.fdEp, obj->OUT);
         data[fdOUT] = obj;
     }
+
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
     data[fdIN] = obj;
@@ -184,7 +185,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             connect.response.clear();
             addCgi(config, connect, respone.getcgiPid(), respone.getcgiReadFd(), respone.getcgiWriteFd() );
             connect.currentTime = time(NULL);
-            std::cout << "ssss\n";
+        
             return ;
         }
         if (respone.isLargeFile()){
@@ -196,8 +197,6 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
         }
 
     }
-     std::cout << "ssseeeaeas\n";
-       printf("response {%s}\n", connect.response.c_str());
 
     if (!connect.response.empty()){
 

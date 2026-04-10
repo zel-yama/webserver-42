@@ -14,7 +14,7 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
     {
-        cerr << "Error to add socket to epoll" << endl;
+        std::cerr << "Error to add socket to epoll" << std::endl;
         
         return -1;
     }
@@ -79,6 +79,8 @@ void __displayTime(){
     
     time_t current = time(NULL);
     struct tm local = *localtime(&current);
-    printf("[%d-%d-%d %d:%d:%d]",local.tm_year + 1900  , local.tm_mon + 1, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
+  std::cout << "[" << (local.tm_year + 1900) << "," <<
+   (local.tm_mon + 1) << "," << local.tm_mday << "," <<
+   local.tm_hour << ","<<  local.tm_min << "," << local.tm_sec << "]";
 
 }

@@ -103,7 +103,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
             }
         }
     }
-    for(vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
+    for(std::vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
       
         if (findElement(config, *it) == "cgi") 
             handlingOfCgi(config, *it, 0, res);
@@ -151,13 +151,13 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->currentTime = time(NULL);
     obj->fd_in = fdIN;
     obj->pid = pip;
-    obj->fdOUT = fdOUT;/// leaks 
+    obj->fdOUT = fdOUT;/// leaks in pipe 
     obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
         obj->OUT.data.fd = fdOUT;
         addSockettoEpoll(connect.fdEp, obj->OUT);
-        data[fdOUT] = obj;
+        data[fdOUT] = new _Cgi(*obj);
     }
 
     obj->fd_client = connect.fd;
@@ -195,7 +195,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
         }
 
     }
- printf("[%s]", connect.response.c_str());
+ 
     if (!connect.response.empty()){
 
       
@@ -211,9 +211,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             connect.currentTime = time(NULL);  
             connect.response.erase(0, n);
         }
-
     }
-
     if (connect.response.empty() && connect.fdFile != -1){
         connect.byteRead =  read(connect.fdFile, buff, MAXSIZEBYTE);
 
@@ -227,16 +225,12 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             connect.response.append(buff, connect.byteRead);
             setClientSend(connect.fdEp, connect);
             return ;
-        }
-        
-        
+        } 
     }
     if (connect.response.empty() || connect.fdFile == -1){
         connect.sending  = false ;
         checkClientConnection(config, connect);
         return ;
-
-
     }
     connect.sending = true;
     checkClientConnection(config, connect);

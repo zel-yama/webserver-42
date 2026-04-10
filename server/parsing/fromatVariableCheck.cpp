@@ -2,8 +2,8 @@
 
 #include "../include/parsing.hpp"
 
-void handleMapString(std::string &str, map<std::string, std::string> &MapStrings){
-    std::vector<string> v = splitV(str);
+void handleMapString(std::string &str, std::map<std::string, std::string> &MapStrings){
+    std::vector<std::string> v = splitV(str);
     std::vector<std::string>::iterator it = v.begin();
     if (v.size() == 1 || v.size() > 2)
         throw std::runtime_error("Error in CGI path arguments " + str);

@@ -121,7 +121,7 @@ void validateRequest(Request &req, Server *srv)
         defaultLoc.locationPath = "/";
         defaultLoc.root = srv->root;
         defaultLoc.indexFile = srv->indexFile;
-        defaultLoc.allowedMethods = {"GET", "POST", "DELETE"};
+        defaultLoc.allowedMethods.push_back("GET");
         defaultLoc.bodyMaxByte = srv->bodyMaxByte;
         defaultLoc.outoIndex = srv->outoIndex;
         defaultLoc.returnCode = 0;

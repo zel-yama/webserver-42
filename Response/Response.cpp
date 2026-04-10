@@ -18,7 +18,7 @@ Response::Response()
       req(NULL),
       srv(NULL)
 {
-    // printf("constructor\n");
+   
     statusMap[200] = "OK";
     statusMap[201] = "Created";
     statusMap[204] = "No Content";
@@ -38,7 +38,7 @@ Response::Response()
 }
 
 Response::~Response() {
-    // printf("destructor");
+
 }
 
 void Response::setStatus(int code, const std::string &message)

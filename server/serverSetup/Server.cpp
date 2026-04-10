@@ -15,7 +15,7 @@ Server::Server(){
     bodyMaxByte = 0;
     
     outoIndex = false;
-    port = -1;
+    port = 0;
     name = "Server";
 
 }
@@ -55,9 +55,9 @@ Client Server::acceptClient(){
     newOne.fd = accept(fd, reinterpret_cast<sockaddr *>(&newOne.ClientSock), &len);
     newOne.ipAddress = ipAdress ;
     if (newOne.fd < 0){
-        ostringstream ss;
+        std::ostringstream ss;
         ss << "server failed to accept connection from address " << convertIpAdder(addressServer.sin_addr.s_addr) << " Port : " << ntohs(newOne.ClientSock.sin_port);
-        cerr << ss.str() << endl;
+        std::cerr << ss.str() << std::endl;
         return newOne ;
     }
     newOne.fd = makeNonBlockingFD(newOne.fd);
@@ -71,14 +71,14 @@ Client Server::acceptClient(){
 void Server::listenFunction(){
    
     if (listen(fd, 30) < 0){
-       throw runtime_error("Error in to listen that port ");}
-    ostringstream ss;
+       throw std::runtime_error("Error in to listen that port ");}
+    std::ostringstream ss;
     ss << "\n*** server IP address "
      << convertIpAdder(addressServer.sin_addr.s_addr)
       <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
-    cout << ss.str() << endl;
+    std::cout << ss.str() << std::endl;
 }
-int Server::CreateServer( string ipaddress){
+int Server::CreateServer( std::string ipaddress){
     int opt = 1;
     (void)ipaddress;
     fd =  socket(AF_INET, SOCK_STREAM, 0);
@@ -86,14 +86,14 @@ int Server::CreateServer( string ipaddress){
     port = 0;
     ipAdress = convertIpAdder(addressServer.sin_addr.s_addr);
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-        throw runtime_error("Error: to set socket to reusing mode ");
+        throw std::runtime_error("Error: to set socket to reusing mode ");
     if (fd == -1)
     {
-        throw runtime_error("Error in in create socket socket function");
+        throw std::runtime_error("Error in in create socket socket function");
     }
 
     if (bind(fd, (sockaddr *)(&addressServer),sizeof(addressServer)) < 0){
-        throw runtime_error("Error in bind operatoin bind function ");
+        throw std::runtime_error("Error in bind operatoin bind function ");
     }
     listenFunction();
     data.events = EPOLLIN;

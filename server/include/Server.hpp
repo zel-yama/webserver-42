@@ -19,7 +19,7 @@ struct location {
     location();
     int                                 fdEp;
     int                                  upload;
-    map<std::string, std::string>        CgiCofing;
+    std::map<std::string, std::string>        CgiCofing;
     std::string                          uploadPath;
     std::string                          cgiPath;
     std::string                          cgiExten;
@@ -98,7 +98,7 @@ class RequestParser {
 std::string setCookie(std::string key, std::string value);
 
 
-typedef map<string, string>::iterator iter;
+typedef std::map<std::string, std::string>::iterator iter;
 class Server : public Config {
     
     public:
@@ -129,7 +129,7 @@ class Server : public Config {
 
         RequestParser                       parser;
        // Response                            *respone;
-        map<std::string, std::string>       cgiConfig;
+        std::map<std::string, std::string>       cgiConfig;
         int                                 CreateServer( std::string ipaddress );
         void                                listenFunction();
         Client                              acceptClient();

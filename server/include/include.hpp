@@ -3,7 +3,7 @@
 
 #include "../../webserv.hpp"
 #include "Config.hpp"
-using namespace std;
+
 
 typedef enum TYPE{
     VALUE,
@@ -40,9 +40,9 @@ typedef std::vector < std::pair <std::string, std::string> > doubleStr;
 typedef std::vector < std::pair < std::string, std::string> >::iterator doubleIter;
 
 
-typedef map<int,Config*>::iterator ConfigIter;
-typedef map<int, Config*> maptype;
-typedef map<int, std::string> mapIntKey;
+typedef std::map<int,Config*>::iterator ConfigIter;
+typedef std::map<int, Config*> maptype;
+typedef std::map<int, std::string> mapIntKey;
 
 
 #endif 

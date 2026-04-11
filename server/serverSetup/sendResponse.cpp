@@ -16,7 +16,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     if (!connect){
       
         kill(cg->pid, SIGTERM);
-        deleteClient(data, cg->fd_in, cg->fdEp);
+        deleteClient(data, cg->fd_in, cg->fdEp, " is not in data " , "");
         return ;
     };
     Server *srv = (Server *) returnElement(connect->serverId, data);
@@ -31,7 +31,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
         }
         return;
     }
-    int status;
+    int status  = 0;
     int process = waitpid(cg->pid, &status, WNOHANG );
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
         process = -1;
@@ -45,7 +45,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
         if (i < 0 || process < 0 ) {
             kill(cg->pid, SIGTERM);
-            deleteClient(data, cg->fd_in, cg->fdEp);
+            deleteClient(data, cg->fd_in, cg->fdEp," the end of process ", connect->ipAddress);
             return ;
         }
         if (i > 0 ){
@@ -62,7 +62,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     }
     connect->response =  respone.build();
 
-    deleteClient(data, cg->fdOUT, connect->fdEp);
+    deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
     connect->buildDone = true;
     connect->requestFinish = true;
     if (flag == 0 || flag == -1 ){
@@ -71,7 +71,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     }
 
     sendResponse(data, *connect, respone);
-    deleteClient(data, cg->fd_in, connect->fdEp);
+    deleteClient(data, cg->fd_in, connect->fdEp, "", "");
 }
 
 bool checkTimeout(time_t prevTime, time_t timeout ){
@@ -108,7 +108,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
         if (findElement(config, *it) == "cgi") 
             handlingOfCgi(config, *it, 0, res);
         else
-            deleteClient(config, *it, fdEp);
+            deleteClient(config, *it, fdEp," timeout cleint ", "" );
     }
 }
 
@@ -117,7 +117,7 @@ void checkClientConnection(maptype &config, Client &connect) {
 
     if (!connect.keepAlive) {
        
-        deleteClient(config, connect.fd, connect.fdEp);
+        deleteClient(config, connect.fd, connect.fdEp, " done ", connect.ipAddress);
         return;
     }
     
@@ -204,7 +204,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
         
         if (n <= 0) {
            
-            deleteClient(config, connect.fd, connect.fdEp);
+            deleteClient(config, connect.fd, connect.fdEp, " send failed ",connect.ipAddress );
             return ;
         }
         if (n > 0){

@@ -12,7 +12,7 @@
 
 class Client;
 
-// struct location;
+
 class Response;
 struct location {
  
@@ -125,10 +125,10 @@ class Server : public Config {
         std::string                         ServerName;
         std::string                         ClientMaxBody;
         std::vector<location>               objLocation;
-        std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
+        std::map<int, std::string >         D_ErrorPages; 
 
         RequestParser                       parser;
-       // Response                            *respone;
+      
         std::map<std::string, std::string>       cgiConfig;
         int                                 CreateServer( std::string ipaddress );
         void                                listenFunction();
@@ -139,7 +139,7 @@ typedef std::vector<Server> servers;
 
 
 
-// Helper to get server from client (me again)
+
 int             makeNonBlockingFD(int socket);
 void            eventLoop(maptype &config );
 int             addSockettoEpoll(int fdEp, struct epoll_event  data);
@@ -153,6 +153,5 @@ Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);
 void            __displayTime();
-void printStrings(std::string str1, std::string str2, std::string str3, int str4);
 
 #endif

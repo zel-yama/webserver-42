@@ -52,7 +52,7 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
     if (readResult <= 0) {
        
         connect.requestFinish = false;
-        deleteClient(data, fd, connect.fdEp);
+        deleteClient(data, fd, connect.fdEp, "read failed ", connect.ipAddress );
         return -1;
     }
 

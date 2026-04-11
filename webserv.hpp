@@ -3,7 +3,7 @@
 #pragma once
 
 
-// for includ's and prototyp's
+
     #include <iostream>
     #include <cstring>
     #include <vector>
@@ -29,10 +29,7 @@
     #include <exception>
     #include <signal.h>
      #include <sys/wait.h>
-    // #include "request/RequestParser.hpp"
-    // #include "server/include/Server.hpp"
-    // #include "server/include/Client.hpp"
-    // #include "Response/Response.hpp"
+
 
 
    #include <netdb.h>

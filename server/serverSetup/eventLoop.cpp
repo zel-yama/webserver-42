@@ -97,7 +97,7 @@ void eventLoop(maptype &config ){
                         handlingOfCgi(config, events[i].data.fd, 1, res);
                         continue;
                     }          
-                    deleteClient(config, events[i].data.fd, fdEp);    
+                    deleteClient(config, events[i].data.fd, fdEp,"", "Error fd" );    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
                  

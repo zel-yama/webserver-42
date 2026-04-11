@@ -1,4 +1,4 @@
-// #include "RequestParser.hpp"
+
 #include "../server/include/Server.hpp"
 #include <sstream>
 #include <algorithm>
@@ -43,11 +43,11 @@ bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Req
 
         start += delimiter.size();
 
-        // End boundary
+  
         if (body.compare(start, 2, "--") == 0)
             break;
 
-        // skip CRLF
+        
         if (body.compare(start, 2, "\r\n") == 0) start += 2;
         else if (body[start] == '\n') start += 1;
 

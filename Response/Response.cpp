@@ -258,7 +258,7 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     if (pos == std::string::npos)
     {
-        // sendError(502, "");//check
+        sendError(502, "");//check
         return;
     }
 
@@ -299,23 +299,23 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
                 if (status >> code)
                 {
                     parsedStatus = code;
-                    // hasRequiredCgiField = true;
+                    hasRequiredCgiField = true; 
                 }
                 continue;
             }
 
-            // if (lowerKey == "content-type" || lowerKey == "location")
-            //     hasRequiredCgiField = true;
+            if (lowerKey == "content-type" || lowerKey == "location")
+                hasRequiredCgiField = true;
 
             setHeader(key, value);
         }
     }
 
-    // if (!hasRequiredCgiField)
-    // {
-    //     sendError(502, "");
-    //     return;
-    // }
+    if (!hasRequiredCgiField)
+    {
+        sendError(502, "");
+        return;
+    }
 
     if (parsedStatus >= 400)
     {
@@ -447,8 +447,8 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
         }
     }
 
-    // response << "</ul>";
-    // response << "<p>All files uploaded successfully!</p>";
+    response << "</ul>";
+    response << "<p>All files uploaded successfully!</p>";
 
     setStatus(201, "");
     headers["Content-Type"] = "text/html";
@@ -530,6 +530,7 @@ void Response::handlePost(const std::string &path,
 
     setStatus(201, "");
     // setBody("<h1>Data saved successfully</h1>");
+    headers["Content-Length"] = toString(req.body.size());
 }
 
 void Response::handleDirectory(std::string &path,

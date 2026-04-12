@@ -10,7 +10,7 @@
 void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     
     
-    char buffer[MAXSIZEBYTE];
+    char buffer[MAXSIZEBYTE] ;
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
         return ;
@@ -45,24 +45,24 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     }
     
     if (flag == 1){
-        int i = read(cg->fd_in, buffer, MAXSIZEBYTE - 1 );
+        int i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
         if (i < 0 || process < 0 ) {
             kill(cg->pid, SIGTERM);
             deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
             deleteClient(data, cg->fd_in, cg->fdEp,"", connect->ipAddress);
             return ;
         }
-        if (i > 0 ){
+        if (i > 0 && *buffer ){
             connect->currentTime = time(NULL);
-            connect->response.append(buffer, i);
+            connect->response.append(buffer, i);// what happens if cgi came after cgi and cgi other request on the same client  
             return ;
         }
     }
+
     // if (flag == 0)
     //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
-    respone.applyCgiResponse(connect->response);
-    
-   
+
+    respone.applyCgiResponse(connect->response);   
     if (!connect->sessionCookie.empty()) {
         respone.setHeader("Set-Cookie", connect->sessionCookie);
         connect->sessionCookie.clear();
@@ -76,9 +76,9 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         waitpid(cg->pid, NULL, WNOHANG );
     }
     connect->is_cgi = false;
+    deleteClient(data, cg->fd_in, connect->fdEp, "", "");// usee after 
     sendResponse(data, *connect, respone);//use after free 
     
-   deleteClient(data, cg->fd_in, connect->fdEp, "", "");// usee after 
 }
 
 bool checkTimeout(time_t prevTime, time_t timeout ){
@@ -121,8 +121,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
 void checkClientConnection(maptype &config, Client &connect) {
     
     connect.currentTime = time(NULL);
-    // if (connect.is_cgi)
-    //     return ;
+  
     if (!connect.keepAlive ) {
        
         deleteClient(config, connect.fd, connect.fdEp, " done ", connect.ipAddress);
@@ -139,7 +138,7 @@ void checkClientConnection(maptype &config, Client &connect) {
     connect.bodysize = 0;
     connect.byteSent = 0;
     connect.bodySizeStatus = false;
-    connect.buffer = "";
+
     
     connect.parsedRequest = Request();
     
@@ -152,6 +151,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
 
     obj->writeB = 0;
     fdIN = makeNonBlockingFD(fdIN);
+    fdOUT = makeNonBlockingFD(fdOUT);
     memset(&obj->data, 0, sizeof(obj->data));
     obj->name = "cgi";
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;

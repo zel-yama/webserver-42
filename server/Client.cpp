@@ -10,7 +10,7 @@ Client::Client(){
     bodySizeStatus = false;
     byteSent = 0;
 
-    buffer = "";
+
     response  = "";
     sending = false;
 

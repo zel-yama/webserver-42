@@ -825,7 +825,7 @@ void Response::handleDelete(const std::string &path,
     {
         sendError(409, "");
         return;
-    }
+    }`
 
     if (access(path.c_str(), W_OK) != 0)
     {

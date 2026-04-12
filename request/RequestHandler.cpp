@@ -16,19 +16,6 @@ Server *getServerFromClient(maptype &config, Client &client)
     return NULL;
 }
 
-Server *getServerForClient(maptype &config, int serverId) // remove this function and use the above one instead
-{
-    if (config.find(serverId) != config.end())
-    {
-        Config *cfg = config[serverId];
-        if (cfg->name == "Server")
-        {
-            return dynamic_cast<Server *>(cfg);
-        }
-    }
-    return NULL;
-}
-
 location *findLocation(Server *srv, const std::string &path)
 {
     location *bestMatch = NULL;
@@ -39,6 +26,7 @@ location *findLocation(Server *srv, const std::string &path)
         location &loc = srv->objLocation[i];
         size_t locLen = loc.locationPath.length();
 
+        
         if (loc.locationPath == "/")
         {
             if (locLen > longestMatch)
@@ -74,8 +62,8 @@ std::string joinPathWithLocation(Server *srv, location *loc, const std::string &
 
     if (loc->locationPath != "/")
     {
-        if (reqPath.compare(0, loc->locationPath.length(), loc->locationPath) == 0)
-            suffix = reqPath.substr(loc->locationPath.length());
+        if (reqPath.compare(0, loc->locationPath.size(), loc->locationPath) == 0)
+            suffix = reqPath.substr(loc->locationPath.size());
     }
     else
     {
@@ -114,7 +102,6 @@ void validateRequest(Request &req, Server *srv)
     location *loc;
     loc = findLocation(srv, req.path);
 
-    // If no location found, create a default location using server's root
     location defaultLoc;
     if (!loc)
     {

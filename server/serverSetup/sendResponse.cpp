@@ -2,10 +2,12 @@
 #include "../include/tools.hpp"
 #include "../../Response/Response.hpp"
 
-Server* getServerForClient(maptype& config, int serverId);
-
-
-void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
+// check is if client exists ok 
+// check process still contune runing if rading 
+///  timeout return bad get way 
+// no output what should return like empyt file  string 
+// reading 
+void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     
     
     char buffer[MAXSIZEBYTE];
@@ -92,7 +94,6 @@ void checkClientsTimeout(maptype& config, int fdEp)
     Client *connect = NULL;
     std::vector<int> ve;
     Response res;
-    
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
         if (i->second->name == "client") {
             connect = dynamic_cast<Client*>(i->second);
@@ -186,7 +187,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
 
     if (!connect.buildDone ){
         
-        Server* srv = getServerForClient(config, connect.serverId);
+        Server* srv = getServerFromClient(config, connect);
         respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
             respone.setHeader("Set-Cookie", connect.sessionCookie);;

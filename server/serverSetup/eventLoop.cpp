@@ -29,7 +29,7 @@ std::string findElement(maptype &config, int fd){
     else
         return str;
 }
-// i dont' if corret to romve cgi i place of remove cleint 
+
 void cleanUP(maptype &config){
     
     ConfigIter it = config.begin();

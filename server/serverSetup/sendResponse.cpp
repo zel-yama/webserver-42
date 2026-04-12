@@ -121,9 +121,8 @@ void checkClientsTimeout(maptype& config, int fdEp)
 void checkClientConnection(maptype &config, Client &connect) {
     
     connect.currentTime = time(NULL);
-    if (connect.is_cgi)
-        return;
-    if (!connect.keepAlive) {
+    
+    if (!connect.keepAlive && !connect.is_cgi) {
        
         deleteClient(config, connect.fd, connect.fdEp, " done ", connect.ipAddress);
         return;

@@ -13,18 +13,18 @@ int main(int av, char *argc[]){
 		std::cerr << "invalid argument we should take [tow..!] " << std::endl;
 		return 1;
 	}
-	// parsing and fill this array create server and fill this  
+
 	try{
 		
 		serv = parsing(argc[1]);
 		it = serv.begin();
 		while(it != serv.end()){
 			Serv = new Server(*it);
-			fd = Serv->CreateServer(Serv->port, Serv->ipAdress);
+			fd = Serv->CreateServer( Serv->ipAdress);
 			
 			Serv->serverId = fd;
 			Serv->fd = fd;
-			config.insert(pair<int, Config *>(fd, Serv));
+			config[fd] = Serv;
 			it++;
 		}
 		eventLoop(config);

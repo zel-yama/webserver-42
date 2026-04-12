@@ -11,7 +11,7 @@ if the port and the ip is not found what do you do ?
 ===================================================================================================
 invald var name {127.0.0.1:8080}
 fish: Job 1, './webserv config/aayad.conf' terminated by signal SIGSEGV (Address boundary error)
-listen 127.0.0.1:8081 127.0.0.1:5500; 
+listen 127.0.0.1:8081 127.0.0.1:5500;
 listen ;
 this is <root> unexpected tokens 
 fish: Job 1, './webserv config/aayad.conf' terminated by signal SIGSEGV (Address boundary error)

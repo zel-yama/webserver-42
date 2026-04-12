@@ -19,6 +19,7 @@ void Cgi::buildEnv(const Request &req)
     env["REDIRECT_STATUS"] = "200";
     env["REQUEST_METHOD"] = req.method;
     env["SCRIPT_FILENAME"] = req.path;
+    env["PATH_INFO"] = "zel-yama";
     env["QUERY_STRING"] = req.query;
     std::ostringstream oss;
     oss << body.size();
@@ -88,6 +89,7 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
 
     if (pid == 0)
     {
+        
         if (dup2(inPipe[0], STDIN_FILENO) == -1)
             exit(1);
 
@@ -98,12 +100,11 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
         close(outPipe[1]);
         close(inPipe[1]);
         close(outPipe[0]);
-        close(STDERR_FILENO);
+        close(STDERR_FILENO); 
 
         std::string dir = scriptPath.substr(0, scriptPath.find_last_of('/'));
         chdir(dir.c_str());
         char *argv[] = {(char *)cgiPath.c_str(), (char *)scriptPath.c_str(), NULL};
-        
         execve(cgiPath.c_str(), argv, envp);
         freeEnvp(envp);
         exit(1);

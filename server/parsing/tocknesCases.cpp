@@ -2,7 +2,7 @@
 #include "../include/parsing.hpp"
 
 
-void checkTockens(tockens &tockn){
+void checkTokens(tockens &tockn){
 
 	if (tockn.val.empty() || tockn.val.size() == 0)
 		return;
@@ -64,15 +64,15 @@ void serverCases(tockenIt &it, Server &serv){
             break;   
         case METHODS:
             it++;
-            methodesHandler(serv.allowedMethods, it->val, 1);
+            methodsHandler(serv.allowedMethods, it->val, 1);
             break;
         case AUTOINDEX:
             it++;
-            outoIndexHandler(it->val, serv.outoIndex);
+            autoIndexHandler(it->val, serv.outoIndex);
             break;
         case INDEX:
             it++;
-            methodesHandler(serv.indexFile, it->val, 0);
+            methodsHandler(serv.indexFile, it->val, 0);
             break;
         case SERVERNAME:
             it++;
@@ -88,15 +88,15 @@ void serverCases(tockenIt &it, Server &serv){
             break;
         case CGI:
             it++;
-            outoIndexHandler(it->val, serv.cgiStatus);
+            autoIndexHandler(it->val, serv.cgiStatus);
             break;
         case CGIPATH:
             it++;
-            HandleMapstrings(it->val, serv.cgiConfig);
+            handleMapString(it->val, serv.cgiConfig);
             break;
         case UPLOAD:
             it++;
-            outoIndexHandler(it->val, serv.upload);
+            autoIndexHandler(it->val, serv.upload);
             break;
         case UPLOADPATH:
             it++;
@@ -124,16 +124,16 @@ void locationCases(tockenIt &it, location &local){
             break;
         case METHODS:
             it++;
-            methodesHandler(local.allowedMethods, it->val, 1);
+            methodsHandler(local.allowedMethods, it->val, 1);
             break;
         case AUTOINDEX:
             it++;
-            outoIndexHandler(it->val, local.outoIndex);
+            autoIndexHandler(it->val, local.outoIndex);
             local.ex = true;
             break;
         case INDEX:
             it++;
-            methodesHandler(local.indexFile, it->val, 0);
+            methodsHandler(local.indexFile, it->val, 0);
             break;
         case ERRORPAGE:
             it++;
@@ -149,15 +149,15 @@ void locationCases(tockenIt &it, location &local){
             break;
         case CGI:
             it++;
-            outoIndexHandler(it->val, local.cgiStatus);
+            autoIndexHandler(it->val, local.cgiStatus);
             break;
         case CGIPATH:
             it++;
-            HandleMapstrings(it->val, local.CgiCofing);
+            handleMapString(it->val, local.CgiCofing);
             break;
         case UPLOAD:
             it++;
-            outoIndexHandler(it->val, local.upload);
+            autoIndexHandler(it->val, local.upload);
             break;
         case UPLOADPATH:
             it++;

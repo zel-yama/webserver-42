@@ -20,18 +20,21 @@ void location_handle(Server &serv, std::string path)//extra
     serv.ServerName = path;
 }
 
-int serverHnding(tockenIt it, std::vector<Server> &servs){
+int serverHandling(tockenIt it, std::vector<Server> &servs){
     int i  = 0;
     location local;
-    
+    std::map<std::string, std::string> mapLoca;
     Server serv;
     while(it->mytocken != ENDSERV){
         if (!it->val.compare("location")){
             local = locationHandling(it);
-            
+            if (mapLoca.count(local.locationPath) == 0)
+                mapLoca[local.locationPath] = local.locationPath;
+            else    
+                costumThrow("the locations has the same name ", "");
             serv.objLocation.push_back(local);
             if (serv.objLocation.size() > 100)
-                costumThrow("many locatoin", "");
+                costumThrow("many location", "");
         }
         else
             serverCases(it, serv);
@@ -39,15 +42,16 @@ int serverHnding(tockenIt it, std::vector<Server> &servs){
         it++;
     }
     
-    if (serv.ipAdress.empty()|| serv.port == -1)
+    if (serv.ipAdress.empty()|| serv.port == 0)
         myThrow();
 
-   
+    
     if (serv.bodyMaxByte == 0)
-        serv.bodyMaxByte = 1e6;
+        serv.bodyMaxByte = 1000000010;
     if (serv.ServerName.empty())
         serv.ServerName = "webServer";
     servs.push_back(serv);
+
     return i;
 }
 
@@ -63,7 +67,7 @@ servers setUpServers(std::vector<tockens> &v){
       
       
         if (!it->val.compare("server")){
-            i = serverHnding(it,Servs);
+            i = serverHandling(it,Servs);
             if (i <= v.size())
                 it += i;
             else    
@@ -72,12 +76,7 @@ servers setUpServers(std::vector<tockens> &v){
         it++;
          
     }
-    
-   printAllConfig (Servs);
-
-
-
+    if (Servs.size() > 200)
+        costumThrow(" many servers", "In config File ");
     return Servs;
-    
-
 }

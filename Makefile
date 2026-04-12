@@ -2,7 +2,7 @@
 NAME = webserv
 FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/tools/tools.cpp  server/tools/tools1.cpp server/serverSetup/Server.cpp \
- 		server/serverSetup/sendResponse.cpp server/serverSetup/eventLoopt.cpp \
+ 		server/serverSetup/sendResponse.cpp server/serverSetup/eventLoop.cpp \
 		server/serverSetup/readRequest.cpp server/parsing/fillCreateServers.cpp \
 		server/parsing/fromatVariableCheck.cpp \
 		server/parsing/parsing.cpp server/parsing/parsingTocknes.cpp \
@@ -12,8 +12,9 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ -g -I./include  #-fsanitize=address,undefined -g  #-std=c++98 
-FLAGS =  -std=c++98 #-Werror -Wextra -Wall #
+CC = c++ -g -I./server/include   #-fsanitize=address,undefined -g  #-std=c++98 
+FLAGS = #-Werror -Wextra -Wall  -std=c++98
+FLAGS =  #-std=c++98 # -Werror -Wextra -Wall #
 headers = server/include/tools.hpp  server/include/Server.hpp \
 server/include/parsing.hpp server/include/include.hpp server/include/Config.hpp \
  server/include/Client.hpp Response/cgi.hpp Response/Response.hpp

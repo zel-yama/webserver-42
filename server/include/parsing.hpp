@@ -13,30 +13,30 @@
 #include "Server.hpp"
 
 
-void                        printvector(std::vector<std::string> &config);
 servers                     parsing(std::string FileName);
 std::string                 removeSpaces(std::string &str);
-std::vector<tockens>        tokeniezer(doubleStr &v);
-void                        pushTockens(TYPE tockensType, std::vector<tockens> &v, std::string s);
+std::vector<tockens>        tokenizer(doubleStr &v);
+void                        pushTokens(TYPE tockensType, std::vector<tockens> &v, std::string s);
 void                        methodsIntKey(std::map<int, std::string> &v, std::string str);
-void                        methodesHandler(std::vector<std::string> &methdsV, std::string methods , int i);
+void                        methodsHandler(std::vector<std::string> &methdsV, std::string methods , int i);
 void                        variableSingleValue(std::string str, std::string &buff);
 void                        bodySizeMax(size_t &val, std::string &str);
 int                         extractInt(std::string &s, std::string &c);
 void                        insertListenConfig(Server &serv, std::string &str);
-void                        outoIndexHandler(std::string val, int &cond);
+void                        autoIndexHandler(std::string val, int &cond);
 servers                     setUpServers(std::vector<tockens> &v);
-void                        validatoinVarFormat( tockens &mytockens);
+void                        validationVarFormat( tockens &mytockens);
 int                         convertString(std::string &str);
-void                        checkTockens(tockens &tockn);
+void                        checkTokens(tockens &tockn);
 void                        locationCases(tockenIt &it, location &local);
 void                        serverCases(tockenIt &it, Server &serv);
 void                        tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value);
-void                        bracketValidtion(std::vector<tockens> &tockens);
+void                        bracketValidation(std::vector<tockens> &tockens);
 void                        returnP(std::string token, std::string &path, int &exitCode);
-void                        HandleMapstrings(std::string &str, map<std::string, std::string> &MapStrings);
+void                        handleMapString(std::string &str, map<std::string, std::string> &MapStrings);
 std::vector<std::string>    splitV(std::string &str);
 //--------------------------------------------------
+void                        printvector(std::vector<std::string> &config);
     void printKeyInt(IntKey v);
     void printlocation(location obj);
     void printLocation(std::vector<location> objs);

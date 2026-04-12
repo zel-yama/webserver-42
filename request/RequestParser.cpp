@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 
-Request::Request() : complete(false), status(200), keepalive(false), headersParsed(false) {
+Request::Request() :   status(200),  headersParsed(false),  complete(false), keepalive(false) {
     // loc = new location();
 }
 
@@ -166,7 +166,14 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
         return false;
     }
 
-    if (!isValidMethod(req.method) || !isValidVersion(req.version)) {
+    if (!isValidMethod(req.method)) {
+        req.status = 405;
+        req.complete = true;
+        return false;
+    }
+    
+    if (!isValidVersion(req.version)) {
+        //501 not impelmented 
         req.status = 400;
         req.complete = true;
         return false;

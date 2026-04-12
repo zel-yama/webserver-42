@@ -26,6 +26,7 @@ location *findLocation(Server *srv, const std::string &path)
         location &loc = srv->objLocation[i];
         size_t locLen = loc.locationPath.length();
 
+        
         if (loc.locationPath == "/")
         {
             if (locLen > longestMatch)
@@ -61,8 +62,8 @@ std::string joinPathWithLocation(Server *srv, location *loc, const std::string &
 
     if (loc->locationPath != "/")
     {
-        if (reqPath.compare(0, loc->locationPath.length(), loc->locationPath) == 0)
-            suffix = reqPath.substr(loc->locationPath.length());
+        if (reqPath.compare(0, loc->locationPath.size(), loc->locationPath) == 0)
+            suffix = reqPath.substr(loc->locationPath.size());
     }
     else
     {
@@ -114,8 +115,7 @@ void validateRequest(Request &req, Server *srv)
         loc = &defaultLoc;
     }
     req.loc = *loc;
-    
-
+   
     req.fullpath = joinPathWithLocation(srv, loc, req.path);
 
     if (loc && !loc->returnP.empty())
@@ -127,7 +127,7 @@ void validateRequest(Request &req, Server *srv)
             code = 301;
 
         req.status = code;
-        req.headers["Location"] = loc->returnP;
+        req.headers["location"] = loc->returnP;
         return;
     }
 
@@ -140,7 +140,7 @@ void validateRequest(Request &req, Server *srv)
             code = 301;
 
         req.status = code;
-        req.headers["Location"] = srv->returnP;
+        req.headers["location"] = srv->returnP;
         return;
     }
 

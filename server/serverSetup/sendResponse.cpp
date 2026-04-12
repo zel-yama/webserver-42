@@ -19,7 +19,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
       
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fdOUT, cg->fdEp, "", "");
-        deleteClient(data, cg->fd_in, cg->fdEp, " is not in data " , "");
+        deleteClient(data, cg->fd_in, cg->fdEp, "" , "");
 
         return ;
     };
@@ -50,7 +50,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         if (i < 0 || process < 0 ) {
             kill(cg->pid, SIGTERM);
             deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
-            deleteClient(data, cg->fd_in, cg->fdEp," the end of process ", connect->ipAddress);
+            deleteClient(data, cg->fd_in, cg->fdEp,"", connect->ipAddress);
             return ;
         }
         if (i > 0 ){
@@ -59,7 +59,6 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
             return ;
         }
     }
-    
     // if (flag == 0)
     //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
     respone.applyCgiResponse(connect->response);
@@ -211,7 +210,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             respone.getFilePath() = "";
         }
     }
-
+    printf("send response %s ", connect.response.c_str());
     if (!connect.response.empty()){
 
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);

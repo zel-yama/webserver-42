@@ -77,7 +77,7 @@ void eventLoop(maptype &config ){
            if (function(0) == 1 || n == -1){
                cleanUP(config);
            }
-           printf("size %lu event %d\n",config.size(), n);
+          
            for(int i = 0; i < n; i++){
                
                if (config.count(events[i].data.fd) == 0){ 
@@ -86,7 +86,7 @@ void eventLoop(maptype &config ){
                 }
                 else if (findElement(config, events[i].data.fd) == "Server"){
                     serv = (Server *)returnElement(events[i].data.fd, config);  
-                    printf("accept\n");
+               
                     newClient =  new Client(serv->acceptClient());
                     config[newClient->fd] = newClient;
                     addSockettoEpoll(fdEp, newClient->data); 
@@ -101,7 +101,7 @@ void eventLoop(maptype &config ){
                         handlingOfCgi(config, events[i].data.fd, 1, res);
                         continue;
                     }          
-                    deleteClient(config, events[i].data.fd, fdEp," event Errors ", "Error fd" );    
+                    deleteClient(config, events[i].data.fd, fdEp," Event Errors ", "");    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
                  
@@ -137,9 +137,6 @@ void eventLoop(maptype &config ){
             }
             checkClientsTimeout(config, fdEp);
         }
-        
-        
-        
     }
     
     

@@ -52,7 +52,7 @@ void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::stri
     Config *c = (Config *) config[fd];
     if (!des.empty()){
         __displayTime();
-        std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << " " << config.at(fd)->name << std::endl;
+        std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << std::endl;
     }
     delete c;
     config.erase(fd);

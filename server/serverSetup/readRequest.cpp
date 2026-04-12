@@ -72,8 +72,8 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
             parser->buffer.erase(fd);
             connect.keepAlive = false;
         }
-        std::cout << req.body.size() << std::endl;
-        std::cout << req.status << std::endl;
+        // std::cout << req.body.size() << std::endl;
+        // std::cout << req.status << std::endl;
     } 
     return 0;
 }

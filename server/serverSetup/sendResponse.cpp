@@ -23,7 +23,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
 
         return ;
     };
-    Server *srv = (Server *) returnElement(connect->serverId, data);
+  
  
     int n = 0;  
     if (flag ==  2){
@@ -38,11 +38,10 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     int status  = 0;
     int process = waitpid(cg->pid, &status, WNOHANG );
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
-    process = -1;
+        process = -1;
     if (process == -1){
         flag = -1;
-        connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
-        
+        // connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
     }
     
     if (flag == 1){
@@ -62,6 +61,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     // if (flag == 0)
     //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
     respone.applyCgiResponse(connect->response);
+    
    
     if (!connect->sessionCookie.empty()) {
         respone.setHeader("Set-Cookie", connect->sessionCookie);
@@ -76,9 +76,9 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         waitpid(cg->pid, NULL, WNOHANG );
     }
     connect->is_cgi = false;
-    sendResponse(data, *connect, respone);
+    sendResponse(data, *connect, respone);//use after free 
     
-    deleteClient(data, cg->fd_in, connect->fdEp, "", "");
+   deleteClient(data, cg->fd_in, connect->fdEp, "", "");// usee after 
 }
 
 bool checkTimeout(time_t prevTime, time_t timeout ){
@@ -121,8 +121,9 @@ void checkClientsTimeout(maptype& config, int fdEp)
 void checkClientConnection(maptype &config, Client &connect) {
     
     connect.currentTime = time(NULL);
-    
-    if (!connect.keepAlive && !connect.is_cgi) {
+    // if (connect.is_cgi)
+    //     return ;
+    if (!connect.keepAlive ) {
        
         deleteClient(config, connect.fd, connect.fdEp, " done ", connect.ipAddress);
         return;
@@ -209,7 +210,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             respone.getFilePath() = "";
         }
     }
-    printf("send response %s ", connect.response.c_str());
+
     if (!connect.response.empty()){
 
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);

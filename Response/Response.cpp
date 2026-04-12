@@ -258,14 +258,13 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
 
     if (pos == std::string::npos)
     {
-        sendError(502, "");//check
+        setBody(cgiOutput);
         return;
     }
 
     std::string headersPart = cgiOutput.substr(0, pos);
     size_t offset;
     int parsedStatus = -1;
-    bool hasRequiredCgiField = false;
 
     if (cgiOutput[pos + 1] == '\r')
         offset = 4;
@@ -291,35 +290,22 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
             while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
                 value = value.substr(0, value.size() - 1);
 
-            std::string lowerKey = toLower(key);
-            if (lowerKey == "status")
+            if (toLower(key) == "status")
             {
                 std::istringstream status(value);
                 int code;
                 if (status >> code)
-                {
                     parsedStatus = code;
-                    hasRequiredCgiField = true; 
-                }
                 continue;
             }
-
-            if (lowerKey == "content-type" || lowerKey == "location")
-                hasRequiredCgiField = true;
 
             setHeader(key, value);
         }
     }
 
-    if (!hasRequiredCgiField)
-    {
-        sendError(502, "");
-        return;
-    }
-
     if (parsedStatus >= 400)
     {
-        sendError(parsedStatus, "");
+        sendError(parsedStatus, ""); 
         return;
     }
     if (parsedStatus >= 100)

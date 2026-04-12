@@ -42,20 +42,21 @@ void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::stri
    Response res;
    if (config.count(fd) == 0)
         return ;
-    
+    if (config[fd]->is_cgi)
+        handlingOfCgi(config, fd, 1, res);
+    if (config.count(fd) == 0)
+        return ;       
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
         return ;
    }
-   if (config[fd]->is_cgi)
-        handlingOfCgi(config, fd, 1, res);
    close(fd);
     Config *c = (Config *) config[fd];
     if (!des.empty()){
         __displayTime();
         std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << std::endl;
     }
-    delete c;
     config.erase(fd);
+    delete c;
 
    
 }

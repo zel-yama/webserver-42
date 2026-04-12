@@ -3,6 +3,11 @@
 
 #include "../include/tools.hpp"
 #include "../include/Config.hpp"
+#include "../../Response/Response.hpp"
+Config::Config(){
+    is_cgi = false;
+
+}
 
 int makeNonBlockingFD(int socket){
     int flag = fcntl(socket, F_GETFL);
@@ -34,22 +39,24 @@ void setClientRead(int fdEp, Client& clien ){
 }
 
 void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::string ipAdd){
+   Response res;
+   if (config.count(fd) == 0)
+        return ;
     
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
         return ;
    }
+   if (config[fd]->is_cgi)
+        handlingOfCgi(config, fd, 1, res);
    close(fd);
-   maptype::iterator it = config.find(fd);
-   
-   if (it != config.end()){
-       Config *c = (Config *) it->second;
-       delete c;
-       if (!des.empty()){
-           __displayTime();
-           std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << std::endl;
-       }
-        config.erase(fd);
+    Config *c = (Config *) config[fd];
+    if (!des.empty()){
+        __displayTime();
+        std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << " " << config.at(fd)->name << std::endl;
     }
+    delete c;
+    config.erase(fd);
+
    
 }
 

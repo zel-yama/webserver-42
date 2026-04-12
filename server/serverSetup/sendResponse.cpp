@@ -16,12 +16,13 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
     if (!connect){
       
         kill(cg->pid, SIGTERM);
+        deleteClient(data, cg->fdOUT, cg->fdEp, "", "");
         deleteClient(data, cg->fd_in, cg->fdEp, " is not in data " , "");
+
         return ;
     };
     Server *srv = (Server *) returnElement(connect->serverId, data);
-        if (!srv)
-            return;
+ 
     int n = 0;  
     if (flag ==  2){
         if (cg->writeB < (int)connect->parsedRequest.body.size())
@@ -29,39 +30,43 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
         if (n > 0){
             cg->writeB += n;
         }
+        connect->currentTime = time(NULL);
         return;
     }
     int status  = 0;
     int process = waitpid(cg->pid, &status, WNOHANG );
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
-        process = -1;
+    process = -1;
     if (process == -1){
         flag = -1;
         connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";
-
+        
     }
     
     if (flag == 1){
-        int i = read(cg->fd_in, buffer, MAXSIZEBYTE );
+        int i = read(cg->fd_in, buffer, MAXSIZEBYTE - 1 );
         if (i < 0 || process < 0 ) {
             kill(cg->pid, SIGTERM);
+            deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
             deleteClient(data, cg->fd_in, cg->fdEp," the end of process ", connect->ipAddress);
             return ;
         }
         if (i > 0 ){
+            connect->currentTime = time(NULL);
             connect->response.append(buffer, i);
             return ;
         }
     }
+    
     // if (flag == 0)
     //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
     respone.applyCgiResponse(connect->response);
+   
     if (!connect->sessionCookie.empty()) {
         respone.setHeader("Set-Cookie", connect->sessionCookie);
         connect->sessionCookie.clear();
     }
     connect->response =  respone.build();
-
     deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
     connect->buildDone = true;
     connect->requestFinish = true;
@@ -69,8 +74,9 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response& respone ){
         kill(cg->pid, SIGTERM);
         waitpid(cg->pid, NULL, WNOHANG );
     }
-
+    connect->is_cgi = false;
     sendResponse(data, *connect, respone);
+    
     deleteClient(data, cg->fd_in, connect->fdEp, "", "");
 }
 
@@ -113,18 +119,20 @@ void checkClientsTimeout(maptype& config, int fdEp)
 }
 
 void checkClientConnection(maptype &config, Client &connect) {
- 
-
+    
+    connect.currentTime = time(NULL);
+    if (connect.is_cgi)
+        return;
     if (!connect.keepAlive) {
        
         deleteClient(config, connect.fd, connect.fdEp, " done ", connect.ipAddress);
         return;
     }
+
     
     
     connect.buildDone = false;
     
-    connect.currentTime = time(NULL);
     connect.requestFinish = false;
   
  
@@ -141,7 +149,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     _Cgi *obj;
 
     obj = new _Cgi();
-    
+
     obj->writeB = 0;
     fdIN = makeNonBlockingFD(fdIN);
     memset(&obj->data, 0, sizeof(obj->data));
@@ -151,13 +159,19 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->currentTime = time(NULL);
     obj->fd_in = fdIN;
     obj->pid = pip;
-    obj->fdOUT = fdOUT;/// leaks in pipe 
+    obj->fdOUT = fdOUT;
+    obj->serverId = connect.serverId;
+    obj->fdEp = connect.fdEp;
+    
     obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
         obj->OUT.data.fd = fdOUT;
         addSockettoEpoll(connect.fdEp, obj->OUT);
         data[fdOUT] = new _Cgi(*obj);
+    }
+    else{
+        close(fdOUT);
     }
 
     obj->fd_client = connect.fd;
@@ -168,9 +182,10 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
     
     int n = 1 ;
  
-    char buff[MAXSIZEBYTE];
-   
+    char buff[MAXSIZEBYTE] ;
+
     if (!connect.buildDone ){
+        
         Server* srv = getServerForClient(config, connect.serverId);
         respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
@@ -183,6 +198,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             connect.response.clear();
             addCgi(config, connect, respone.getcgiPid(), respone.getcgiReadFd(), respone.getcgiWriteFd() );
             connect.currentTime = time(NULL);
+            connect.is_cgi = true;
         
             return ;
         }
@@ -193,15 +209,11 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
             respone.getFilePath() = "";
         }
-
     }
- 
+
     if (!connect.response.empty()){
 
-      
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
-
-        
         if (n <= 0) {
            
             deleteClient(config, connect.fd, connect.fdEp, " send failed ",connect.ipAddress );
@@ -232,6 +244,7 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
         checkClientConnection(config, connect);
         return ;
     }
+    
     connect.sending = true;
     checkClientConnection(config, connect);
 }

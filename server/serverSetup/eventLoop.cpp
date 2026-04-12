@@ -1,5 +1,5 @@
 
-
+//
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
 
@@ -29,6 +29,7 @@ std::string findElement(maptype &config, int fd){
     else
         return str;
 }
+// i dont' if corret to romve cgi i place of remove cleint 
 void cleanUP(maptype &config){
     
     ConfigIter it = config.begin();
@@ -76,6 +77,7 @@ void eventLoop(maptype &config ){
            if (function(0) == 1 || n == -1){
                cleanUP(config);
            }
+           printf("size %lu event %d\n",config.size(), n);
            for(int i = 0; i < n; i++){
                
                if (config.count(events[i].data.fd) == 0){ 
@@ -84,9 +86,11 @@ void eventLoop(maptype &config ){
                 }
                 else if (findElement(config, events[i].data.fd) == "Server"){
                     serv = (Server *)returnElement(events[i].data.fd, config);  
+                    printf("accept\n");
                     newClient =  new Client(serv->acceptClient());
                     config[newClient->fd] = newClient;
-                    addSockettoEpoll(fdEp, newClient->data);                 
+                    addSockettoEpoll(fdEp, newClient->data); 
+                               
                 }
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
                     findElement(config, events[i].data.fd)  == "client" ){
@@ -97,7 +101,7 @@ void eventLoop(maptype &config ){
                         handlingOfCgi(config, events[i].data.fd, 1, res);
                         continue;
                     }          
-                    deleteClient(config, events[i].data.fd, fdEp,"", "Error fd" );    
+                    deleteClient(config, events[i].data.fd, fdEp," event Errors ", "Error fd" );    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
                  

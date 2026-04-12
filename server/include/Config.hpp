@@ -14,8 +14,9 @@ class Config{
         std::string name ;
         struct epoll_event data;
         time_t currentTime;
-        
+        bool is_cgi;
         int serverId;
+        Config();
         virtual ~Config(){}
 };
 

@@ -1,6 +1,6 @@
 
 NAME = webserv
-FILES = server/main.cpp  server/tools/printForDebug.cpp \
+FILES = server/main.cpp   \
 		server/tools/tools.cpp  server/tools/tools1.cpp server/serverSetup/Server.cpp \
  		server/serverSetup/sendResponse.cpp server/serverSetup/eventLoop.cpp \
 		server/serverSetup/readRequest.cpp server/parsing/fillCreateServers.cpp \

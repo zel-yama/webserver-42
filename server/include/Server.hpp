@@ -1,9 +1,9 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 300
+#define TIMEOUT 30
 #define MAX_URI 2048
-#define TIMEOUTCGI 15
+#define TIMEOUTCGI 4
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
@@ -12,14 +12,14 @@
 
 class Client;
 
-// struct location;
+
 class Response;
 struct location {
  
     location();
     int                                 fdEp;
     int                                  upload;
-    map<std::string, std::string>        CgiCofing;
+    std::map<std::string, std::string>        CgiCofing;
     std::string                          uploadPath;
     std::string                          cgiPath;
     std::string                          cgiExten;
@@ -98,7 +98,7 @@ class RequestParser {
 std::string setCookie(std::string key, std::string value);
 
 
-typedef map<string, string>::iterator iter;
+typedef std::map<std::string, std::string>::iterator iter;
 class Server : public Config {
     
     public:
@@ -125,11 +125,11 @@ class Server : public Config {
         std::string                         ServerName;
         std::string                         ClientMaxBody;
         std::vector<location>               objLocation;
-        std::map<int, std::string >         D_ErrorPages; //exit code with error page to that error 
+        std::map<int, std::string >         D_ErrorPages; 
 
         RequestParser                       parser;
-       // Response                            *respone;
-        map<std::string, std::string>       cgiConfig;
+      
+        std::map<std::string, std::string>       cgiConfig;
         int                                 CreateServer( std::string ipaddress );
         void                                listenFunction();
         Client                              acceptClient();
@@ -139,7 +139,7 @@ typedef std::vector<Server> servers;
 
 
 
-// Helper to get server from client (me again)
+
 int             makeNonBlockingFD(int socket);
 void            eventLoop(maptype &config );
 int             addSockettoEpoll(int fdEp, struct epoll_event  data);
@@ -153,6 +153,5 @@ Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);
 void            __displayTime();
-void printStrings(std::string str1, std::string str2, std::string str3, int str4);
 
 #endif

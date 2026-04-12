@@ -9,11 +9,11 @@
 
 void        setClientSend(int fdEp,  Client &Clien);
 void        setClientRead(int fdEp, Client& clien );
-void        deleteClient(maptype& config, int fd, int fdEP);
+void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::string ipAdd);
 int         creatEpoll( maptype &config);
 void        printdoulStr(doubleStr v);
 void        sendResponse(maptype &config, Client &connect, Response &respone );
-void        readRequest(maptype &data, int fd, Client &connect, RequestParser *parser);
+int       readRequest(maptype &data, int fd, Client &connect, RequestParser *parser);
 void        checkClientsTimeout(maptype& config, int fdEp);
 void        checkClientConnection(maptype &config, Client &connect);
 void        printAllConfig(std::vector<Server> servs);

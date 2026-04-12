@@ -23,7 +23,6 @@ int myread(Client &connect, std::string& buffer) {
     if (n < 0) {
         return n;
     }   
-    
 
     return 1;
 }
@@ -43,18 +42,18 @@ bool allowKeepAlive(Request& req)
     return true;
 }
 
-void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser)
+int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser)
 {
     int readResult = myread(connect, parser->buffer[fd]);
 
-    cout << parser->buffer[fd] << endl;
+    //cout << parser->buffer[fd] << endl;
     
    
     if (readResult <= 0) {
        
         connect.requestFinish = false;
-        deleteClient(data, fd, connect.fdEp);
-        return;
+        deleteClient(data, fd, connect.fdEp, "read failed ", connect.ipAddress );
+        return -1;
     }
 
     Request req = parser->parse(connect.fd);
@@ -73,8 +72,8 @@ void readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
             parser->buffer.erase(fd);
             connect.keepAlive = false;
         }
-        cout << req.body.size() << endl;
-        cout << req.status << endl;
+        // std::cout << req.body.size() << std::endl;
+        // std::cout << req.status << std::endl;
     } 
-    
+    return 0;
 }

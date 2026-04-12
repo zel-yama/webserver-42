@@ -1,6 +1,6 @@
 
 NAME = webserv
-FILES = server/main.cpp  server/tools/printForDebug.cpp \
+FILES = server/main.cpp   \
 		server/tools/tools.cpp  server/tools/tools1.cpp server/serverSetup/Server.cpp \
  		server/serverSetup/sendResponse.cpp server/serverSetup/eventLoop.cpp \
 		server/serverSetup/readRequest.cpp server/parsing/fillCreateServers.cpp \
@@ -12,7 +12,7 @@ FILES = server/main.cpp  server/tools/printForDebug.cpp \
 		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ -g -I./server/include   #-fsanitize=address,undefined -g  #-std=c++98 
+CC = c++ -g -I./server/include  -std=c++98 # -fsanitize=address,undefined -g  #-std=c++98 
 FLAGS = #-Werror -Wextra -Wall  -std=c++98
 FLAGS =  #-std=c++98 # -Werror -Wextra -Wall #
 headers = server/include/tools.hpp  server/include/Server.hpp \

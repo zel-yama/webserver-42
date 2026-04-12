@@ -29,9 +29,9 @@ int main(int av, char *argc[]){
 		}
 		eventLoop(config);
 	}
-	catch (exception &e)
+	catch (std::exception &e)
 	{
-		cout << e.what() << endl;
+		std::cout << e.what() << std::endl;
 		
 		cleanUP(config);
 	}

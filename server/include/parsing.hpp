@@ -33,7 +33,7 @@ void                        serverCases(tockenIt &it, Server &serv);
 void                        tockenValue(std::string &val, std::vector<tockens> &tockV, TYPE value);
 void                        bracketValidation(std::vector<tockens> &tockens);
 void                        returnP(std::string token, std::string &path, int &exitCode);
-void                        handleMapString(std::string &str, map<std::string, std::string> &MapStrings);
+void                        handleMapString(std::string &str, std::map<std::string, std::string> &MapStrings);
 std::vector<std::string>    splitV(std::string &str);
 //--------------------------------------------------
 void                        printvector(std::vector<std::string> &config);

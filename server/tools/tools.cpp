@@ -3,6 +3,11 @@
 
 #include "../include/tools.hpp"
 #include "../include/Config.hpp"
+#include "../../Response/Response.hpp"
+Config::Config(){
+    is_cgi = false;
+
+}
 
 int makeNonBlockingFD(int socket){
     int flag = fcntl(socket, F_GETFL);
@@ -14,7 +19,7 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
     {
-        cerr << "Error to add socket to epoll" << endl;
+        std::cerr << "Error to add socket to epoll" << std::endl;
         
         return -1;
     }
@@ -33,21 +38,26 @@ void setClientRead(int fdEp, Client& clien ){
     epoll_ctl(fdEp, EPOLL_CTL_MOD, clien.fd, &clien.data);
 }
 
-void  deleteClient(maptype& config, int fd, int fdEP){
-    
+void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::string ipAdd){
+   Response res;
+   if (config.count(fd) == 0)
+        return ;
+    if (config[fd]->is_cgi)
+        handlingOfCgi(config, fd, 1, res);
+    if (config.count(fd) == 0)
+        return ;       
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
         return ;
    }
-   __displayTime();
-   std::cout << " close connection this  [" << fd << "]  \n "<< std::endl;
-    close(fd);
-    maptype::iterator it = config.find(fd);
-    
-    if (it != config.end()){
-        Config *c = (Config *) it->second;
-       // delete c;
-        config.erase(fd);
+   close(fd);
+    Config *c = (Config *) config[fd];
+    if (!des.empty()){
+        __displayTime();
+        std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << std::endl;
     }
+    config.erase(fd);
+    delete c;
+
    
 }
 
@@ -79,6 +89,8 @@ void __displayTime(){
     
     time_t current = time(NULL);
     struct tm local = *localtime(&current);
-    printf("[%d-%d-%d %d:%d:%d]",local.tm_year, local.tm_mon, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
+  std::cout << "[" << (local.tm_year + 1900) << ":" <<
+   (local.tm_mon + 1) << ":" << local.tm_mday << " " <<
+   local.tm_hour << ":"<<  local.tm_min << ":" << local.tm_sec << "]";
 
 }

@@ -1,5 +1,5 @@
 
-
+//
 #include "../include/Server.hpp"
 #include "../include/tools.hpp"
 
@@ -29,9 +29,8 @@ std::string findElement(maptype &config, int fd){
     else
         return str;
 }
-void cleanUP(maptype &config){
-    
 
+void cleanUP(maptype &config){
     
     ConfigIter it = config.begin();
     Server* serv;
@@ -44,16 +43,10 @@ void cleanUP(maptype &config){
             while(it != config.end()){
            
                 Config *c = it->second;
-          
-            
-                    delete c;
-
+                delete c;
                 it++;
             }
-
-
     }
-    
     exit(0);
 }
 
@@ -83,8 +76,8 @@ void eventLoop(maptype &config ){
 	    n = epoll_wait(fdEp, events, MAXEVENT, 5000);
            if (function(0) == 1 || n == -1){
                cleanUP(config);
-
            }
+          
            for(int i = 0; i < n; i++){
                
                if (config.count(events[i].data.fd) == 0){ 
@@ -93,9 +86,11 @@ void eventLoop(maptype &config ){
                 }
                 else if (findElement(config, events[i].data.fd) == "Server"){
                     serv = (Server *)returnElement(events[i].data.fd, config);  
+               
                     newClient =  new Client(serv->acceptClient());
                     config[newClient->fd] = newClient;
-                    addSockettoEpoll(fdEp, newClient->data);                 
+                    addSockettoEpoll(fdEp, newClient->data); 
+                               
                 }
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
                     findElement(config, events[i].data.fd)  == "client" ){
@@ -106,7 +101,7 @@ void eventLoop(maptype &config ){
                         handlingOfCgi(config, events[i].data.fd, 1, res);
                         continue;
                     }          
-                    deleteClient(config, events[i].data.fd, fdEp);    
+                    deleteClient(config, events[i].data.fd, fdEp," Event Errors ", "");    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
                  
@@ -125,8 +120,11 @@ void eventLoop(maptype &config ){
                     if (!clientServer)
                         continue;
                     if (events[i].events & EPOLLIN ){
-                        if (!Cli->requestFinish)
-                            readRequest(config, events[i].data.fd, *Cli, &clientServer->parser);
+                        if (!Cli->requestFinish){
+                            if(readRequest(config, events[i].data.fd, *Cli, &clientServer->parser) == -1)
+                                continue;
+                            
+                        }
                         if (Cli->requestFinish)
                             setClientSend(fdEp, *Cli );
                         continue;
@@ -135,15 +133,10 @@ void eventLoop(maptype &config ){
                         Cli = (Client *) returnElement(events[i].data.fd, config);
                         sendResponse(config, *Cli, res);
                     }
-                 
                 }
             }
-    
             checkClientsTimeout(config, fdEp);
         }
-        
-        
-        
     }
     
     

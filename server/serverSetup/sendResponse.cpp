@@ -42,11 +42,13 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     }
     int status  = 0;
     int process = waitpid(cg->pid, &status, WNOHANG );
-    if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
-        process = -1;
-    if (process == -1){
-        flag = -1;
-        // connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
+    if (process < 0){
+        if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
+                process = -1;
+            if (process == -1 || flag == 0){
+                flag = -1;
+                connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
+            }
     }
     
     if (flag == 1){
@@ -64,9 +66,6 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
             return ;
         }
     }
-
-    // if (flag == 0)
-    //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
 
     respone.applyCgiResponse(cg->response);   
     if (!connect->sessionCookie.empty()) {
@@ -93,7 +92,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         deleteClient(data, cg->fd_in, connect->fdEp, "", "");
         return ;
     }
-    // sendResponse(data, *connect, respone);//use after free 
+ 
     deleteClient(data, cg->fd_in, connect->fdEp, "", ""); 
     if (!connect->keepAlive)
         deleteClient(data, connect->fd, connect->fdEp, " done ", connect->ipAddress);

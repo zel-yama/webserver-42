@@ -4,11 +4,16 @@
 #include "../include/tools.hpp"
 #include "../include/Config.hpp"
 #include "../../Response/Response.hpp"
+
 Config::Config(){
     is_cgi = false;
+   
 
 }
-
+_Cgi::_Cgi(){
+    this->response ="";
+    this->fd_in = -1;
+}
 int makeNonBlockingFD(int socket){
     int flag = fcntl(socket, F_GETFL);
     fcntl(socket, F_SETFL,flag  | O_NONBLOCK );
@@ -43,9 +48,8 @@ void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::stri
    if (config.count(fd) == 0)
         return ;
     if (config[fd]->is_cgi)
-        handlingOfCgi(config, fd, 1, res);
-    if (config.count(fd) == 0)
-        return ;       
+        return;
+         
    if (epoll_ctl(fdEP, EPOLL_CTL_DEL, fd, NULL)  == -1){
         return ;
    }
@@ -55,7 +59,7 @@ void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::stri
         __displayTime();
         std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << std::endl;
     }
-    printf("delete %s\n", config[fd]->name.c_str());
+    // printf("delete %s\n", config[fd]->name.c_str());
     config.erase(fd);
     delete c;
 

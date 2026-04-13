@@ -7,23 +7,28 @@
 ///  timeout return bad get way 
 // no output what should return like empyt file  string 
 // reading 
+
 void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     
     
-    char buffer[MAXSIZEBYTE];
+    char buffer[MAXSIZEBYTE] ;
+    printf("in cgi\n");
+    
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
         return ;
-    Client *connect = (Client *) returnElement(cg->fd_client, data);
-    if (!connect){
+
+    Client *connect = (Client *)cg->connect;
+    if (!connect ){
       
+        printf("flag remove ");
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fdOUT, cg->fdEp, "", "");
         deleteClient(data, cg->fd_in, cg->fdEp, "" , "");
 
         return ;
     };
-  
+      printf("yes here \n");
  
     int n = 0;  
     if (flag ==  2){
@@ -45,40 +50,57 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     }
     
     if (flag == 1){
-        int i = read(cg->fd_in, buffer, MAXSIZEBYTE - 1 );
+        int i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
         if (i < 0 || process < 0 ) {
             kill(cg->pid, SIGTERM);
             deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
             deleteClient(data, cg->fd_in, cg->fdEp,"", connect->ipAddress);
             return ;
         }
-        if (i > 0 ){
+        if (i > 0 && *buffer ){
             connect->currentTime = time(NULL);
-            connect->response.append(buffer, i);
+            cg->response.append(buffer, i);// what happens if cgi came after cgi and cgi other request on the same client  
+           
             return ;
         }
     }
+
     // if (flag == 0)
     //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
-    respone.applyCgiResponse(connect->response);
-    
-   
+
+    respone.applyCgiResponse(cg->response);   
     if (!connect->sessionCookie.empty()) {
         respone.setHeader("Set-Cookie", connect->sessionCookie);
         connect->sessionCookie.clear();
     }
-    connect->response =  respone.build();
+    cg->response =  respone.build();
     deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
-    connect->buildDone = true;
-    connect->requestFinish = true;
+   
     if (flag == 0 || flag == -1 ){
         kill(cg->pid, SIGTERM);
         waitpid(cg->pid, NULL, WNOHANG );
     }
     connect->is_cgi = false;
-    sendResponse(data, *connect, respone);//use after free 
+    // printf("ss %s\n", cg->response.c_str());
+    // send respone if completi check if keeplive keep it or remove client strig should go in cgi string
+    // sne response if not compelet is give respone to client and return to event loop to wait cleint to get it 
+
+    int sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
+    if (sendB <= 0){
+        deleteClient(data, cg->fd_in, connect->fdEp, "", "");
+        deleteClient(data, connect->fd, connect->fdEp, "", "");
+        return ;
+    }
+    if (sendB < cg->response.size()){
+        connect->response = cg->response.substr(sendB);
+        deleteClient(data, cg->fd_in, connect->fdEp, "", "");
+        return ;
+    }
+    // sendResponse(data, *connect, respone);//use after free 
+    deleteClient(data, cg->fd_in, connect->fdEp, "", ""); 
+    if (!connect->keepAlive)
+        deleteClient(data, connect->fd, connect->fdEp, " done ", connect->ipAddress);
     
-   deleteClient(data, cg->fd_in, connect->fdEp, "", "");// usee after 
 }
 
 bool checkTimeout(time_t prevTime, time_t timeout ){
@@ -121,28 +143,19 @@ void checkClientsTimeout(maptype& config, int fdEp)
 void checkClientConnection(maptype &config, Client &connect) {
     
     connect.currentTime = time(NULL);
-    // if (connect.is_cgi)
-    //     return ;
+  
     if (!connect.keepAlive ) {
        
         deleteClient(config, connect.fd, connect.fdEp, " done ", connect.ipAddress);
         return;
     }
 
-    
-    
     connect.buildDone = false;
-    
     connect.requestFinish = false;
-  
- 
     connect.bodysize = 0;
     connect.byteSent = 0;
-    connect.bodySizeStatus = false;
-    connect.buffer = "";
-    
+    connect.bodySizeStatus = false;    
     connect.parsedRequest = Request();
-    
     setClientRead(connect.fdEp, connect);
 }
 void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
@@ -152,6 +165,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
 
     obj->writeB = 0;
     fdIN = makeNonBlockingFD(fdIN);
+    fdOUT = makeNonBlockingFD(fdOUT);
     memset(&obj->data, 0, sizeof(obj->data));
     obj->name = "cgi";
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
@@ -162,7 +176,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     obj->fdOUT = fdOUT;
     obj->serverId = connect.serverId;
     obj->fdEp = connect.fdEp;
-    
+    obj->connect = &connect;
     obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
@@ -178,6 +192,7 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     addSockettoEpoll(connect.fdEp, obj->data);
     data[fdIN] = obj;
 }
+
 void sendResponse(maptype &config, Client &connect, Response &respone ) {
     
     int n = 1 ;
@@ -239,6 +254,8 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             return ;
         } 
     }
+    if (connect.is_cgi)
+        return ;
     if (connect.response.empty() || connect.fdFile == -1){
         connect.sending  = false ;
         checkClientConnection(config, connect);
@@ -246,5 +263,6 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
     }
     
     connect.sending = true;
+  
     checkClientConnection(config, connect);
 }

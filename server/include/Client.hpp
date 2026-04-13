@@ -19,7 +19,7 @@ class Client: public Config{
         bool keepAlive;
         bool requestFinish; 
         size_t bodysize ;
-        std::string buffer;
+  
         std::string response;
         bool sending;
         bool bodySizeStatus;

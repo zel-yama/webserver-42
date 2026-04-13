@@ -1,4 +1,3 @@
-// #include "../request/RequestParser.hpp"
 #include "../server/include/Server.hpp"
 #include "../server/include/tools.hpp"
 #include "Response.hpp"
@@ -529,15 +528,6 @@ void Response::handleDirectory(std::string &path,
         return;
     }
 
-    // if (path[path.size() - 1] != '/')
-    // {
-    //     setStatus(301, "");
-    //     headers["Location"] = req.path + "/";
-    //     headers["Content-Length"] = "0";
-    //     body.clear();
-    //     return;
-    // }
-    
     const std::vector<std::string> *indexList = NULL;
     bool has_index = false;
 
@@ -744,7 +734,6 @@ void Response::sendError(int code, const std::string &message)
         if (it != req->loc.D_ErrorPages.end())
         {
             std::string path = req->loc.root + it->second;
-            // std::cout << path << std::endl;
             if (existFile(path.c_str()))
             {
                 keepStatus = true;
@@ -763,7 +752,6 @@ void Response::sendError(int code, const std::string &message)
         if (it != srv->D_ErrorPages.end())
         {
             std::string path = srv->root + it->second;
-            // std::cout << path << std::endl;
             if (existFile(path.c_str()))
             {
                 keepStatus = true;
@@ -875,8 +863,8 @@ std::string Response::build()
     {
         response << body;
     }
-    // std::cout <<  srv->ipAdress << "--";   //
-    // __displayTime();
-    // std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
+    std::cout <<  srv->ipAdress << "--";   //
+    __displayTime();
+    std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
     return response.str();
 }

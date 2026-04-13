@@ -12,7 +12,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     
     
     char buffer[MAXSIZEBYTE] ;
-    printf("in cgi\n");
+ 
     
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
@@ -21,14 +21,14 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     Client *connect = (Client *)cg->connect;
     if (!connect ){
       
-        printf("flag remove ");
+     
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fdOUT, cg->fdEp, "", "");
         deleteClient(data, cg->fd_in, cg->fdEp, "" , "");
 
         return ;
     };
-      printf("yes here \n");
+
  
     int n = 0;  
     if (flag ==  2){
@@ -81,9 +81,6 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         waitpid(cg->pid, NULL, WNOHANG );
     }
     connect->is_cgi = false;
-    // printf("ss %s\n", cg->response.c_str());
-    // send respone if completi check if keeplive keep it or remove client strig should go in cgi string
-    // sne response if not compelet is give respone to client and return to event loop to wait cleint to get it 
 
     int sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
     if (sendB <= 0){

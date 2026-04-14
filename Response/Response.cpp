@@ -34,6 +34,7 @@ Response::Response()
     statusMap[502] = "Bad Gateway";
     statusMap[500] = "Internal Server Error";
     statusMap[504] = "Gateway Timeout";
+    statusMap[501] = "Not Implemented";
 }
 
 Response::~Response() {

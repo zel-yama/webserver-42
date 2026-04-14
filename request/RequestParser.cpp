@@ -47,7 +47,16 @@ std::string RequestParser::toLower(const std::string& s) {
 }
 
 bool RequestParser::isValidMethod(const std::string& m) {
-    return m == "GET" || m == "POST" || m == "DELETE";
+    std::vector<std::string> all;
+    all.push_back("HEAD");
+    all.push_back("OPTIONS");
+    all.push_back("TRACE");
+    all.push_back("PUT");
+    all.push_back("PATCH");
+    all.push_back("CONNECT");
+    if (std::find(all.begin(), all.end(), m) != all.end())
+        return false;
+    return true;
 }
 
 bool RequestParser::isValidVersion(const std::string& v) {
@@ -167,13 +176,12 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
     }
 
     if (!isValidMethod(req.method)) {
-        req.status = 405;
+        req.status = 501;
         req.complete = true;
         return false;
     }
     
     if (!isValidVersion(req.version)) {
-        //501 not impelmented 
         req.status = 400;
         req.complete = true;
         return false;

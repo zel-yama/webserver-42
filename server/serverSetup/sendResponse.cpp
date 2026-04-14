@@ -190,10 +190,10 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     data[fdIN] = obj;
 }
 
-void sendResponse(maptype &config, Client &connect, Response &respone ) {
+void sendResponse(maptype &config, Client &connect) {
     
     int n = 1 ;
- 
+    Response respone;
     char buff[MAXSIZEBYTE] ;
 
     if (!connect.buildDone ){

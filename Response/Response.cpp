@@ -39,6 +39,7 @@ Response::Response()
 
 Response::~Response() {
 
+    delete req;
 }
 
 void Response::setStatus(int code, const std::string &message)
@@ -80,7 +81,7 @@ static std::string toLower(const std::string &value)
 
 void Response::setContext(Request *r, Server *s)
 {
-    req = r;
+    req =  new Request(*r);
     srv = s;
 }
 

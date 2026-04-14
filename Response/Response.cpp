@@ -34,6 +34,7 @@ Response::Response()
     statusMap[502] = "Bad Gateway";
     statusMap[500] = "Internal Server Error";
     statusMap[504] = "Gateway Timeout";
+    statusMap[501] = "Not Implemented";
 }
 
 Response::~Response() {
@@ -863,7 +864,7 @@ std::string Response::build()
     {
         response << body;
     }
-    std::cout <<  srv->ipAdress << "--";   //
+    std::cout <<  srv->ipAdress << "--";  
     __displayTime();
     std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
     return response.str();

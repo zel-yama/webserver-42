@@ -81,7 +81,6 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         waitpid(cg->pid, NULL, WNOHANG );
     }
     connect->is_cgi = false;
-    // printf("ss %s\n", cg->response.c_str());
     // send respone if completi check if keeplive keep it or remove client strig should go in cgi string
     // sne response if not compelet is give respone to client and return to event loop to wait cleint to get it 
 

@@ -9,6 +9,7 @@ int main(int av, char *argc[]){
 	int fd;
 	servers serv ;
 	servers::iterator it;
+	signal(SIGPIPE, SIG_IGN);
 	if (av != 2 ){
 		std::cerr << "invalid argument we should take [tow..!] " << std::endl;
 		return 1;

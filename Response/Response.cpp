@@ -325,6 +325,7 @@ void Response::processRequest(Request &req, Server &ser)
         setHeader("Connection", "keep-alive");
 
     validateRequest(req, &ser);
+    setStatus(req.status, ""); //chof
     if (req.status != 200)
     {
         if (req.status >= 300 && req.status < 400 && req.headers.find("location") != req.headers.end())
@@ -654,7 +655,6 @@ void Response::handleGet(std::string &path, const Request &req, const Server &sr
             cgiEnabled = req.loc.cgiStatus;
         if (!req.loc.CgiCofing.empty())
             cgiConfig = req.loc.CgiCofing;
-
         if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);
@@ -863,8 +863,8 @@ std::string Response::build()
     {
         response << body;
     }
-    std::cout <<  srv->ipAdress << "--";   //
-    __displayTime();
-    std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
+    // std::cout <<  srv->ipAdress << "--";   //
+    // __displayTime();
+   // std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
     return response.str();
 }

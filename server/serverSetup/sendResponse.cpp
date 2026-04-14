@@ -42,14 +42,15 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     }
     int status  = 0;
     int process = waitpid(cg->pid, &status, WNOHANG );
-    if (process < 0){
-        if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
-                process = -1;
-            if (process == -1 || flag == 0){
-                flag = -1;
-                connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
-            }
+    
+    if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
+            process = -1;
+    if (process == -1 || flag == 0){
+        flag = -1;
+        printf("error \n");
+        cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
     }
+
     
     if (flag == 1){
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE  );

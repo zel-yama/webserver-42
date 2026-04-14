@@ -1,2 +1,2 @@
-
-print("yes")
+while True:
+    prdsint("yes")

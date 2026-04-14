@@ -12,7 +12,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     
     
     char buffer[MAXSIZEBYTE] ;
-    printf("in cgi\n");
+ 
     
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
@@ -21,14 +21,14 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     Client *connect = (Client *)cg->connect;
     if (!connect ){
       
-        printf("flag remove ");
+     
         kill(cg->pid, SIGTERM);
         deleteClient(data, cg->fdOUT, cg->fdEp, "", "");
         deleteClient(data, cg->fd_in, cg->fdEp, "" , "");
 
         return ;
     };
-      printf("yes here \n");
+
  
     int n = 0;  
     if (flag ==  2){
@@ -42,12 +42,15 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
     }
     int status  = 0;
     int process = waitpid(cg->pid, &status, WNOHANG );
+    
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
-        process = -1;
-    if (process == -1){
+            process = -1;
+    if (process == -1 || flag == 0){
         flag = -1;
-        // connect->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
+        printf("error \n");
+        cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
     }
+
     
     if (flag == 1){
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
@@ -65,9 +68,6 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         }
     }
 
-    // if (flag == 0)
-    //     connect->response = "Status:504 Gateway Timeout\r\n\r\ntimeout";
-
     respone.applyCgiResponse(cg->response);   
     if (!connect->sessionCookie.empty()) {
         respone.setHeader("Set-Cookie", connect->sessionCookie);
@@ -81,8 +81,6 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         waitpid(cg->pid, NULL, WNOHANG );
     }
     connect->is_cgi = false;
-    // send respone if completi check if keeplive keep it or remove client strig should go in cgi string
-    // sne response if not compelet is give respone to client and return to event loop to wait cleint to get it 
 
     int sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
     if (sendB <= 0){
@@ -95,7 +93,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         deleteClient(data, cg->fd_in, connect->fdEp, "", "");
         return ;
     }
-    // sendResponse(data, *connect, respone);//use after free 
+ 
     deleteClient(data, cg->fd_in, connect->fdEp, "", ""); 
     if (!connect->keepAlive)
         deleteClient(data, connect->fd, connect->fdEp, " done ", connect->ipAddress);

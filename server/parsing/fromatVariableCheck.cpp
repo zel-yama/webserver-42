@@ -88,19 +88,19 @@ void bodySizeMax(size_t &val, std::string &str){
     max =  extractInt(str, c );
     
    
-    if (c.size() > 1 || str.size() > 8 || max < 0 || max > 1e10 )
-        throw std::runtime_error("invalid value in max body size ");
+    if (c.size() > 1 || str.size() > 10 || max < 0 || max > 1e12 )
+        throw std::runtime_error("invalid value in max body size check length > 10 or value ");
     if (c[0] == 'M')
         max = max * 1e6;
     else if (c[0] == 'K')
         max = max * 1000;
     else if (c[0] == 'G')
         max = max * 1e9;
-    else if (!c.empty() || val != 0 || max < 0 || max  > 1e10 ) 
-        throw std::runtime_error("invalid value in max body size ");
+    else if (!c.empty() || val != 0 || max < 0 || max  > 1e15 ) 
+        throw std::runtime_error("invalid value in max body size check length > 10 or value");
    
-    if (max < 0 || max > 1e10)
-        throw std::runtime_error("invalid value in max body size ");
+    if (max < 0 || max > 1e15)
+        throw std::runtime_error("invalid value in max body size check length > 10 or value");
     val = max;
 }
 

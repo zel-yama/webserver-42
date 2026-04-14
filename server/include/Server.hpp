@@ -1,9 +1,9 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 300
+#define TIMEOUT 30
 #define MAX_URI 2048
-#define TIMEOUTCGI 400
+#define TIMEOUTCGI 4
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 165000
@@ -32,7 +32,7 @@ struct location {
     std::vector<std::string>             indexFile;
     size_t                               bodyMaxByte;
     int                                  outoIndex;
-    int                                  ex;
+    int                                    ex;
     std::map<int, std::string >          D_ErrorPages;
 };
 

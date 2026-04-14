@@ -670,7 +670,6 @@ void Response::handleGet(std::string &path, const Request &req, const Server &sr
             cgiEnabled = req.loc.cgiStatus;
         if (!req.loc.CgiCofing.empty())
             cgiConfig = req.loc.CgiCofing;
-
         if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
         {
             Cgi cgi(req);

@@ -131,7 +131,7 @@ void eventLoop(maptype &config ){
                     }
                     if (events[i].events & EPOLLOUT  ) {
                         Cli = (Client *) returnElement(events[i].data.fd, config);
-                        sendResponse(config, *Cli, res);
+                        sendResponse(config, *Cli);
                     }
                 }
             }

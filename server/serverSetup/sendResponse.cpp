@@ -190,10 +190,10 @@ void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
     data[fdIN] = obj;
 }
 
-void sendResponse(maptype &config, Client &connect, Response &respone ) {
+void sendResponse(maptype &config, Client &connect ) {
     
     int n = 1 ;
- 
+    Response respone;
     char buff[MAXSIZEBYTE] ;
 
     if (!connect.buildDone ){
@@ -211,16 +211,17 @@ void sendResponse(maptype &config, Client &connect, Response &respone ) {
             addCgi(config, connect, respone.getcgiPid(), respone.getcgiReadFd(), respone.getcgiWriteFd() );
             connect.currentTime = time(NULL);
             connect.is_cgi = true;
-        
+           
             return ;
         }
         if (respone.isLargeFile()){
-           
+            
             connect.fdFile = open(respone.getFilePath().c_str(), O_RDONLY);
             connect.fdsBuffer.push_back(connect.fdFile);
             connect.fdFile = makeNonBlockingFD(connect.fdFile);
             respone.getFilePath() = "";
         }
+      
     }
 
     if (!connect.response.empty()){

@@ -32,6 +32,9 @@ class _Cgi : public Config{
         int writeB;
         int fdOUT;
         pid_t pid;
+        std::string response;
+        void *connect;
+        _Cgi();
         
     
 };

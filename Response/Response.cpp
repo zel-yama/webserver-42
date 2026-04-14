@@ -520,6 +520,12 @@ void Response::handlePost(const std::string &path,
         return;
     }
 
+    if (!existFile(path.c_str()))
+    {
+        sendError(404, "");
+        return;
+    }
+
     std::ofstream file(path.c_str(), std::ios::out);
     if (!file.is_open())
     {

@@ -113,9 +113,6 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
     close(inPipe[0]);
     close(outPipe[1]);
 
-    // fcntl(outPipe[0], F_SETFL, O_NONBLOCK);
-    // fcntl(inPipe[1], F_SETFL, O_NONBLOCK);
-
     handle.readFd = outPipe[0];
     handle.writeFd = inPipe[1];
     handle.pid = pid;

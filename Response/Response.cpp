@@ -13,7 +13,7 @@ Response::Response()
       LargeFile(false),
       keepStatus(false),  
       version("HTTP/1.0"),
-      body("<h1>Hello World</h1>"),
+      body(""),
       req(NULL),
       srv(NULL)
 {
@@ -326,6 +326,7 @@ void Response::processRequest(Request &req, Server &ser)
         setHeader("Connection", "keep-alive");
 
     validateRequest(req, &ser);
+    setStatus(req.status, "");
     if (req.status != 200)
     {
         if (req.status >= 300 && req.status < 400 && req.headers.find("location") != req.headers.end())
@@ -341,6 +342,10 @@ void Response::processRequest(Request &req, Server &ser)
     }
 
     setVersion(req.version);
+    logMethod = req.method;
+    logIpAdress = ser.ipAdress;
+    logPath = req.path;
+    logUserAgent = req.headers["user-agent"];
 
     if (req.method == "GET")
     {
@@ -484,6 +489,11 @@ void Response::handlePost(const std::string &path,
             return ;
         }
 
+        if (isDirectory(path.c_str()))
+        {
+            sendError(403, "");
+            return;
+        }
         std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc);
         if (!file.is_open())
         {
@@ -494,14 +504,19 @@ void Response::handlePost(const std::string &path,
         file.close();
 
         setStatus(201, "");
-        // setBody("<h1>Data saved successfully</h1>");
         headers["Content-Length"] = toString(req.body.size());
         return;
+    }
+    if (!req.query.empty())
+    {
+        setStatus(201, "");
+        headers["Content-Length"] = toString(req.body.size());
+        return ;
     }
 
     if (isDirectory(path.c_str()))
     {
-        sendError(405, "");
+        sendError(403, "");
         return;
     }
 
@@ -515,7 +530,6 @@ void Response::handlePost(const std::string &path,
     file.close();
 
     setStatus(201, "");
-    // setBody("<h1>Data saved successfully</h1>");
     headers["Content-Length"] = toString(req.body.size());
 }
 
@@ -574,6 +588,7 @@ void Response::handleDirectory(std::string &path,
             sendError(403, "");
         return;
     }
+    
     if (srv.outoIndex)
     {
         generateautoindex(path);
@@ -864,8 +879,8 @@ std::string Response::build()
     {
         response << body;
     }
-    std::cout <<  srv->ipAdress << "--";  
+    std::cout <<  logIpAdress << "--";  
     __displayTime();
-    std::cout << " \"" << req->method << " " << req->path << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << req->headers["user-agent"] << std::endl; 
+    std::cout << " \"" << logMethod << " " << logPath << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << logUserAgent << std::endl; 
     return response.str();
 }

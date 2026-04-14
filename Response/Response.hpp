@@ -38,6 +38,11 @@ private:
     int  cgiWriteFd;
     pid_t cgiPid;
 
+    std::string logMethod;
+    std::string logIpAdress;
+    std::string logPath;
+    std::string logUserAgent;
+
 public:
     Response();
     ~Response();

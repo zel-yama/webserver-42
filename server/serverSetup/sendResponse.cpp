@@ -28,6 +28,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
 
         return ;
     };
+    Server *srv = (Server *)returnElement(connect->serverId, data);
 
  
     int n = 0;  
@@ -47,7 +48,7 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
             process = -1;
     if (process == -1 || flag == 0){
         flag = -1;
-        printf("error \n");
+        
         cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
     }
 
@@ -112,10 +113,15 @@ void checkClientsTimeout(maptype& config, int fdEp)
     Client *connect = NULL;
     std::vector<int> ve;
     Response res;
+    int max = 0;
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
+        
+        if (max > 50)
+            break;
+        max++;
         if (i->second->name == "client") {
             connect = dynamic_cast<Client*>(i->second);
-
+        
             if (checkTimeout(connect->currentTime, TIMEOUT)) {
                 
                 ve.push_back(connect->fd);
@@ -202,7 +208,7 @@ void sendResponse(maptype &config, Client &connect ) {
         respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
             respone.setHeader("Set-Cookie", connect.sessionCookie);;
-            connect.sessionCookie.clear();
+          //  connect.sessionCookie.clear();
         }
         connect.response = respone.build();
         connect.buildDone = true;

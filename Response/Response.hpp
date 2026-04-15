@@ -38,8 +38,9 @@ private:
     int  cgiWriteFd;
     pid_t cgiPid;
 
-    
-    public:
+    std::vector<std::string> queryCom;
+
+public:
     Response();
     ~Response();
     // location *loc;

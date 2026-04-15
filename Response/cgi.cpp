@@ -29,7 +29,7 @@ void Cgi::buildEnv(const Request &req)
     it = req.headers.find("content-type");
     if (it != req.headers.end())
         env["CONTENT_TYPE"] = it->second;
-    
+
     it = req.headers.find("cookie");
     if (it != req.headers.end())
         env["HTTP_COOKIE"] = it->second;
@@ -82,25 +82,41 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
     if (pid == -1)
     {
         freeEnvp(envp);
-        close(inPipe[0]); close(inPipe[1]);
-        close(outPipe[0]); close(outPipe[1]);
+        close(inPipe[0]);
+        close(inPipe[1]);
+        close(outPipe[0]);
+        close(outPipe[1]);
         return handle;
-    }   
+    }
 
     if (pid == 0)
     {
 
         if (dup2(inPipe[0], STDIN_FILENO) == -1)
+        {
+            freeEnvp(envp);
+            close(inPipe[0]);
+            close(inPipe[1]);
+            close(outPipe[0]);
+            close(outPipe[1]);
             exit(1);
+        }
 
         if (dup2(outPipe[1], STDOUT_FILENO) == -1)
+        {
+            freeEnvp(envp);
+            close(inPipe[0]);
+            close(inPipe[1]);
+            close(outPipe[0]);
+            close(outPipe[1]);
             exit(1);
+        }
 
         close(inPipe[0]);
         close(outPipe[1]);
         close(inPipe[1]);
         close(outPipe[0]);
-        close(STDERR_FILENO); 
+        close(STDERR_FILENO);
 
         std::string dir = scriptPath.substr(0, scriptPath.find_last_of('/'));
         chdir(dir.c_str());

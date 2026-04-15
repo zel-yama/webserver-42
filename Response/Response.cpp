@@ -883,7 +883,7 @@ std::string Response::build()
 
     response << "\r\n";
 
-    if (statusCode != 204 && statusCode != 304)
+    if (statusCode != 204)
     {
         response << body;
     }

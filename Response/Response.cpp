@@ -303,7 +303,6 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
             setHeader(key, value);
         }
     }
-
     if (parsedStatus >= 400)
     {
         sendError(parsedStatus, ""); 

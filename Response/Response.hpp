@@ -38,15 +38,16 @@ private:
     int  cgiWriteFd;
     pid_t cgiPid;
 
+    
+    public:
+    Response();
+    ~Response();
+    // location *loc;
+    
     std::string logMethod;
     std::string logIpAdress;
     std::string logPath;
     std::string logUserAgent;
-
-public:
-    Response();
-    ~Response();
-    // location *loc;
     
     void setStatus(int code, const std::string &message);
     void setHeader(const std::string &key, const std::string &value);

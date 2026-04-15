@@ -508,8 +508,10 @@ void Response::handlePost(const std::string &path,
         headers["Content-Length"] = toString(req.body.size());
         return;
     }
+    
     if (!req.query.empty())
     {
+        queryCom.push_back(req.query);
         setStatus(201, "");
         headers["Content-Length"] = toString(req.body.size());
         return ;
@@ -521,11 +523,11 @@ void Response::handlePost(const std::string &path,
         return;
     }
 
-    if (!existFile(path.c_str()))
-    {
-        sendError(404, "");
-        return;
-    }
+    // if (!existFile(path.c_str()))
+    // {
+    //     sendError(404, "");
+    //     return;
+    // }
 
     std::ofstream file(path.c_str(), std::ios::out);
     if (!file.is_open())

@@ -42,6 +42,7 @@ private:
     std::string logIpAdress;
     std::string logPath;
     std::string logUserAgent;
+    std::vector<std::string> queryCom;
 
 public:
     Response();

@@ -202,7 +202,7 @@ void sendResponse(maptype &config, Client &connect) {
         respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
             respone.setHeader("Set-Cookie", connect.sessionCookie);;
-            ///connect.sessionCookie.clear();
+            connect.sessionCookie.clear();
         }
         connect.response = respone.build();
         connect.buildDone = true;
@@ -226,8 +226,9 @@ void sendResponse(maptype &config, Client &connect) {
     if (!connect.response.empty()){
 
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
+        
         if (n <= 0) {
-           
+            
             deleteClient(config, connect.fd, connect.fdEp, " send failed ",connect.ipAddress );
             return ;
         }

@@ -343,7 +343,7 @@ void Response::processRequest(Request &req, Server &ser)
 
     setVersion(req.version);
     logMethod = req.method;
-    logIpAdress = ser.ipAdress;
+    logIpAdress = req.ip;
     logPath = req.path;
     logUserAgent = req.headers["user-agent"];
 

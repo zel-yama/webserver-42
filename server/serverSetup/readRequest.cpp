@@ -46,7 +46,7 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
 {
     int readResult = myread(connect, parser->buffer[fd]);
 
-    //cout << parser->buffer[fd] << endl;
+    // std::cout << parser->buffer[fd] << std::endl;
     
    
     if (readResult <= 0) {
@@ -59,6 +59,7 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
     Request req = parser->parse(connect.fd);
 
     if (req.complete) {
+        req.ip = connect.ipAddress;
         connect.parsedRequest = req;
         connect.sessionCookie = parser->resolveSession(req);
         connect.requestFinish = true;
@@ -73,7 +74,7 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
             connect.keepAlive = false;
         }
         // std::cout << req.body.size() << std::endl;
-        // std::cout << req.status << std::endl;
+        // std::cout << req. << std::endl;
     } 
     return 0;
 }

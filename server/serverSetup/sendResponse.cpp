@@ -251,8 +251,8 @@ void sendResponse(maptype &config, Client &connect) {
         Server* srv = getServerFromClient(config, connect);
         respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
-            respone.setHeader("Set-Cookie", connect.sessionCookie);;
-         
+            respone.setHeader("Set-Cookie", connect.sessionCookie);
+            connect.sessionCookie.clear();
         }
         connect.response = respone.build();
         connect.buildDone = true;

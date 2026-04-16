@@ -23,17 +23,14 @@ Response::Response()
     statusMap[204] = "No Content";
     statusMap[301] = "Moved Permanently";
     statusMap[302] = "Found";
-    statusMap[304] = "Not Modified";
     statusMap[400] = "Bad Request";
     statusMap[403] = "Forbidden";
     statusMap[404] = "Not Found";
     statusMap[405] = "Method Not Allowed";
-    statusMap[409] = "Conflict";
     statusMap[413] = "Payload Too Large";
     statusMap[414] = "URI too long";
     statusMap[502] = "Bad Gateway";
     statusMap[500] = "Internal Server Error";
-    statusMap[504] = "Gateway Timeout";
     statusMap[501] = "Not Implemented";
 }
 
@@ -810,7 +807,7 @@ void Response::handleDelete(const std::string &path,
 
     if (isDirectory(path.c_str()))
     {
-        sendError(409, "");
+        sendError(403, "");
         return;
     }
 

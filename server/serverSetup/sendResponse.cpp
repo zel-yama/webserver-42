@@ -98,6 +98,11 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
         cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
     }
    
+    respone.setHeader("Server", srv->ServerName);
+    if (!connect->keepAlive)
+        respone.setHeader("Connection", "close");
+    else
+        respone.setHeader("Connection", "keep-alive");
     respone.logPath  = connect->parsedRequest.path;
     respone.logIpAdress = connect->ipAddress;
     respone.logMethod = connect->parsedRequest.method;

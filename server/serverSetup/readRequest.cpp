@@ -46,13 +46,13 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
 {
     int readResult = myread(connect, parser->buffer[fd]);
 
-    //cout << parser->buffer[fd] << endl;
+   
     
    
     if (readResult <= 0) {
        
         connect.requestFinish = false;
-        deleteClient(data, fd, connect.fdEp, "read failed ", connect.ipAddress );
+        deleteClient(data, fd, connect.fdEp, " [reseted] ", connect.ipAddress );
         return -1;
     }
 
@@ -72,8 +72,7 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
             parser->buffer.erase(fd);
             connect.keepAlive = false;
         }
-        // std::cout << req.body.size() << std::endl;
-        // std::cout << req.status << std::endl;
+     
     } 
     return 0;
 }

@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "../../webserv.hpp"
+#include "webserv.hpp"
 
 class Config{
     public:

@@ -228,7 +228,7 @@ void sendResponse(maptype &config, Client &connect) {
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         if (n <= 0) {
            
-            deleteClient(config, connect.fd, connect.fdEp, " send failed ",connect.ipAddress );
+            deleteClient(config, connect.fd, connect.fdEp, " [reseted] ",connect.ipAddress );
             return ;
         }
         if (n > 0){

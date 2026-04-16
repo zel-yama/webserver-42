@@ -34,11 +34,11 @@ class Client: public Config{
         bool buildDone;
         int fdFile;
         std::string ipAddress;
-        // i add this
+ 
         std::string sessionCookie;
 
         Request parsedRequest;
-        // Response respons;
+      
 };
 
 #endif

@@ -70,15 +70,22 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
 
     if (pipe(inPipe) == -1)
         return handle;
-    if (pipe(outPipe) == -1 || pipe(ErrPipe) == -1)
+    if (pipe(outPipe) == -1)
     {
-        close(outPipe[1]);
-        close(outPipe[0]);
+      
         close(ErrPipe[0]);
         close(ErrPipe[1]);
         close(inPipe[0]);
         close(inPipe[1]);
         return handle;
+    }
+    if (pipe(ErrPipe) == -1){
+        close(inPipe[0]);
+        close(inPipe[1]);
+        close(outPipe[0]);
+        close(outPipe[1]);
+        close(ErrPipe[0]);
+        close(ErrPipe[1]);
     }
 
     char **envp = envto2Darray();
@@ -91,12 +98,12 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
         close(inPipe[1]);
         close(outPipe[0]);
         close(outPipe[1]);
+        close(ErrPipe[0]);
+        close(ErrPipe[1]);
         return handle;
     }
-
     if (pid == 0)
     {
-
         if (dup2(inPipe[0], STDIN_FILENO) == -1)
         {
             freeEnvp(envp);
@@ -104,15 +111,14 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
             close(inPipe[1]);
             close(outPipe[0]);
             close(outPipe[1]);
-             close(ErrPipe[0]);
+            close(ErrPipe[0]);
             close(ErrPipe[1]);
             exit(1);
         }
-
         if (dup2(outPipe[1], STDOUT_FILENO) == -1)
         {
             freeEnvp(envp);
-             close(ErrPipe[0]);
+            close(ErrPipe[0]);
             close(ErrPipe[1]);
             close(inPipe[0]);
             close(inPipe[1]);
@@ -131,12 +137,13 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
             close(outPipe[1]);
             exit(1);
         }
+        close(ErrPipe[1]);
         close(ErrPipe[0]);
         close(inPipe[0]);
-        close(outPipe[1]);
         close(inPipe[1]);
+        close(outPipe[1]);
         close(outPipe[0]);
-        close(STDERR_FILENO);
+
 
         std::string dir = scriptPath.substr(0, scriptPath.find_last_of('/'));
         chdir(dir.c_str());

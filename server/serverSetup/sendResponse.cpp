@@ -34,7 +34,7 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
             _Cgi *cgtmp = (_Cgi *)returnElement(cg->fd_in, data);
             deleteClient(data, cg->ErrorFD, cg->fdEp, "", "");
             cgtmp->ErorrB = true;
-            printf("ErorrB\n");
+          
             return ;
         }
         if (n == 0)

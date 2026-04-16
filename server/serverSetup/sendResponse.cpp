@@ -124,8 +124,7 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     }
     connect->is_cgi = false;
     i++;
-    printf("I = %d\n", i);
-    printf("|%s|\n", cg->response.c_str());
+
     long long sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
     if (sendB <= 0){
         deleteCgi(data, cg, connect->fdEp);
@@ -224,7 +223,10 @@ void addCgi(maptype &data, Client &connect , Response res){
     obj->fdEp = connect.fdEp;
     obj->ErrorFD =  makeNonBlockingFD(res.cgiError);;
     obj->connect = &connect;
-   
+  
+
+    
+    
     obj->writeB = write(obj->fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;

@@ -88,6 +88,7 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
         close(ErrPipe[1]);
     }
 
+
     char **envp = envto2Darray();
 
     pid_t pid = fork();
@@ -112,12 +113,14 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
             close(outPipe[0]);
             close(outPipe[1]);
             close(ErrPipe[0]);
+            close(ErrPipe[0]);
             close(ErrPipe[1]);
             exit(1);
         }
         if (dup2(outPipe[1], STDOUT_FILENO) == -1)
         {
             freeEnvp(envp);
+            close(ErrPipe[0]);
             close(ErrPipe[0]);
             close(ErrPipe[1]);
             close(inPipe[0]);

@@ -1,7 +1,7 @@
 #ifndef INCLUDE__HPP
 #define INCLUDE__HPP 
 
-#include "../../webserv.hpp"
+#include "webserv.hpp"
 #include "Config.hpp"
 
 

@@ -6,7 +6,7 @@
 #define TIMEOUTCGI 4
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
-#define MAXSIZEBYTE 1000
+#define MAXSIZEBYTE 65000
 
 #include "include.hpp"
 

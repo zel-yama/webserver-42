@@ -98,6 +98,11 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
         cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
     }
    
+    respone.setHeader("Server", srv->ServerName);
+    if (!connect->keepAlive)
+        respone.setHeader("Connection", "close");
+    else
+        respone.setHeader("Connection", "keep-alive");
     respone.logPath  = connect->parsedRequest.path;
     respone.logIpAdress = connect->ipAddress;
     respone.logMethod = connect->parsedRequest.method;
@@ -276,8 +281,8 @@ void sendResponse(maptype &config, Client &connect) {
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {
-            
-            deleteClient(config, connect.fd, connect.fdEp, " send failed ",connect.ipAddress );
+           
+            deleteClient(config, connect.fd, connect.fdEp, " [reseted] ",connect.ipAddress );
             return ;
         }
         if (n > 0){

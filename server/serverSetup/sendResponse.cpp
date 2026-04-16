@@ -74,7 +74,7 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
  
    
     if (flag == 1){
-        int i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
+        long long i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
 
         if (i < 0  ) {
             kill(cg->pid, SIGTERM);
@@ -115,13 +115,13 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     }
     connect->is_cgi = false;
 
-    int sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
+    long long sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
     if (sendB <= 0){
         deleteCgi(data, cg, connect->fdEp);
         deleteClient(data, connect->fd, connect->fdEp, "", "");
         return ;
     }
-    if (sendB < cg->response.size()){
+    if (sendB < (long long)cg->response.size()){
         connect->response = cg->response.substr(sendB);
         deleteCgi(data, cg, connect->fdEp);
         return ;

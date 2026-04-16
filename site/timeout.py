@@ -1,2 +1,1 @@
-while True:
-    prdsint("yes")
+print("yes")j

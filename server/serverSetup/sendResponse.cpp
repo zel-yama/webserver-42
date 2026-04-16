@@ -7,27 +7,50 @@
 ///  timeout return bad get way 
 // no output what should return like empyt file  string 
 // reading 
+void deleteCgi(maptype &data, _Cgi *cgi, int fdEp ){
 
-void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
+    deleteClient(data, cgi->ErrorFD, fdEp, "", "");
+    deleteClient(data, cgi->fd_in, fdEp, "", "");
+
+}
+
+void handlingOfCgi(maptype &data, int fd, int flag  ){
     
     
+    Response respone;
     char buffer[MAXSIZEBYTE] ;
  
     
     _Cgi *cg = (_Cgi *) returnElement( fd, data);
     if (!cg ) 
         return ;
-
+    if (fd == cg->ErrorFD){
+       int n = read(cg->ErrorFD, buffer, MAXSIZEBYTE);
+       if (n < 0 || flag == 0){
+            deleteClient(data, cg->ErrorFD, cg->fdEp, "", "");
+            return ;
+       }
+        if (n > 0){
+            _Cgi *cgtmp = (_Cgi *)returnElement(cg->fd_in, data);
+            deleteClient(data, cg->ErrorFD, cg->fdEp, "", "");
+            cgtmp->ErorrB = true;
+            printf("ErorrB\n");
+            return ;
+        }
+        if (n == 0)
+            return;
+    }
     Client *connect = (Client *)cg->connect;
     if (!connect ){
       
      
         kill(cg->pid, SIGTERM);
+        
         deleteClient(data, cg->fdOUT, cg->fdEp, "", "");
-        deleteClient(data, cg->fd_in, cg->fdEp, "" , "");
-
+        deleteClient(data, cg->ErrorFD, cg->fdEp, "", "");
+        deleteClient(data, cg->fd_in, cg->fdEp, "", "");
         return ;
-    };
+    }
     Server *srv = (Server *)returnElement(connect->serverId, data);
 
  
@@ -41,40 +64,51 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
         connect->currentTime = time(NULL);
         return;
     }
-    int status  = 0;
-    int process = waitpid(cg->pid, &status, WNOHANG );
-    
-    if (WIFEXITED(status) && WEXITSTATUS(status)  != 0)
-            process = -1;
-    if (process == -1 || flag == 0){
-        flag = -1;
+    int status  = 0 ;
+   
+    int process = waitpid(cg->pid, &status, WNOHANG);
+    printf("ss %d %d \n", process, flag);
+    if (WIFEXITED(status) && WEXITSTATUS(status)  != 0){
         
-        cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
+        printf("waite\n");
+        process = -4;
     }
-
-    
+ 
+   
     if (flag == 1){
         int i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
-        if (i < 0 || process < 0 ) {
+
+        if (i < 0  ) {
             kill(cg->pid, SIGTERM);
             deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
-            deleteClient(data, cg->fd_in, cg->fdEp,"", connect->ipAddress);
+            deleteCgi(data, cg, connect->fdEp);
             return ;
         }
-        if (i > 0 && *buffer ){
+        if (i > 0 || process > 0){
             connect->currentTime = time(NULL);
-            cg->response.append(buffer, i);// what happens if cgi came after cgi and cgi other request on the same client  
+            cg->response.append(buffer, i);
            
             return ;
         }
     }
 
+    if (process == -4 || flag == 0 || cg->ErorrB){
+      
+        flag = -1;
+        cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
+    }
+   
+    respone.logPath  = connect->parsedRequest.path;
+    respone.logIpAdress = connect->ipAddress;
+    respone.logMethod = connect->parsedRequest.method;
+    respone.logUserAgent  = connect->parsedRequest.headers["user-agent"];
     respone.applyCgiResponse(cg->response);   
     if (!connect->sessionCookie.empty()) {
         respone.setHeader("Set-Cookie", connect->sessionCookie);
         connect->sessionCookie.clear();
     }
     cg->response =  respone.build();
+   
     deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
    
     if (flag == 0 || flag == -1 ){
@@ -85,17 +119,17 @@ void handlingOfCgi(maptype &data, int fd, int flag, Response &respone ){
 
     int sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
     if (sendB <= 0){
-        deleteClient(data, cg->fd_in, connect->fdEp, "", "");
+        deleteCgi(data, cg, connect->fdEp);
         deleteClient(data, connect->fd, connect->fdEp, "", "");
         return ;
     }
     if (sendB < cg->response.size()){
         connect->response = cg->response.substr(sendB);
-        deleteClient(data, cg->fd_in, connect->fdEp, "", "");
+        deleteCgi(data, cg, connect->fdEp);
         return ;
     }
  
-    deleteClient(data, cg->fd_in, connect->fdEp, "", ""); 
+    deleteCgi(data, cg, connect->fdEp);
     if (!connect->keepAlive)
         deleteClient(data, connect->fd, connect->fdEp, " done ", connect->ipAddress);
     
@@ -112,7 +146,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
 {
     Client *connect = NULL;
     std::vector<int> ve;
-    Response res;
+   
     int max = 0;
     for (ConfigIter i = config.begin(); i != config.end(); i++) {
         
@@ -129,7 +163,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
         }
         if (i->second->name == "cgi"){
             _Cgi *cg = (_Cgi *) i->second;
-            if (checkTimeout(cg->currentTime, TIMEOUTCGI)){
+            if (cg->ErorrB ||  checkTimeout(cg->currentTime, TIMEOUTCGI)){
                 ve.push_back(cg->fd_in);
             }
         }
@@ -137,7 +171,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
     for(std::vector<int>::iterator it = ve.begin(); it != ve.end(); it++   ){
       
         if (findElement(config, *it) == "cgi") 
-            handlingOfCgi(config, *it, 0, res);
+            handlingOfCgi(config, *it, 0);
         else
             deleteClient(config, *it, fdEp," timeout cleint ", "" );
     }
@@ -161,60 +195,67 @@ void checkClientConnection(maptype &config, Client &connect) {
     connect.parsedRequest = Request();
     setClientRead(connect.fdEp, connect);
 }
-void addCgi(maptype &data, Client &connect , pid_t pip,  int fdIN, int fdOUT){
+void addCgi(maptype &data, Client &connect , Response res){
     _Cgi *obj;
 
     obj = new _Cgi();
 
     obj->writeB = 0;
-    fdIN = makeNonBlockingFD(fdIN);
-    fdOUT = makeNonBlockingFD(fdOUT);
+   
     memset(&obj->data, 0, sizeof(obj->data));
     obj->name = "cgi";
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
-    obj->data.data.fd = fdIN;
     obj->currentTime = time(NULL);
-    obj->fd_in = fdIN;
-    obj->pid = pip;
-    obj->fdOUT = fdOUT;
+    obj->fd_in = makeNonBlockingFD(res.cgiReadFd);
+    obj->data.data.fd = obj->fd_in;
+    obj->pid = res.cgiPid;
+    obj->fdOUT = makeNonBlockingFD(res.cgiWriteFd);
     obj->serverId = connect.serverId;
     obj->fdEp = connect.fdEp;
+    obj->ErrorFD =  makeNonBlockingFD(res.cgiError);;
     obj->connect = &connect;
-    obj->writeB = write(fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
+   
+    obj->writeB = write(obj->fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
-        obj->OUT.data.fd = fdOUT;
+        obj->OUT.data.fd = obj->fdOUT;
         addSockettoEpoll(connect.fdEp, obj->OUT);
-        data[fdOUT] = new _Cgi(*obj);
+        data[obj->fdOUT] = new _Cgi(*obj);
     }
     else{
-        close(fdOUT);
+        close(obj->fdOUT);
     }
 
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
-    data[fdIN] = obj;
+    data[obj->fd_in] = obj;
+    obj->Erorr.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
+    obj->Erorr.data.fd = obj->ErrorFD;
+    obj = new _Cgi(*obj);
+    obj->fdEp = connect.fdEp;
+    data[obj->ErrorFD]  = obj;
+    addSockettoEpoll(connect.fdEp, obj->Erorr);
 }
 
-void sendResponse(maptype &config, Client &connect ) {
+void sendResponse(maptype &config, Client &connect) {
     
     int n = 1 ;
     Response respone;
     char buff[MAXSIZEBYTE] ;
-
+   
     if (!connect.buildDone ){
         
         Server* srv = getServerFromClient(config, connect);
         respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
             respone.setHeader("Set-Cookie", connect.sessionCookie);;
-          //  connect.sessionCookie.clear();
+         
         }
         connect.response = respone.build();
         connect.buildDone = true;
         if (respone.isCgipending()){
             connect.response.clear();
-            addCgi(config, connect, respone.getcgiPid(), respone.getcgiReadFd(), respone.getcgiWriteFd() );
+            addCgi(config, connect,  respone );
             connect.currentTime = time(NULL);
             connect.is_cgi = true;
            

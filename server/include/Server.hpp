@@ -148,7 +148,7 @@ void            cleanUP(maptype &config);
 Server*         getServerFromClient(maptype& config, Client& client);
 void            costumThrow(std::string des, std::string invalid);
 bool            checkTimeout(time_t prevTime, time_t timeout );
-void            handlingOfCgi(maptype &data, int fd, int flag, Response &respone );
+void            handlingOfCgi(maptype &data, int fd, int flag  );
 Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);

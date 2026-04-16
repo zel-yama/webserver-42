@@ -29,12 +29,12 @@ void Cgi::buildEnv(const Request &req)
     it = req.headers.find("content-type");
     if (it != req.headers.end())
         env["CONTENT_TYPE"] = it->second;
-    
+
     it = req.headers.find("cookie");
     if (it != req.headers.end())
         env["HTTP_COOKIE"] = it->second;
 
-    env["SERVER_PROTOCOL"] = "HTTP/1.0";
+    env["SERVER_PROTOCOL"] = "HTTP/1.1";
 }
 
 char **Cgi::envto2Darray() const
@@ -66,11 +66,16 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
     Cgihandle handle;
     int inPipe[2];
     int outPipe[2];
+    int ErrPipe[2];
 
     if (pipe(inPipe) == -1)
         return handle;
-    if (pipe(outPipe) == -1)
+    if (pipe(outPipe) == -1 || pipe(ErrPipe) == -1)
     {
+        close(outPipe[1]);
+        close(outPipe[0]);
+        close(ErrPipe[0]);
+        close(ErrPipe[1]);
         close(inPipe[0]);
         close(inPipe[1]);
         return handle;
@@ -82,25 +87,56 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
     if (pid == -1)
     {
         freeEnvp(envp);
-        close(inPipe[0]); close(inPipe[1]);
-        close(outPipe[0]); close(outPipe[1]);
+        close(inPipe[0]);
+        close(inPipe[1]);
+        close(outPipe[0]);
+        close(outPipe[1]);
         return handle;
-    }   
+    }
 
     if (pid == 0)
     {
 
         if (dup2(inPipe[0], STDIN_FILENO) == -1)
+        {
+            freeEnvp(envp);
+            close(inPipe[0]);
+            close(inPipe[1]);
+            close(outPipe[0]);
+            close(outPipe[1]);
+             close(ErrPipe[0]);
+            close(ErrPipe[1]);
             exit(1);
+        }
 
         if (dup2(outPipe[1], STDOUT_FILENO) == -1)
+        {
+            freeEnvp(envp);
+             close(ErrPipe[0]);
+            close(ErrPipe[1]);
+            close(inPipe[0]);
+            close(inPipe[1]);
+            close(outPipe[0]);
+            close(outPipe[1]);
             exit(1);
-
+        }
+        if (dup2(ErrPipe[1], STDERR_FILENO) == -1)
+        {
+            freeEnvp(envp);
+            close(ErrPipe[0]);
+            close(ErrPipe[1]);
+            close(inPipe[0]);
+            close(inPipe[1]);
+            close(outPipe[0]);
+            close(outPipe[1]);
+            exit(1);
+        }
+        close(ErrPipe[0]);
         close(inPipe[0]);
         close(outPipe[1]);
         close(inPipe[1]);
         close(outPipe[0]);
-        close(STDERR_FILENO); 
+        close(STDERR_FILENO);
 
         std::string dir = scriptPath.substr(0, scriptPath.find_last_of('/'));
         chdir(dir.c_str());
@@ -112,7 +148,8 @@ Cgihandle Cgi::execute(const std::string &cgiPath, const std::string &scriptPath
 
     close(inPipe[0]);
     close(outPipe[1]);
-
+    close(ErrPipe[1]);
+    handle.ErrFd = ErrPipe[0];
     handle.readFd = outPipe[0];
     handle.writeFd = inPipe[1];
     handle.pid = pid;

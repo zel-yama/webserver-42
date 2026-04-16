@@ -31,23 +31,25 @@ private:
     size_t fileSize;
     std::string filePath;
     Server *srv;
+    Request *req;
     
     bool cgiPending;
+    
+    std::vector<std::string> queryCom;
+    
+public:
+    Response();
+    ~Response();
+    pid_t cgiPid;
+    // location *loc;
     int  cgiReadFd;
     int  cgiWriteFd;
-    pid_t cgiPid;
-    
+    int   cgiError;
     std::string logMethod;
     std::string logIpAdress;
     std::string logPath;
     std::string logUserAgent;
     
-public:
-    Response();
-    ~Response();
-    // location *loc;
-    
-    Request *req;
     void setStatus(int code, const std::string &message);
     void setHeader(const std::string &key, const std::string &value);
     void setBody(const std::string &body);

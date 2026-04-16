@@ -45,9 +45,8 @@ bool allowKeepAlive(Request& req)
 int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser)
 {
     int readResult = myread(connect, parser->buffer[fd]);
-
-    //cout << parser->buffer[fd] << endl;
     
+
    
     if (readResult <= 0) {
        

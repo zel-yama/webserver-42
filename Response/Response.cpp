@@ -12,7 +12,7 @@ Response::Response()
       statusMessage("OK"),
       LargeFile(false),
       keepStatus(false),  
-      version("HTTP/1.0"),
+      version("HTTP/1.1"),
       body(""),
       req(NULL),
       srv(NULL)
@@ -39,7 +39,7 @@ Response::Response()
 
 Response::~Response() {
 
-    delete this->req;
+
 }
 
 void Response::setStatus(int code, const std::string &message)
@@ -81,7 +81,7 @@ static std::string toLower(const std::string &value)
 
 void Response::setContext(Request *r, Server *s)
 {
-    req = new Request(*r);
+    req =  r;
     srv = s;
 }
 
@@ -303,7 +303,6 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
             setHeader(key, value);
         }
     }
-
     if (parsedStatus >= 400)
     {
         sendError(parsedStatus, ""); 
@@ -486,6 +485,7 @@ void Response::handlePost(const std::string &path,
             cgiPending = true;
             cgiReadFd = handle.readFd;
             cgiWriteFd = handle.writeFd;
+            cgiError = handle.ErrFd;
             cgiPid = handle.pid;
             return ;
         }
@@ -508,8 +508,10 @@ void Response::handlePost(const std::string &path,
         headers["Content-Length"] = toString(req.body.size());
         return;
     }
+    
     if (!req.query.empty())
     {
+        queryCom.push_back(req.query);
         setStatus(201, "");
         headers["Content-Length"] = toString(req.body.size());
         return ;
@@ -520,6 +522,12 @@ void Response::handlePost(const std::string &path,
         sendError(403, "");
         return;
     }
+
+    // if (!existFile(path.c_str()))
+    // {
+    //     sendError(404, "");
+    //     return;
+    // }
 
     std::ofstream file(path.c_str(), std::ios::out);
     if (!file.is_open())
@@ -685,6 +693,7 @@ void Response::handleGet(std::string &path, const Request &req, const Server &sr
             cgiPending = true;
             cgiReadFd = handle.readFd;
             cgiWriteFd = handle.writeFd;
+            cgiError = handle.ErrFd;
             cgiPid = handle.pid;
             return ;
         }
@@ -848,6 +857,7 @@ void Response::handleDelete(const std::string &path,
         cgiPending = true;
         cgiReadFd = handle.readFd;
         cgiWriteFd = handle.writeFd;
+        cgiError = handle.ErrFd;
         cgiPid = handle.pid;
         return ;
     }
@@ -875,7 +885,7 @@ std::string Response::build()
 
     response << "\r\n";
 
-    if (statusCode != 204 && statusCode != 304)
+    if (statusCode != 204)
     {
         response << body;
     }

@@ -11,7 +11,7 @@ int main(int av, char *argc[]){
 	servers::iterator it;
 	signal(SIGPIPE, SIG_IGN);
 	if (av != 2 ){
-		std::cerr << "invalid argument we should take [tow..!] " << std::endl;
+		std::cerr << "invalid argument we should take [TWO...!] " << std::endl;
 		return 1;
 	}
 
@@ -32,7 +32,7 @@ int main(int av, char *argc[]){
 	}
 	catch (std::exception &e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 		
 		cleanUP(config);
 	}

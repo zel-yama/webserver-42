@@ -67,10 +67,8 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     int status  = 0 ;
    
     int process = waitpid(cg->pid, &status, WNOHANG);
-    printf("ss %d %d \n", process, flag);
+ 
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0){
-        
-        printf("waite\n");
         process = -4;
     }
  
@@ -173,7 +171,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
         if (findElement(config, *it) == "cgi") 
             handlingOfCgi(config, *it, 0);
         else
-            deleteClient(config, *it, fdEp," timeout cleint ", "" );
+            deleteClient(config, *it, fdEp," [Timeout]  ", "" );
     }
 }
 
@@ -276,7 +274,7 @@ void sendResponse(maptype &config, Client &connect) {
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         if (n <= 0) {
            
-            deleteClient(config, connect.fd, connect.fdEp, " send failed ",connect.ipAddress );
+            deleteClient(config, connect.fd, connect.fdEp, " [Reseted] ",connect.ipAddress );
             return ;
         }
         if (n > 0){

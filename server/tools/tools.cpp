@@ -25,7 +25,7 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
 
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
     {
-        std::cerr << "Error to add socket to epoll" << std::endl;
+        std::cerr << "Error: to add socket to epoll" << std::endl;
         
         return -1;
     }
@@ -59,7 +59,7 @@ void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::stri
     Config *c = (Config *) config[fd];
     if (!des.empty()){
         __displayTime();
-        std::cout << " close connection this  [" << ipAdd << "] due to -> "<< des << std::endl;
+        std::cout << " close connection   [" << ipAdd << "] due to -> "<< des << std::endl;
     }
 
     config.erase(fd);

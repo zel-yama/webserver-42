@@ -9,15 +9,18 @@ struct Cgihandle
 {
     int writeFd;
     int readFd;
+    int ErrFd;
     pid_t pid;
 
     Cgihandle() : writeFd(-1),
                   readFd(-1),
+                  ErrFd(-1),
                   pid(-1){}
 };
 
 class Cgi{
     private:
+
         std::string body;
         std::string uploadPath;
         std::map<std::string, std::string> env;

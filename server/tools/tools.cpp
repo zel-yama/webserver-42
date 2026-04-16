@@ -13,6 +13,7 @@ Config::Config(){
 _Cgi::_Cgi(){
     this->response ="";
     this->fd_in = -1;
+    ErorrB = false;
 }
 int makeNonBlockingFD(int socket){
     int flag = fcntl(socket, F_GETFL);
@@ -44,7 +45,8 @@ void setClientRead(int fdEp, Client& clien ){
 }
 
 void  deleteClient(maptype& config, int fd, int fdEP, std::string des, std::string ipAdd){
-   Response res;
+   
+  
    if (config.count(fd) == 0)
         return ;
     if (config[fd]->is_cgi)

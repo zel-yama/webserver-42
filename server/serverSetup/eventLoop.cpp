@@ -94,22 +94,22 @@ void eventLoop(maptype &config ){
                 else if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUT) && 
                     findElement(config, events[i].data.fd)  == "client" ){
                         continue; 
-                    }
-                    else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
-                        if (findElement(config, events[i].data.fd) == "cgi" ){
-                            handlingOfCgi(config, events[i].data.fd, 1, res);
-                            continue;
-                        }          
-                        deleteClient(config, events[i].data.fd, fdEp," Event Errors ", "");           
+                }
+                else  if (events[i].events & (EPOLLERR | EPOLLHUP)){
+                    if (findElement(config, events[i].data.fd) == "cgi" ){
+                        handlingOfCgi(config, events[i].data.fd, 1);
+                        continue;
+                    }          
+                    deleteClient(config, events[i].data.fd, fdEp," Event Errors ", "");    
                 }
                 else if (findElement(config, events[i].data.fd) == "cgi"){
                  
                     if (checkTimeout(config[events[i].data.fd]->currentTime, TIMEOUTCGI))
                         continue;
                     if (events[i].events & EPOLLIN)
-                        handlingOfCgi(config, events[i].data.fd, 1, res);
+                        handlingOfCgi(config, events[i].data.fd, 1);
                     else if (events[i].events & EPOLLOUT)
-                        handlingOfCgi(config, events[i].data.fd, 2, res);
+                        handlingOfCgi(config, events[i].data.fd, 2);
                 }
                 else if (findElement(config, events[i].data.fd) == "client")         
                 {

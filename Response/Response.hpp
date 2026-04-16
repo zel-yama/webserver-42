@@ -32,19 +32,19 @@ private:
     std::string filePath;
     Server *srv;
     Request *req;
-
+    
     bool cgiPending;
-    int  cgiReadFd;
-    int  cgiWriteFd;
-    pid_t cgiPid;
-
+    
     std::vector<std::string> queryCom;
-
+    
 public:
     Response();
     ~Response();
+    pid_t cgiPid;
     // location *loc;
-    
+    int  cgiReadFd;
+    int  cgiWriteFd;
+    int   cgiError;
     std::string logMethod;
     std::string logIpAdress;
     std::string logPath;

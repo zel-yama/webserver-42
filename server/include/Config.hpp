@@ -29,6 +29,9 @@ class _Cgi : public Config{
         struct epoll_event OUT;
         int fd_in;
         int fdEp;
+        int ErrorFD;
+        struct epoll_event Erorr;
+        bool ErorrB;
         int writeB;
         int fdOUT;
         pid_t pid;

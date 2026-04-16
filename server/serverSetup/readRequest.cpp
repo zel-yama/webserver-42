@@ -59,6 +59,7 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
     Request req = parser->parse(connect.fd);
 
     if (req.complete) {
+        req.ip = connect.ipAddress;
         connect.parsedRequest = req;
         connect.sessionCookie = parser->resolveSession(req);
         connect.requestFinish = true;

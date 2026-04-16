@@ -6,7 +6,7 @@
 #define TIMEOUTCGI 4
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
-#define MAXSIZEBYTE 165000
+#define MAXSIZEBYTE 65000
 
 #include "include.hpp"
 
@@ -50,6 +50,7 @@ struct Request {
     std::string query;
     std::string version;
     std::string body;
+    std::string ip;
     int status;
     
     std::map<std::string, std::string> headers;
@@ -148,7 +149,7 @@ void            cleanUP(maptype &config);
 Server*         getServerFromClient(maptype& config, Client& client);
 void            costumThrow(std::string des, std::string invalid);
 bool            checkTimeout(time_t prevTime, time_t timeout );
-void            handlingOfCgi(maptype &data, int fd, int flag, Response &respone );
+void            handlingOfCgi(maptype &data, int fd, int flag  );
 Config          *returnElement(int fd, maptype &data);
 std::string     findElement(maptype &config, int fd);
 std::string     convertIpAdder( uint32_t ipaddres);

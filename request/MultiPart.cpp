@@ -71,7 +71,7 @@ bool RequestParser::parseMultipart(std::string& body, std::string& boundary, Req
         std::string headersSection = part.substr(0, headersEnd);
         std::string content = part.substr(headersEnd + sepLen);
 
-        // trim end CRLF
+        
         while (!content.empty() && (content[content.size()-1] == '\n' || content[content.size()-1] == '\r')) {
             content.resize(content.size() - 1);
         }

@@ -45,19 +45,21 @@ bool allowKeepAlive(Request& req)
 int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser)
 {
     int readResult = myread(connect, parser->buffer[fd]);
-    
 
+   
+    
    
     if (readResult <= 0) {
        
         connect.requestFinish = false;
-        deleteClient(data, fd, connect.fdEp, " [Reseted]", connect.ipAddress );
+        deleteClient(data, fd, connect.fdEp, " [reseted] ", connect.ipAddress );
         return -1;
     }
 
     Request req = parser->parse(connect.fd);
 
     if (req.complete) {
+        req.ip = connect.ipAddress;
         connect.parsedRequest = req;
         connect.sessionCookie = parser->resolveSession(req);
         connect.requestFinish = true;
@@ -71,6 +73,7 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
             parser->buffer.erase(fd);
             connect.keepAlive = false;
         }
+     
     } 
     return 0;
 }

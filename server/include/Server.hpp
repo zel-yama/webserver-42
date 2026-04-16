@@ -6,7 +6,7 @@
 #define TIMEOUTCGI 4
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
-#define MAXSIZEBYTE 165000
+#define MAXSIZEBYTE 65000
 
 #include "include.hpp"
 
@@ -50,6 +50,7 @@ struct Request {
     std::string query;
     std::string version;
     std::string body;
+    std::string ip;
     int status;
     
     std::map<std::string, std::string> headers;

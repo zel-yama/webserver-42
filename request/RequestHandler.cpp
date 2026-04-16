@@ -1,7 +1,8 @@
-// #include "../server/include/Server.hpp"
+
+
 #include "../server/include/Client.hpp"
 #include <sys/stat.h>
-// #include "RequestParser.hpp"
+
 
 Server *getServerFromClient(maptype &config, Client &client)
 {

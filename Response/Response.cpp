@@ -310,7 +310,6 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
     }
     if (parsedStatus >= 100)
         setStatus(parsedStatus, "");
-
     setBody(bodyPart);
 }
 
@@ -343,7 +342,7 @@ void Response::processRequest(Request &req, Server &ser)
 
     setVersion(req.version);
     logMethod = req.method;
-    logIpAdress = ser.ipAdress;
+    logIpAdress = req.ip;
     logPath = req.path;
     logUserAgent = req.headers["user-agent"];
 
@@ -522,12 +521,6 @@ void Response::handlePost(const std::string &path,
         sendError(403, "");
         return;
     }
-
-    // if (!existFile(path.c_str()))
-    // {
-    //     sendError(404, "");
-    //     return;
-    // }
 
     std::ofstream file(path.c_str(), std::ios::out);
     if (!file.is_open())
@@ -891,6 +884,7 @@ std::string Response::build()
     }
     std::cout <<  logIpAdress << "--";  
     __displayTime();
-    std::cout << " \"" << logMethod << " " << logPath << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << logUserAgent << std::endl; 
+    std::cout << " \"" << logMethod << " " << logPath << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << logUserAgent << std::endl;
+    setStatus(200, "");
     return response.str();
 }

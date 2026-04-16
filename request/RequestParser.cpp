@@ -9,11 +9,10 @@
 
 
 Request::Request() :   status(200),  headersParsed(false),  complete(false), keepalive(false) {
-    // loc = new location();
+   
 }
 
 Request::~Request() {
-    // delete loc;
 }
 
 std::string RequestParser::resolveSession(Request& req)

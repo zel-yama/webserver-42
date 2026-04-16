@@ -33,7 +33,7 @@ std::string findElement(maptype &config, int fd){
 void cleanUP(maptype &config){
     
     ConfigIter it = config.begin();
-    Server* serv;
+   
     size_t i = 0;
     if (it != config.end()){
             while( i < it->second->fdsBuffer.size()){
@@ -52,14 +52,14 @@ void cleanUP(maptype &config){
 
 Config *returnElement(int fd, maptype &data){
     if (data.count(fd) == 0)
-        return NULL;
-
+    return NULL;
+    
     return data.at(fd);
 }
 
 
 void eventLoop(maptype &config ){
- 
+    
     int fdEp;
     Client *Cli = NULL;
     Client*  newClient;
@@ -73,13 +73,12 @@ void eventLoop(maptype &config ){
     struct epoll_event events[MAXEVENT];
     signal(SIGINT, signalhandler);
     while(1){
-	    n = epoll_wait(fdEp, events, MAXEVENT, 5000);
-           if (function(0) == 1 || n == -1){
-               cleanUP(config);
-           }
-          
-           for(int i = 0; i < n; i++){
-               
+        n = epoll_wait(fdEp, events, MAXEVENT, 5000);
+        if (function(0) == 1 || n == -1){
+            cleanUP(config);
+        }
+        
+        for(int i = 0; i < n; i++){
                if (config.count(events[i].data.fd) == 0){ 
                    
                    continue;
@@ -120,16 +119,19 @@ void eventLoop(maptype &config ){
                     if (!clientServer)
                         continue;
                     if (events[i].events & EPOLLIN ){
+                        
                         if (!Cli->requestFinish){
                             if(readRequest(config, events[i].data.fd, *Cli, &clientServer->parser) == -1)
-                                continue;
+                            continue;
                             
                         }
-                        if (Cli->requestFinish)
+                        if (Cli->requestFinish) {
                             setClientSend(fdEp, *Cli );
+                        }
                         continue;
                     }
-                    if (events[i].events & EPOLLOUT  ) {
+                    if (events[i].events & EPOLLOUT) {
+
                         Cli = (Client *) returnElement(events[i].data.fd, config);
                         sendResponse(config, *Cli);
                     }

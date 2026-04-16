@@ -33,6 +33,7 @@ std::string findElement(maptype &config, int fd){
 void cleanUP(maptype &config){
     
     ConfigIter it = config.begin();
+   
     size_t i = 0;
     if (it != config.end()){
             while( i < it->second->fdsBuffer.size()){

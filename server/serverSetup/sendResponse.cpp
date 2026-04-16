@@ -34,7 +34,7 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
             _Cgi *cgtmp = (_Cgi *)returnElement(cg->fd_in, data);
             deleteClient(data, cg->ErrorFD, cg->fdEp, "", "");
             cgtmp->ErorrB = true;
-            printf("ErorrB\n");
+          
             return ;
         }
         if (n == 0)
@@ -67,16 +67,14 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     int status  = 0 ;
    
     int process = waitpid(cg->pid, &status, WNOHANG);
-    // printf("ss %d %d \n", process, flag);
+ 
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0){
-        
-        printf("waite\n");
         process = -4;
     }
  
    
     if (flag == 1){
-        int i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
+        long long i = read(cg->fd_in, buffer, MAXSIZEBYTE  );
 
         if (i < 0  ) {
             kill(cg->pid, SIGTERM);
@@ -122,13 +120,13 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     }
     connect->is_cgi = false;
 
-    int sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
+    long long sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
     if (sendB <= 0){
         deleteCgi(data, cg, connect->fdEp);
         deleteClient(data, connect->fd, connect->fdEp, "", "");
         return ;
     }
-    if (sendB < cg->response.size()){
+    if (sendB < (long long)cg->response.size()){
         connect->response = cg->response.substr(sendB);
         deleteCgi(data, cg, connect->fdEp);
         return ;
@@ -178,7 +176,7 @@ void checkClientsTimeout(maptype& config, int fdEp)
         if (findElement(config, *it) == "cgi") 
             handlingOfCgi(config, *it, 0);
         else
-            deleteClient(config, *it, fdEp," timeout cleint ", "" );
+            deleteClient(config, *it, fdEp," [Timeout]  ", "" );
     }
 }
 

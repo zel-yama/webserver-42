@@ -63,7 +63,6 @@ int  readRequest(maptype &data,  int fd,  Client &connect, RequestParser *parser
         connect.parsedRequest = req;
         connect.sessionCookie = parser->resolveSession(req);
         connect.requestFinish = true;
-    
         if (allowKeepAlive(req)) {
             connect.keepAlive = true;
             parser->requests[fd] = Request();

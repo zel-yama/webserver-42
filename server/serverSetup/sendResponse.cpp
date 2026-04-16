@@ -239,10 +239,11 @@ void addCgi(maptype &data, Client &connect , Response res){
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
     data[obj->fd_in] = obj;
+
+    obj = new _Cgi(*obj);
     obj->Erorr.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
     obj->Erorr.data.fd = obj->ErrorFD;
-    obj = new _Cgi(*obj);
-    obj->fdEp = connect.fdEp;
+    
     data[obj->ErrorFD]  = obj;
     addSockettoEpoll(connect.fdEp, obj->Erorr);
 }

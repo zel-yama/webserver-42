@@ -1,5 +1,6 @@
 
-#include "../webserv.hpp"
+
+#include "./include/webserv.hpp"
 #include "./include/Server.hpp"
 #include "include/parsing.hpp"
 int main(int av, char *argc[]){

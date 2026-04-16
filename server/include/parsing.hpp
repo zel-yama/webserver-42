@@ -8,7 +8,7 @@
 
 
 
-#include "../../webserv.hpp"
+#include "webserv.hpp"
 #include "include.hpp"
 #include "Server.hpp"
 
@@ -35,13 +35,5 @@ void                        bracketValidation(std::vector<tockens> &tockens);
 void                        returnP(std::string token, std::string &path, int &exitCode);
 void                        handleMapString(std::string &str, std::map<std::string, std::string> &MapStrings);
 std::vector<std::string>    splitV(std::string &str);
-//--------------------------------------------------
-void                        printvector(std::vector<std::string> &config);
-    void printKeyInt(IntKey v);
-    void printlocation(location obj);
-    void printLocation(std::vector<location> objs);
-    void printTocknes(std::vector<tockens> &TV);
-    void printvector(std::vector<std::string> &config);
-    void printMapIntKey(std::map<int, std::string>  ma);
-    void printdoulStr(doubleStr v);
+
 #endif

@@ -67,7 +67,7 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     int status  = 0 ;
    
     int process = waitpid(cg->pid, &status, WNOHANG);
-    printf("ss %d %d \n", process, flag);
+    // printf("ss %d %d \n", process, flag);
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0){
         
         printf("waite\n");
@@ -253,8 +253,8 @@ void sendResponse(maptype &config, Client &connect) {
         Server* srv = getServerFromClient(config, connect);
         respone.processRequest(connect.parsedRequest, *srv);
         if (!connect.sessionCookie.empty()) {
-            respone.setHeader("Set-Cookie", connect.sessionCookie);;
-         
+            respone.setHeader("Set-Cookie", connect.sessionCookie);
+            connect.sessionCookie.clear();
         }
         connect.response = respone.build();
         connect.buildDone = true;
@@ -281,8 +281,8 @@ void sendResponse(maptype &config, Client &connect) {
         n = send(connect.fd, connect.response.c_str(), connect.response.size(), 0);
         
         if (n <= 0) {
-            
-            deleteClient(config, connect.fd, connect.fdEp, " send failed ",connect.ipAddress );
+           
+            deleteClient(config, connect.fd, connect.fdEp, " [reseted] ",connect.ipAddress );
             return ;
         }
         if (n > 0){

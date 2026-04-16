@@ -71,44 +71,32 @@ server {
 
 ### Testing
 
-Test files and test cases are available in the `site/` directory:
-
 ```bash
-cd site
-./test.sh        # Run basic tests
-python3 test.py  # Run Python-based tests
+curl http://localhost:8080/        # Run basic tests
 ```
 
 ## Resources
 
 ### HTTP Protocol References
-- [RFC 7230 - HTTP/1.1 Message Syntax and Routing](https://tools.ietf.org/html/rfc7230)
-- [RFC 7231 - HTTP/1.1 Semantics and Content](https://tools.ietf.org/html/rfc7231)
-- [MDN Web Docs - HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP)
+- [RFC 1945 - HTTP/1.0 Message Syntax and Routing](https://datatracker.ietf.org/doc/html/rfc1945)
+- [tutorialspoint - HTTP TUTORIAL](https://www.tutorialspoint.com/http/)
 
 ### System Programming
-- [Linux man pages - select(2)](https://man7.org/linux/man-pages/man2/select.2.html)
+- [Non-Blocking Sockets and I/O Multiplexing with epoll in C](https://medium.com/%40hajorda/non-blocking-sockets-and-i-o-multiplexing-with-epoll-in-c-bd3d8e54c20a)
+- [ Nonblocking I/O pdf](https://web.stanford.edu/class/archive/cs/cs110/cs110.1206/lectures/19-slides.pdf)
+- [ Nonblocking I/O site](https://www.ibm.com/docs/en/i/7.2.0?topic=designs-example-nonblocking-io-select)
+- [Reading unkown number of bytes from a non-blocking socket](https://cplusplus.com/forum/beginner/285198/)
+- [USING EPOLL](https://www.dumais.io/page_c5b8d03166dd641c5c1c67d47a46bb4a.html#:~:text=In%20Level,to%20the%20TX%20buffer%2C%20you)
 - [Linux man pages - socket(2)](https://man7.org/linux/man-pages/man2/socket.2.html)
-- [POSIX Sockets Programming](https://www.ibm.com/docs/en/i/7.4?topic=programming-sockets)
+
 
 ### CGI Specification
 - [RFC 3875 - Common Gateway Interface](https://tools.ietf.org/html/rfc3875)
 
-### Configuration Parsing
-- [NGINX Configuration Documentation](https://nginx.org/en/docs/http/ngx_http_core_module.html)
 
 ## Team Contributions
 
 - **ayad**: Response handling and CGI implementation
 - **zel-yama**: Configuration parsing and server core functionality
 - **mohidbel**: Request handling, session management, and cookie implementation
-
-## AI Usage
-
-AI assistance was utilized for:
-- Code review and optimization suggestions
-- Bug fixing and debugging complex issues
-- Documentation and code comments generation
-- Best practices and design pattern recommendations
-- Testing edge cases and validation logic
 

@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <sstream>
 #include "../server/include/Client.hpp"
-#include "../webserv.hpp"
+
 
 Cgi::Cgi(const Request &req)
 {

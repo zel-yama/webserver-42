@@ -19,7 +19,7 @@ headers = server/include/tools.hpp  server/include/Server.hpp \
 server/include/parsing.hpp server/include/include.hpp server/include/Config.hpp \
  server/include/Client.hpp Response/cgi.hpp Response/Response.hpp
 
-%.o:%.cpp webserv.hpp $(headers)
+%.o:%.cpp  $(headers)
 	$(CC) $(FLAGS) -c $< -o $@
 
 all: $(NAME)

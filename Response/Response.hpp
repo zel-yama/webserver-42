@@ -27,11 +27,11 @@ private:
     std::map<std::string, std::string> headers;
     std::map<int, std::string> statusMap;
     bool LargeFile;
+    Server *srv;
+    Request *req;
     bool keepStatus;
     size_t fileSize;
     std::string filePath;
-    Server *srv;
-    Request *req;
     
     bool cgiPending;
     

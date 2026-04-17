@@ -10,36 +10,32 @@ void validateRequest(Request &req, Server *srv);
 Response::Response()
     : statusCode(200),
       statusMessage("OK"),
-      LargeFile(false),
-      keepStatus(false),  
       version("HTTP/1.1"),
       body(""),
+      LargeFile(false),
+      srv(NULL),
       req(NULL),
-      srv(NULL)
+      keepStatus(false)
 {
-   
+
     statusMap[200] = "OK";
     statusMap[201] = "Created";
     statusMap[204] = "No Content";
     statusMap[301] = "Moved Permanently";
     statusMap[302] = "Found";
-    statusMap[304] = "Not Modified";
     statusMap[400] = "Bad Request";
     statusMap[403] = "Forbidden";
     statusMap[404] = "Not Found";
     statusMap[405] = "Method Not Allowed";
-    statusMap[409] = "Conflict";
     statusMap[413] = "Payload Too Large";
     statusMap[414] = "URI too long";
     statusMap[502] = "Bad Gateway";
     statusMap[500] = "Internal Server Error";
-    statusMap[504] = "Gateway Timeout";
     statusMap[501] = "Not Implemented";
 }
 
-Response::~Response() {
-
-
+Response::~Response()
+{
 }
 
 void Response::setStatus(int code, const std::string &message)
@@ -81,7 +77,7 @@ static std::string toLower(const std::string &value)
 
 void Response::setContext(Request *r, Server *s)
 {
-    req =  r;
+    req = r;
     srv = s;
 }
 
@@ -145,7 +141,7 @@ std::string Response::getFileExtention(const std::string &path) const
 {
     std::size_t pos = path.find_last_of('.');
     if (pos != std::string::npos)
-        return path.substr(pos + 1); 
+        return path.substr(pos + 1);
     return "";
 }
 
@@ -233,18 +229,18 @@ bool Response::isLargeFile() const
     return LargeFile;
 }
 
-std::string& Response::getFilePath() 
+std::string &Response::getFilePath()
 {
-    return  filePath;
+    return filePath;
 }
 
-bool Response::isCgipending() const {return cgiPending;}
+bool Response::isCgipending() const { return cgiPending; }
 
-int Response::getcgiReadFd() const {return cgiReadFd;}
+int Response::getcgiReadFd() const { return cgiReadFd; }
 
-int Response::getcgiWriteFd() const {return cgiWriteFd;}
+int Response::getcgiWriteFd() const { return cgiWriteFd; }
 
-pid_t Response::getcgiPid() const {return cgiPid;}
+pid_t Response::getcgiPid() const { return cgiPid; }
 
 size_t Response::getFileSize() const
 {
@@ -305,7 +301,7 @@ void Response::applyCgiResponse(const std::string &cgiOutput)
     }
     if (parsedStatus >= 400)
     {
-        sendError(parsedStatus, ""); 
+        sendError(parsedStatus, "");
         return;
     }
     if (parsedStatus >= 100)
@@ -362,7 +358,6 @@ void Response::processRequest(Request &req, Server &ser)
     {
         sendError(405, "");
     }
-
 }
 
 void Response::handleMultipartUpload(const Request &req, const Server &srv)
@@ -409,9 +404,9 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
             file.write(part.content.c_str(), part.content.size());
             file.close();
 
-            response << "<li>File uploaded: <strong>" << part.filename 
-                    << "</strong> (" << part.content.size() << " bytes, "
-                    << part.contentType << ")</li>";
+            response << "<li>File uploaded: <strong>" << part.filename
+                     << "</strong> (" << part.content.size() << " bytes, "
+                     << part.contentType << ")</li>";
         }
         else if (!part.content.empty() && !part.name.empty())
         {
@@ -427,13 +422,13 @@ void Response::handleMultipartUpload(const Request &req, const Server &srv)
             file.write(part.content.c_str(), part.content.size());
             file.close();
 
-            response << "<li>Field saved: '<strong>" << part.name << ".txt" 
-                    << "</strong>' (" << part.content.size() << " bytes)</li>";
+            response << "<li>Field saved: '<strong>" << part.name << ".txt"
+                     << "</strong>' (" << part.content.size() << " bytes)</li>";
         }
         else
         {
-            response << "<li>Field '<strong>" << part.name << "</strong>': " 
-                    << part.content << "</li>";
+            response << "<li>Field '<strong>" << part.name << "</strong>': "
+                     << part.content << "</li>";
         }
     }
 
@@ -475,18 +470,18 @@ void Response::handlePost(const std::string &path,
             Cgi cgi(req);
 
             std::string cgiPath = cgiConfig[ext];
-            Cgihandle  handle = cgi.execute(cgiPath, path);
+            Cgihandle handle = cgi.execute(cgiPath, path);
             if (handle.readFd == -1 || handle.pid == -1)
             {
                 sendError(500, "");
-                return ;
+                return;
             }
             cgiPending = true;
             cgiReadFd = handle.readFd;
             cgiWriteFd = handle.writeFd;
             cgiError = handle.ErrFd;
             cgiPid = handle.pid;
-            return ;
+            return;
         }
 
         if (isDirectory(path.c_str()))
@@ -507,13 +502,13 @@ void Response::handlePost(const std::string &path,
         headers["Content-Length"] = toString(req.body.size());
         return;
     }
-    
+
     if (!req.query.empty())
     {
         queryCom.push_back(req.query);
         setStatus(201, "");
         headers["Content-Length"] = toString(req.body.size());
-        return ;
+        return;
     }
 
     if (isDirectory(path.c_str()))
@@ -590,7 +585,7 @@ void Response::handleDirectory(std::string &path,
             sendError(403, "");
         return;
     }
-    
+
     if (srv.outoIndex)
     {
         generateautoindex(path);
@@ -615,7 +610,7 @@ void Response::generateautoindex(const std::string &path)
 
         if (access(path.c_str(), F_OK) != 0)
         {
-            sendError(404, ""); 
+            sendError(404, "");
         }
         else if (access(path.c_str(), R_OK) != 0)
         {
@@ -624,7 +619,6 @@ void Response::generateautoindex(const std::string &path)
         else
         {
             sendError(500, "");
-
         }
         return;
     }
@@ -655,7 +649,6 @@ void Response::generateautoindex(const std::string &path)
     setBody(html.str());
 }
 
-
 void Response::handleGet(std::string &path, const Request &req, const Server &srv)
 {
 
@@ -677,18 +670,18 @@ void Response::handleGet(std::string &path, const Request &req, const Server &sr
             Cgi cgi(req);
 
             std::string cgiPath = cgiConfig[ext];
-            Cgihandle  handle = cgi.execute(cgiPath, path);
+            Cgihandle handle = cgi.execute(cgiPath, path);
             if (handle.readFd == -1 || handle.pid == -1)
             {
                 sendError(500, "");
-                return ;
+                return;
             }
             cgiPending = true;
             cgiReadFd = handle.readFd;
             cgiWriteFd = handle.writeFd;
             cgiError = handle.ErrFd;
             cgiPid = handle.pid;
-            return ;
+            return;
         }
         servFile(path);
         return;
@@ -702,7 +695,6 @@ void Response::handleGet(std::string &path, const Request &req, const Server &sr
     else
         sendError(404, "");
 }
-
 
 void Response::servFile(const std::string &path)
 {
@@ -815,7 +807,7 @@ void Response::handleDelete(const std::string &path,
 
     if (isDirectory(path.c_str()))
     {
-        sendError(409, "");
+        sendError(403, "");
         return;
     }
 
@@ -826,12 +818,12 @@ void Response::handleDelete(const std::string &path,
     }
     std::string ext = getFileExtention(path);
     if (!ext.empty() && ext[0] != '.')
-        ext = "."  + ext;
+        ext = "." + ext;
 
     int cgiEnabled = srv.cgiStatus;
     std::map<std::string, std::string> cgiConfig = srv.cgiConfig;
 
-    if(req.loc.cgiStatus != -1)
+    if (req.loc.cgiStatus != -1)
         cgiEnabled = req.loc.cgiStatus;
     if (!req.loc.CgiCofing.empty())
         cgiConfig = req.loc.CgiCofing;
@@ -839,20 +831,20 @@ void Response::handleDelete(const std::string &path,
     if (cgiEnabled == 1 && cgiConfig.find(ext) != cgiConfig.end())
     {
         Cgi cgi(req);
-        
+
         std::string cgiPath = cgiConfig[ext];
         Cgihandle handle = cgi.execute(cgiPath, path);
         if (handle.readFd == -1 || handle.pid == -1)
         {
             sendError(500, "");
-            return ;
+            return;
         }
         cgiPending = true;
         cgiReadFd = handle.readFd;
         cgiWriteFd = handle.writeFd;
         cgiError = handle.ErrFd;
         cgiPid = handle.pid;
-        return ;
+        return;
     }
 
     if (std::remove(path.c_str()) != 0)
@@ -860,7 +852,7 @@ void Response::handleDelete(const std::string &path,
         sendError(500, "");
         return;
     }
-    
+
     setStatus(204, "");
     body.clear();
 }
@@ -882,7 +874,7 @@ std::string Response::build()
     {
         response << body;
     }
-    std::cout <<  logIpAdress << "--";  
+    std::cout << logIpAdress << "--";
     __displayTime();
     std::cout << " \"" << logMethod << " " << logPath << " " << version << "\" " << statusCode << " " << headers["Content-Length"] << " \"-\" " << logUserAgent << std::endl;
     setStatus(200, "");

@@ -71,11 +71,11 @@ Client Server::acceptClient(){
 void Server::listenFunction(){
    
     if (listen(fd, 30) < 0){
-       throw std::runtime_error("Error in to listen that port ");}
+       throw std::runtime_error("Error in to listen  port ");}
     std::ostringstream ss;
     ss << "\n*** server IP address "
      << convertIpAdder(addressServer.sin_addr.s_addr)
-      <<  " listening on port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
+      <<  " listen  port -> " << ntohs(addressServer.sin_port)  << " *** \n\n  " ; 
     std::cout << ss.str() << std::endl;
 }
 int Server::CreateServer( std::string ipaddress){
@@ -89,11 +89,11 @@ int Server::CreateServer( std::string ipaddress){
         throw std::runtime_error("Error: to set socket to reusing mode ");
     if (fd == -1)
     {
-        throw std::runtime_error("Error in in create socket socket function");
+        throw std::runtime_error("Error in in create  socket function");
     }
 
     if (bind(fd, (sockaddr *)(&addressServer),sizeof(addressServer)) < 0){
-        throw std::runtime_error("Error in bind operatoin bind function ");
+        throw std::runtime_error("Error in bind operation bind function ");
     }
     listenFunction();
     data.events = EPOLLIN;

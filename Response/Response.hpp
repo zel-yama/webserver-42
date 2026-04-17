@@ -41,7 +41,7 @@ public:
     Response();
     ~Response();
     pid_t cgiPid;
-    // location *loc;
+
     int  cgiReadFd;
     int  cgiWriteFd;
     int   cgiError;
@@ -85,8 +85,6 @@ public:
         const Request &req,
         const Server &srv);
         void handleMultipartUpload(const Request &req, const Server &srv);
-        
-        // for cgi fds
     void applyCgiResponse(const std::string &cgiOutput);
     bool isCgipending() const;
     int getcgiReadFd() const;

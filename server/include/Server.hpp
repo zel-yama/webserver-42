@@ -6,7 +6,7 @@
 #define TIMEOUTCGI 4
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
-#define MAXSIZEBYTE 65000
+#define MAXSIZEBYTE 16500
 
 #include "include.hpp"
 
@@ -17,23 +17,23 @@ class Response;
 struct location {
  
     location();
-    int                                 fdEp;
+    int                                  ex;
+    int                                  fdEp;
     int                                  upload;
-    std::map<std::string, std::string>        CgiCofing;
-    std::string                          uploadPath;
-    std::string                          cgiPath;
-    std::string                          cgiExten;
+    int                                  outoIndex;
     int                                  cgiStatus;
-    std::vector<std::string>             allowedMethods;
+    int                                  returnCode;
+    size_t                               bodyMaxByte;
     std::string                          root;
     std::string                          returnP;
-    int                                  returnCode;
+    std::string                          cgiPath;
+    std::string                          cgiExten;
+    std::string                          uploadPath;
     std::string                          locationPath;
     std::vector<std::string>             indexFile;
-    size_t                               bodyMaxByte;
-    int                                  outoIndex;
-    int                                    ex;
+    std::vector<std::string>             allowedMethods;
     std::map<int, std::string >          D_ErrorPages;
+    std::map<std::string, std::string>   CgiCofing;
 };
 
 struct MultipartPart {
@@ -45,21 +45,21 @@ struct MultipartPart {
 
 
 struct Request {
-    std::string method;
-    std::string path;
-    std::string query;
-    std::string version;
-    std::string body;
-    std::string ip;
     int status;
+    std::string ip;
+    std::string path;
+    std::string body;
+    std::string query;
+    std::string method;
+    std::string version;
     
-    std::map<std::string, std::string> headers;
-    std::vector<MultipartPart> multipartData;
-    std::map<std::string, std::string> cookies;
     std::string     sessionId;
+    std::vector<MultipartPart> multipartData;
+    std::map<std::string, std::string> headers;
+    std::map<std::string, std::string> cookies;
 
-    bool headersParsed;
     
+    bool headersParsed;
     bool complete;
     bool keepalive;
     std::string fullpath;

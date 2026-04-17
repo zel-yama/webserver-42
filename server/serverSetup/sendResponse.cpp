@@ -2,11 +2,6 @@
 #include "../include/tools.hpp"
 #include "../../Response/Response.hpp"
 
-// check is if client exists ok 
-// check process still contune runing if rading 
-///  timeout return bad get way 
-// no output what should return like empyt file  string 
-// reading 
 void deleteCgi(maptype &data, _Cgi *cgi, int fdEp ){
 
     deleteClient(data, cgi->ErrorFD, fdEp, "", "");
@@ -34,7 +29,6 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
             _Cgi *cgtmp = (_Cgi *)returnElement(cg->fd_in, data);
             deleteClient(data, cg->ErrorFD, cg->fdEp, "", "");
             cgtmp->ErorrB = true;
-            printf("ErorrB\n");
             return ;
         }
         if (n == 0)
@@ -67,10 +61,7 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     int status  = 0 ;
    
     int process = waitpid(cg->pid, &status, WNOHANG);
-    // printf("ss %d %d \n", process, flag);
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0){
-        
-        printf("waite\n");
         process = -4;
     }
  

@@ -12,9 +12,9 @@ FILES = server/main.cpp   \
 		server/parsing/tocknesCases.cpp server/parsing/tocknizeValue.cpp \
 	
 OBJ = $(FILES:.cpp=.o) 
-CC = c++ -g -I./server/include  -std=c++98   #-std=c++98 
-FLAGS = #-Werror -Wextra -Wall  -std=c++98
-FLAGS =  #-std=c++98 # -Werror -Wextra -Wall #
+CC = c++ -g -I./server/include  #-std=c++98   #-std=c++98 
+# FLAGS = -Werror -Wextra -Wall  -std=c++98
+# FLAGS =  #-std=c++98 # -Werror -Wextra -Wall #
 headers = server/include/tools.hpp  server/include/Server.hpp \
 server/include/parsing.hpp server/include/include.hpp server/include/Config.hpp \
  server/include/Client.hpp Response/cgi.hpp Response/Response.hpp

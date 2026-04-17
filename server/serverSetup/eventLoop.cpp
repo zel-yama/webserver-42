@@ -39,8 +39,7 @@ void cleanUP(maptype &config){
             }
             while(it != config.end()){
            
-                Config *c = it->second;
-                delete c;
+                deleteClient(config, it->first, it->second->fdEp, "", "");
                 it++;
             }
     }

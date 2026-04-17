@@ -26,7 +26,6 @@ int addSockettoEpoll(int fdEp, struct epoll_event  data){
     if (epoll_ctl(fdEp,  EPOLL_CTL_ADD, data.data.fd, &data) == -1)
     {
         std::cerr << "Error: to add socket to epoll" << std::endl;
-        
         return -1;
     }
     return 0;

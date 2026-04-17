@@ -1,9 +1,9 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define TIMEOUT 30
+#define TIMEOUT 50
 #define MAX_URI 2048
-#define TIMEOUTCGI 4
+#define TIMEOUTCGI 20
 #define MAXEVENT 1000
 #define MAXCLIENT 1000
 #define MAXSIZEBYTE 16500

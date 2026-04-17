@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by ayad, zel-yama, mohidbel.*
+*This project has been created as part of the 42 curriculum by aayad, zel-yama, mohidbel.*
 
 ## Description
 
@@ -6,7 +6,7 @@
 
 ### Key Features
 
-- **Multi-client handling**: Event-driven architecture using select/poll for managing multiple simultaneous connections
+- **Multi-client handling**: Event-driven architecture using EPOLL for managing multiple simultaneous connections
 - **HTTP Protocol Support**: Full implementation of GET, POST, DELETE methods with proper status codes and headers
 - **Configuration Parsing**: Custom configuration file parser supporting server blocks and location definitions
 - **CGI Support**: Common Gateway Interface implementation for dynamic content generation

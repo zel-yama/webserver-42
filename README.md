@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by ayad, zel-yama, mohidbel.*
+*This project has been created as part of the 42 curriculum by aayad, zel-yama, mohidbel.*
 
 ## Description
 

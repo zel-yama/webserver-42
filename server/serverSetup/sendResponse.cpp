@@ -11,7 +11,7 @@ void deleteCgi(maptype &data, _Cgi *cgi, int fdEp ){
 
 void handlingOfCgi(maptype &data, int fd, int flag  ){
     
-    
+    static int  i =0;
     Response respone;
     char buffer[MAXSIZEBYTE] ;
  
@@ -27,9 +27,12 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
        }
         if (n > 0){
             _Cgi *cgtmp = (_Cgi *)returnElement(cg->fd_in, data);
+
             deleteClient(data, cg->ErrorFD, cg->fdEp, "", "");
+            if (!cgtmp)
+                return ;
             cgtmp->ErorrB = true;
-          
+           
             return ;
         }
         if (n == 0)
@@ -62,10 +65,11 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
     int status  = 0 ;
    
     int process = waitpid(cg->pid, &status, WNOHANG);
- 
+    (void)process;
     if (WIFEXITED(status) && WEXITSTATUS(status)  != 0){
-        process = -4;
+        flag = 0;
     }
+   
  
    
     if (flag == 1){
@@ -73,24 +77,24 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
 
         if (i < 0  ) {
             kill(cg->pid, SIGTERM);
-            deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
-            deleteCgi(data, cg, connect->fdEp);
-            return ;
+            // deleteClient(data, cg->fdOUT, connect->fdEp, "", "");
+            // deleteCgi(data, cg, connect->fdEp);
+            // return ;
         }
-        if (i > 0 || process > 0){
+        if (i > 0 ){
             connect->currentTime = time(NULL);
             cg->response.append(buffer, i);
            
             return ;
         }
     }
-
-    if (process == -4 || flag == 0 || cg->ErorrB){
+    
+    if (flag == 0 || cg->ErorrB ){
       
         flag = -1;
         cg->response = "Status:500 Inter Server Error\r\n\r\n Error ";  
     }
-   
+    
     respone.setHeader("Server", srv->ServerName);
     if (!connect->keepAlive)
         respone.setHeader("Connection", "close");
@@ -114,6 +118,7 @@ void handlingOfCgi(maptype &data, int fd, int flag  ){
         waitpid(cg->pid, NULL, WNOHANG );
     }
     connect->is_cgi = false;
+    i++;
 
     long long sendB = send(connect->fd, cg->response.c_str(), cg->response.size(), 0);
     if (sendB <= 0){
@@ -202,6 +207,7 @@ void addCgi(maptype &data, Client &connect , Response res){
    
     memset(&obj->data, 0, sizeof(obj->data));
     obj->name = "cgi";
+    
     obj->data.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
     obj->currentTime = time(NULL);
     obj->fd_in = makeNonBlockingFD(res.cgiReadFd);
@@ -212,7 +218,10 @@ void addCgi(maptype &data, Client &connect , Response res){
     obj->fdEp = connect.fdEp;
     obj->ErrorFD =  makeNonBlockingFD(res.cgiError);;
     obj->connect = &connect;
-   
+  
+
+    
+    
     obj->writeB = write(obj->fdOUT, connect.parsedRequest.body.c_str(), connect.parsedRequest.body.size());
     if (obj->writeB != (int)connect.parsedRequest.body.size()){
         obj->OUT.events = EPOLLOUT | EPOLLHUP | EPOLLERR;
@@ -227,10 +236,11 @@ void addCgi(maptype &data, Client &connect , Response res){
     obj->fd_client = connect.fd;
     addSockettoEpoll(connect.fdEp, obj->data);
     data[obj->fd_in] = obj;
+
+    obj = new _Cgi(*obj);
     obj->Erorr.events = EPOLLIN  | EPOLLHUP | EPOLLERR;
     obj->Erorr.data.fd = obj->ErrorFD;
-    obj = new _Cgi(*obj);
-    obj->fdEp = connect.fdEp;
+    
     data[obj->ErrorFD]  = obj;
     addSockettoEpoll(connect.fdEp, obj->Erorr);
 }
@@ -249,7 +259,7 @@ void sendResponse(maptype &config, Client &connect) {
             respone.setHeader("Set-Cookie", connect.sessionCookie);
             connect.sessionCookie.clear();
         }
-        connect.response = respone.build();
+       
         connect.buildDone = true;
         if (respone.isCgipending()){
             connect.response.clear();
@@ -259,6 +269,7 @@ void sendResponse(maptype &config, Client &connect) {
            
             return ;
         }
+        connect.response = respone.build();
         if (respone.isLargeFile()){
             
             connect.fdFile = open(respone.getFilePath().c_str(), O_RDONLY);

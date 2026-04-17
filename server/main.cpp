@@ -4,7 +4,7 @@
 #include "./include/Server.hpp"
 #include "include/parsing.hpp"
 int main(int av, char *argc[]){
-
+ 
 	Server *Serv;
 	maptype config;
 	int fd;

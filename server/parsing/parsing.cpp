@@ -88,7 +88,7 @@ void parseFileExten(std::string &fileName){
     std::string exten = fileName.substr(fileName.size() - 5); 
 
     if (exten.compare(".conf"))
-        throw std::runtime_error("Error: in file exstention " + fileName); //search on it
+        throw std::runtime_error("Error: in file exstention " + fileName);
 }
 
 servers parsing(std::string FileName){

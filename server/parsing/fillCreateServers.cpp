@@ -15,10 +15,7 @@ location locationHandling(tockenIt &it){
   return local;
 }
 
-void location_handle(Server &serv, std::string path)//extra 
- {
-    serv.ServerName = path;
-}
+
 
 int serverHandling(tockenIt it, std::vector<Server> &servs){
     int i  = 0;

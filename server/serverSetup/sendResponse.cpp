@@ -249,16 +249,16 @@ void sendResponse(maptype &config, Client &connect) {
             respone.setHeader("Set-Cookie", connect.sessionCookie);
             connect.sessionCookie.clear();
         }
-        connect.response = respone.build();
         connect.buildDone = true;
         if (respone.isCgipending()){
             connect.response.clear();
             addCgi(config, connect,  respone );
             connect.currentTime = time(NULL);
             connect.is_cgi = true;
-           
+            
             return ;
         }
+        connect.response = respone.build();
         if (respone.isLargeFile()){
             
             connect.fdFile = open(respone.getFilePath().c_str(), O_RDONLY);

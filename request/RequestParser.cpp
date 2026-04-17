@@ -87,6 +87,33 @@ bool RequestParser::isValidUri(const std::string& uri) {
     return true;
 }
 
+bool RequestParser::decodePercentEncoding(const std::string& in, std::string& out) {
+    out.clear();
+    out.reserve(in.size());
+
+    for (size_t i = 0; i < in.size(); ++i) {
+        if (in[i] == '%') {
+            if (i + 2 >= in.size() ||
+                !isxdigit(in[i + 1]) ||
+                !isxdigit(in[i + 2]))
+                return false;
+
+            std::string hex = in.substr(i + 1, 2);
+            char decoded = static_cast<char>(strtol(hex.c_str(), NULL, 16));
+
+            if (decoded == '\0' || static_cast<unsigned char>(decoded) < 32)
+                return false;
+
+            out.push_back(decoded);
+            i += 2;
+        } else {
+            out.push_back(in[i]);
+        }
+    }
+
+    return true;
+}
+
 std::string RequestParser::normalizePath(const std::string& path) {
     bool hadSlash = (!path.empty() && path[path.size() - 1] == '/');
     
@@ -203,7 +230,14 @@ bool RequestParser::parseHeaders(std::string& b, Request& req)
         return false;
     }
     
-    req.path = normalizePath(req.path);
+    std::string decodedPath;
+    if (!decodePercentEncoding(req.path, decodedPath)) {
+        req.status = 400;
+        req.complete = true;
+        return false;
+    }
+
+    req.path = normalizePath(decodedPath);
     while (std::getline(hs, line)) {
         if (!line.empty() && line[line.size() - 1] == '\r')
             line.erase(line.size() - 1);
@@ -335,4 +369,3 @@ Request RequestParser::parse(int fd)
     parseCookies(req);
     return req;
 }
-

@@ -85,6 +85,7 @@ class RequestParser {
 
         bool isValidUriChar(char c);
         bool isValidUri(const std::string& uri);
+        bool decodePercentEncoding(const std::string& in, std::string& out);
         std::string normalizePath(const std::string& path);
 
         size_t parseContentLength(const std::string& v);
